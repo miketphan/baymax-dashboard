@@ -33,10 +33,61 @@
         .container { max-width: 1400px; margin: 0 auto; }
         
         header { text-align: center; margin-bottom: 12px; padding: 6px 0; }
-        .logo-container { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-        .logo-icon { width: 28px; height: 28px; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px var(--glow-blue); overflow: hidden; }
-        .logo-icon svg { width: 20px; height: 20px; }
-        header h1 { font-size: 1.4rem; font-weight: 700; background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.3px; }
+        .logo-container { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px 24px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 50px;
+            box-shadow: 
+                0 0 30px rgba(59,130,246,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        .logo-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        .logo-icon { 
+            width: 42px; 
+            height: 42px; 
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            box-shadow: 0 0 20px var(--glow-blue), inset 0 2px 4px rgba(255,255,255,0.3); 
+            overflow: hidden; 
+            position: relative;
+            z-index: 1;
+        }
+        .logo-icon svg { width: 30px; height: 30px; }
+        header h1 { 
+            font-size: 1.6rem; 
+            font-weight: 700; 
+            background: linear-gradient(135deg, #fff, rgba(255,255,255,0.8)); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            letter-spacing: -0.3px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 30px rgba(255,255,255,0.3);
+        }
         header .subtitle { font-size: 0.75rem; color: var(--text-secondary); }
         .last-updated { display: inline-block; padding: 3px 10px; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 50px; margin-top: 4px; font-size: 0.7rem; color: var(--text-muted); backdrop-filter: blur(10px); }
         
@@ -111,16 +162,41 @@
         <header>
             <div class="logo-container">
                 <div class="logo-icon">
-                    <svg viewBox="0 0 100 100" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Baymax Head -->
-                        <ellipse cx="50" cy="50" rx="35" ry="30" fill="white"/>
-                        <!-- Eyes -->
-                        <circle cx="38" cy="48" r="4" fill="#1a1a2e"/>
-                        <circle cx="62" cy="48" r="4" fill="#1a1a2e"/>
-                        <!-- Mouth line -->
-                        <line x1="45" y1="58" x2="55" y2="58" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round"/>
+                    <svg viewBox="0 0 100 100" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="headGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#f0f0f5;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#e8e8ed;stop-opacity:1" />
+                            </linearGradient>
+                            <radialGradient id="glowGradient" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" style="stop-color:rgba(255,255,255,0.8)" />
+                                <stop offset="100%" style="stop-color:rgba(255,255,255,0)" />
+                            </radialGradient>
+                            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        <!-- Head shape with gradient -->
+                        <ellipse cx="50" cy="48" rx="32" ry="28" fill="url(#headGradient)"/>
                         <!-- Subtle highlight -->
-                        <ellipse cx="40" cy="35" rx="8" ry="5" fill="rgba(255,255,255,0.8)"/>
+                        <ellipse cx="42" cy="32" rx="12" ry="8" fill="url(#glowGradient)" opacity="0.6"/>
+                        <!-- Eyes with glow -->
+                        <circle cx="38" cy="46" r="4.5" fill="#1a1a2e" filter="url(#glow)"/>
+                        <circle cx="62" cy="46" r="4.5" fill="#1a1a2e" filter="url(#glow)"/>
+                        <!-- Eye highlights -->
+                        <circle cx="39.5" cy="44.5" r="1.2" fill="white" opacity="0.9"/>
+                        <circle cx="63.5" cy="44.5" r="1.2" fill="white" opacity="0.9"/>
+                        <!-- Mouth line -->
+                        <path d="M 43 58 Q 50 60 57 58" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        <!-- Power indicator dot -->
+                        <circle cx="50" cy="72" r="2" fill="#10b981" filter="url(#glow)">
+                            <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
+                        </circle>
                     </svg>
                 </div>
                 <h1>Baymax Nexus</h1>
@@ -164,7 +240,6 @@
             <button onclick="refreshTokenData()" style="margin-left: 8px; background: var(--bg-card); border: 1px solid var(--border-glass); color: var(--text-secondary); padding: 2px 8px; border-radius: 8px; cursor: pointer; font-size: 0.65rem;">🔄 Sync</button>
         </div>
         <div class="dashboard-grid" id="token-grid">
-            <!-- Token cards will be populated by JavaScript -->
             <div class="card">
                 <div class="card-header"><div class="card-title"><span class="icon">🎯</span>Kimi (K2.5)</div><span class="status-badge status-online">Primary</span></div>
                 <div class="metric-row"><span class="metric-label">Purpose</span><span class="metric-value">Daily Chat / Complex</span></div>
@@ -188,7 +263,6 @@
             </div>
         </div>
         
-        <!-- Token Summary -->
         <div class="card" style="margin-bottom: 16px;">
             <div class="card-header"><div class="card-title"><span class="icon">📊</span>Session Summary</div><span class="status-badge status-info" id="sync-status">Manual Sync</span></div>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
@@ -206,8 +280,7 @@
                 </div>
             </div>
             <div style="margin-top: 12px; padding: 10px; background: rgba(59,130,246,0.08); border-radius: 8px; font-size: 0.7rem; color: var(--text-secondary); border: 1px solid rgba(59,130,246,0.15);">
-                <strong>💡 How to sync:</strong> Run <code style="background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px;">.\auto-update-tokens.ps1</code> on your PC, then click 🔄 Sync above. 
-                <br>Or use the <a href="file:///C:/Users/miket/.openclaw/workspace/dashboard.html" style="color: var(--accent-blue);">local dashboard</a> for real-time updates.
+                <strong>💡 How to sync:</strong> Run <code style="background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px;">.\auto-update-tokens.ps1</code> on your PC, then click 🔄 Sync. Data syncs via browser localStorage.
             </div>
         </div>
 
@@ -226,7 +299,7 @@
                 <div class="metric-row"><span class="metric-label">Models</span><span class="metric-value">6 setups</span></div>
             </div>
             <div class="card">
-                <div class="card-header"><div class="card-title"><span class="icon">🎨</span>Dashboard</div><span class="status-badge status-online">Live</span></div>
+                <div class="card-header"><div class="card-title"><span class="icon">🎨</span>Nexus Dashboard</div><span class="status-badge status-online">Live</span></div>
                 <div class="metric-row"><span class="metric-label">Theme</span><span class="metric-value">Dark Mode</span></div>
                 <div class="metric-row"><span class="metric-label">Security</span><span class="metric-value">Password Protected</span></div>
                 <div class="metric-row"><span class="metric-label">Deploy</span><span class="metric-value">Auto (GitHub)</span></div>
@@ -241,17 +314,55 @@
             <div class="timeline-item"><div><div class="timeline-date">Feb 8, 2:50 PM</div><div class="timeline-content"><strong>Password Protection</strong> - Zero Trust Access enabled</div></div></div>
         </div>
         
-        <button class="refresh-btn" onclick="location.reload()">🔄 Refresh Dashboard</button>
+        <h2 class="section-title">🚀 Future Projects & Roadmap</h2>
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">⚡</span>Phase 2: Interactive Dashboard</div><span class="status-badge status-info">Planned</span></div>
+                <div class="metric-row"><span class="metric-label">Status</span><span class="metric-value" style="color: var(--accent-blue);">Architecture Planning</span></div>
+                <div class="metric-row"><span class="metric-label">Goal</span><span class="metric-value">Click-to-complete to-dos, add tasks, real-time updates</span></div>
+                <div class="metric-row"><span class="metric-label">Stack</span><span class="metric-value">Cloudflare Workers + KV Database</span></div>
+                <div class="metric-row"><span class="metric-label">Priority</span><span class="metric-value">HIGH</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">📈</span>Trading Performance Tracker</div><span class="status-badge status-info">Planned</span></div>
+                <div class="metric-row"><span class="metric-label">Status</span><span class="metric-value" style="color: var(--accent-blue);">Concept Phase</span></div>
+                <div class="metric-row"><span class="metric-label">Features</span><span class="metric-value">Win rate charts, P&L tracking, setup analytics</span></div>
+                <div class="metric-row"><span class="metric-label">Data</span><span class="metric-value">Manual entry or broker API</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">📰</span>Daily Brief Automation</div><span class="status-badge status-info">Planned</span></div>
+                <div class="metric-row"><span class="metric-label">Status</span><span class="metric-value" style="color: var(--accent-blue);">Planning</span></div>
+                <div class="metric-row"><span class="metric-label">Features</span><span class="metric-value">Morning calendar + market briefing</span></div>
+                <div class="metric-row"><span class="metric-label">Delivery</span><span class="metric-value">8:30 AM daily via Telegram + Dashboard</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">🎯</span>Habit & Goal Tracker</div><span class="status-badge status-info">Planned</span></div>
+                <div class="metric-row"><span class="metric-label">Status</span><span class="metric-value" style="color: var(--accent-blue);">Concept Phase</span></div>
+                <div class="metric-row"><span class="metric-label">Trackers</span><span class="metric-value">Gym streaks, trading goals, health metrics</span></div>
+                <div class="metric-row"><span class="metric-label">Visuals</span><span class="metric-value">Progress bars, heatmaps, streak counters</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">📊</span>Market Overview Widget</div><span class="status-badge status-info">Planned</span></div>
+                <div class="metric-row"><span class="metric-label">Status</span><span class="metric-value" style="color: var(--accent-blue);">Research Phase</span></div>
+                <div class="metric-row"><span class="metric-label">Data</span><span class="metric-value">Premarket, futures, key levels, economic calendar</span></div>
+                <div class="metric-row"><span class="metric-label">Source</span><span class="metric-value">Free APIs (Yahoo, Alpha Vantage)</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">📚</span>Trading KB Explorer</div><span class="status-badge status-info">Planned</span></div>
+                <div class="metric-row"><span class="metric-label">Status</span><span class="metric-value" style="color: var(--accent-blue);">Concept Phase</span></div>
+                <div class="metric-row"><span class="metric-label">Features</span><span class="metric-value">Searchable, interactive trading concepts</span></div>
+                <div class="metric-row"><span class="metric-label">Content</span><span class="metric-value">22 files, 13 concepts, 6 setups</span></div>
+            </div>
+        </div>
+        
+        <button class="refresh-btn" onclick="location.reload()">🔄 Refresh Nexus</button>
     </div>
     
     <script>
-        // Token Tracker for Deployed Dashboard
-        // Data is stored in localStorage and synced from local PC via auto-update-tokens.ps1
-        
+        // Token Tracker for Baymax Nexus
         const TOKEN_KEY = 'baymaxTokens_v1';
         const LAST_SYNC_KEY = 'baymaxLastSync';
         
-        // Default token data structure
         function getDefaultData() {
             return {
                 lastUpdated: new Date().toISOString(),
@@ -263,63 +374,58 @@
             };
         }
         
-        // Load token data from localStorage
         function loadTokenData() {
             try {
                 const saved = localStorage.getItem(TOKEN_KEY);
-                if (saved) {
-                    return JSON.parse(saved);
-                }
-            } catch (e) {
-                console.error('Error loading token data:', e);
-            }
+                if (saved) return JSON.parse(saved);
+            } catch (e) { console.error('Error loading token data:', e); }
             return getDefaultData();
         }
         
-        // Save token data to localStorage
         function saveTokenData(data) {
             try {
                 localStorage.setItem(TOKEN_KEY, JSON.stringify(data));
                 localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
-            } catch (e) {
-                console.error('Error saving token data:', e);
-            }
+            } catch (e) { console.error('Error saving token data:', e); }
         }
         
-        // Update UI with token data
+        function updateBarColor(id, current, max) {
+            const bar = document.getElementById(id);
+            const pct = current / max;
+            bar.className = 'progress-fill';
+            if (pct > 0.9) bar.classList.add('progress-fill-danger');
+            else if (pct > 0.7) bar.classList.add('progress-fill-warning');
+        }
+        
         function updateTokenUI(data) {
             if (!data || !data.models) return;
+            const m = data.models;
             
-            const models = data.models;
+            document.getElementById('kimi-session').textContent = m.kimi.sessionTokens.toLocaleString();
+            document.getElementById('kimi-monthly').textContent = m.kimi.monthlyTokens.toLocaleString();
+            document.getElementById('kimi-bar').style.width = Math.min((m.kimi.monthlyTokens / m.kimi.monthlyLimit) * 100, 100) + '%';
+            updateBarColor('kimi-bar', m.kimi.monthlyTokens, m.kimi.monthlyLimit);
             
-            // Update individual model cards
-            document.getElementById('kimi-session').textContent = models.kimi.sessionTokens.toLocaleString();
-            document.getElementById('kimi-monthly').textContent = models.kimi.monthlyTokens.toLocaleString();
-            document.getElementById('kimi-bar').style.width = Math.min((models.kimi.monthlyTokens / models.kimi.monthlyLimit) * 100, 100) + '%';
-            updateBarColor('kimi-bar', models.kimi.monthlyTokens, models.kimi.monthlyLimit);
+            document.getElementById('flash-session').textContent = m.flash.sessionTokens.toLocaleString();
+            document.getElementById('flash-monthly').textContent = m.flash.monthlyTokens.toLocaleString();
+            document.getElementById('flash-bar').style.width = Math.min((m.flash.monthlyTokens / m.flash.monthlyLimit) * 100, 100) + '%';
+            updateBarColor('flash-bar', m.flash.monthlyTokens, m.flash.monthlyLimit);
             
-            document.getElementById('flash-session').textContent = models.flash.sessionTokens.toLocaleString();
-            document.getElementById('flash-monthly').textContent = models.flash.monthlyTokens.toLocaleString();
-            document.getElementById('flash-bar').style.width = Math.min((models.flash.monthlyTokens / models.flash.monthlyLimit) * 100, 100) + '%';
-            updateBarColor('flash-bar', models.flash.monthlyTokens, models.flash.monthlyLimit);
+            document.getElementById('pro-session').textContent = m.pro.sessionTokens.toLocaleString();
+            document.getElementById('pro-monthly').textContent = m.pro.monthlyTokens.toLocaleString();
+            document.getElementById('pro-bar').style.width = Math.min((m.pro.monthlyTokens / m.pro.monthlyLimit) * 100, 100) + '%';
+            updateBarColor('pro-bar', m.pro.monthlyTokens, m.pro.monthlyLimit);
             
-            document.getElementById('pro-session').textContent = models.pro.sessionTokens.toLocaleString();
-            document.getElementById('pro-monthly').textContent = models.pro.monthlyTokens.toLocaleString();
-            document.getElementById('pro-bar').style.width = Math.min((models.pro.monthlyTokens / models.pro.monthlyLimit) * 100, 100) + '%';
-            updateBarColor('pro-bar', models.pro.monthlyTokens, models.pro.monthlyLimit);
-            
-            // Update summary
-            const totalSession = models.kimi.sessionTokens + models.flash.sessionTokens + models.pro.sessionTokens;
-            const totalMonthly = models.kimi.monthlyTokens + models.flash.monthlyTokens + models.pro.monthlyTokens;
-            const totalCost = (models.kimi.monthlyTokens / 1000000 * models.kimi.costPer1M) + 
-                             (models.flash.monthlyTokens / 1000000 * models.flash.costPer1M) + 
-                             (models.pro.monthlyTokens / 1000000 * models.pro.costPer1M);
+            const totalSession = m.kimi.sessionTokens + m.flash.sessionTokens + m.pro.sessionTokens;
+            const totalMonthly = m.kimi.monthlyTokens + m.flash.monthlyTokens + m.pro.monthlyTokens;
+            const totalCost = (m.kimi.monthlyTokens / 1000000 * m.kimi.costPer1M) + 
+                             (m.flash.monthlyTokens / 1000000 * m.flash.costPer1M) + 
+                             (m.pro.monthlyTokens / 1000000 * m.pro.costPer1M);
             
             document.getElementById('total-session').textContent = totalSession.toLocaleString();
             document.getElementById('total-monthly').textContent = totalMonthly.toLocaleString();
             document.getElementById('cost-estimate').textContent = '$' + totalCost.toFixed(2);
             
-            // Update last sync time
             const lastSync = localStorage.getItem(LAST_SYNC_KEY);
             if (lastSync) {
                 const date = new Date(lastSync);
@@ -330,50 +436,16 @@
             }
         }
         
-        function updateBarColor(id, current, max) {
-            const bar = document.getElementById(id);
-            const pct = current / max;
-            bar.className = 'progress-fill';
-            if (pct > 0.9) {
-                bar.classList.add('progress-fill-danger');
-            } else if (pct > 0.7) {
-                bar.classList.add('progress-fill-warning');
-            }
-        }
-        
-        // Manual refresh (re-loads from localStorage)
         function refreshTokenData() {
             const btn = event.target;
-            btn.textContent = '⏳';
-            btn.disabled = true;
-            
+            btn.textContent = '⏳'; btn.disabled = true;
             setTimeout(() => {
-                const data = loadTokenData();
-                updateTokenUI(data);
-                btn.textContent = '🔄 Sync';
-                btn.disabled = false;
+                updateTokenUI(loadTokenData());
+                btn.textContent = '🔄 Sync'; btn.disabled = false;
             }, 500);
         }
         
-        // Import token data (called from local PC via the PowerShell script)
-        window.importTokenData = function(jsonData) {
-            try {
-                const data = JSON.parse(jsonData);
-                saveTokenData(data);
-                updateTokenUI(data);
-                return true;
-            } catch (e) {
-                console.error('Failed to import token data:', e);
-                return false;
-            }
-        };
-        
-        // Listen for sync messages from token-sync.html
         window.addEventListener('message', (event) => {
-            if (event.origin !== 'file://' && !event.origin.includes('localhost')) {
-                return; // Only accept from local files
-            }
-            
             if (event.data && event.data.type === 'TOKEN_SYNC') {
                 saveTokenData(event.data.data);
                 updateTokenUI(event.data.data);
@@ -382,11 +454,7 @@
             }
         });
         
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            const data = loadTokenData();
-            updateTokenUI(data);
-        });
+        document.addEventListener('DOMContentLoaded', () => updateTokenUI(loadTokenData()));
     </script>
 </body>
 </html>
