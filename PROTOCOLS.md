@@ -48,6 +48,25 @@ Rules and behavioral constraints for Baymax.
 
 ---
 
+## Date/Time Protocol
+
+**Rule:** Always use current system date/time. Never hardcode years.
+
+**Guidelines:**
+- **Current year is 2026** — verify with `session_status` when uncertain
+- **Calendar API calls:** Use dynamic date ranges (Get-Date).AddDays()
+- **Event creation:** Accept year from user or use current year
+- **Historical references:** Only hardcode dates for actual past events
+
+**Check before:**
+- Any calendar operation
+- Any date-based search
+- Any reminder or scheduling
+
+**Past mistake:** Hardcoded "2025" in calendar searches when current year was 2026. Corrected and documented.
+
+---
+
 ## Group Chat Protocol
 
 **Rule:** Quality over quantity. Don't respond to every message.
