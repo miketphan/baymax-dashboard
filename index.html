@@ -234,53 +234,42 @@
             </div>
         </div>
         
-        <h2 class="section-title">🧠 LLM Token Tracker</h2>
-        <div style="text-align: center; color: var(--text-muted); margin-bottom: 10px; font-size: 0.75rem;" id="token-last-updated">
-            <span>Loading token data...</span>
-            <button onclick="refreshTokenData()" style="margin-left: 8px; background: var(--bg-card); border: 1px solid var(--border-glass); color: var(--text-secondary); padding: 2px 8px; border-radius: 8px; cursor: pointer; font-size: 0.65rem;">🔄 Sync</button>
-        </div>
-        <div class="dashboard-grid" id="token-grid">
-            <div class="card">
-                <div class="card-header"><div class="card-title"><span class="icon">🎯</span>Kimi (K2.5)</div><span class="status-badge status-online">Primary</span></div>
-                <div class="metric-row"><span class="metric-label">Purpose</span><span class="metric-value">Daily Chat / Complex</span></div>
-                <div class="metric-row"><span class="metric-label">Session</span><span class="metric-value" id="kimi-session">--</span></div>
-                <div class="metric-row"><span class="metric-label">Monthly</span><span class="metric-value" id="kimi-monthly">--</span></div>
-                <div class="metric-row"><span class="metric-label">Usage</span><div style="flex:1;margin-left:8px"><div class="progress-bar"><div class="progress-fill" id="kimi-bar" style="width:0%"></div></div></div></div>
-            </div>
-            <div class="card">
-                <div class="card-header"><div class="card-title"><span class="icon">⚡</span>Gemini Flash</div><span class="status-badge status-info">Efficient</span></div>
-                <div class="metric-row"><span class="metric-label">Purpose</span><span class="metric-value">Simple Tasks</span></div>
-                <div class="metric-row"><span class="metric-label">Session</span><span class="metric-value" id="flash-session">--</span></div>
-                <div class="metric-row"><span class="metric-label">Monthly</span><span class="metric-value" id="flash-monthly">--</span></div>
-                <div class="metric-row"><span class="metric-label">Usage</span><div style="flex:1;margin-left:8px"><div class="progress-bar"><div class="progress-fill" id="flash-bar" style="width:0%"></div></div></div></div>
-            </div>
-            <div class="card">
-                <div class="card-header"><div class="card-title"><span class="icon">🧩</span>Gemini Pro</div><span class="status-badge status-warning">Deep Analysis</span></div>
-                <div class="metric-row"><span class="metric-label">Purpose</span><span class="metric-value">Strategy / KB</span></div>
-                <div class="metric-row"><span class="metric-label">Session</span><span class="metric-value" id="pro-session">--</span></div>
-                <div class="metric-row"><span class="metric-label">Monthly</span><span class="metric-value" id="pro-monthly">--</span></div>
-                <div class="metric-row"><span class="metric-label">Usage</span><div style="flex:1;margin-left:8px"><div class="progress-bar"><div class="progress-fill" id="pro-bar" style="width:0%"></div></div></div></div>
-            </div>
-        </div>
-        
+        <h2 class="section-title">🧠 Token Tracker <span id="token-last-updated" style="font-size: 0.65rem; color: var(--text-muted); margin-left: 8px;">Loading...</span></h2>
         <div class="card" style="margin-bottom: 16px;">
-            <div class="card-header"><div class="card-title"><span class="icon">📊</span>Session Summary</div><span class="status-badge status-online" id="sync-status">Auto-Sync</span></div>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+            <div class="card-header">
+                <div class="card-title"><span class="icon">📊</span>Usage Summary</div>
+                <span class="status-badge status-online" id="sync-status">Auto-Sync</span>
+            </div>
+            <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
                 <div style="text-align: center; padding: 10px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-glass);">
-                    <div style="font-size: 1.4rem; font-weight: 700; color: var(--accent-blue);" id="total-session">--</div>
-                    <div style="color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase;">Session Tokens</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--accent-blue);" id="total-session">--</div>
+                    <div style="color: var(--text-muted); font-size: 0.6rem; text-transform: uppercase;">Session</div>
                 </div>
                 <div style="text-align: center; padding: 10px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-glass);">
-                    <div style="font-size: 1.4rem; font-weight: 700; color: var(--accent-green);" id="total-monthly">--</div>
-                    <div style="color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase;">Monthly Total</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--accent-green);" id="total-monthly">--</div>
+                    <div style="color: var(--text-muted); font-size: 0.6rem; text-transform: uppercase;">Monthly</div>
                 </div>
                 <div style="text-align: center; padding: 10px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-glass);">
-                    <div style="font-size: 1.4rem; font-weight: 700; color: var(--accent-yellow);" id="cost-estimate">--</div>
-                    <div style="color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase;">Est. Cost</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--accent-yellow);" id="cost-estimate">--</div>
+                    <div style="color: var(--text-muted); font-size: 0.6rem; text-transform: uppercase;">Est. Cost</div>
                 </div>
             </div>
-            <div style="margin-top: 12px; padding: 10px; background: rgba(16,185,129,0.08); border-radius: 8px; font-size: 0.7rem; color: var(--text-secondary); border: 1px solid rgba(16,185,129,0.15);">
-                <strong>🤖 Auto-Sync Enabled:</strong> Nexus updates automatically every 10 minutes. Data is stored locally in your browser.
+            <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                <div style="padding: 8px; background: rgba(59,130,246,0.05); border-radius: 6px; border: 1px solid rgba(59,130,246,0.1);">
+                    <div style="font-size: 0.7rem; color: var(--text-muted);">🎯 Kimi</div>
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);" id="kimi-compact">--</div>
+                    <div class="progress-bar" style="margin-top: 4px; height: 3px;"><div class="progress-fill" id="kimi-bar" style="width:0%"></div></div>
+                </div>
+                <div style="padding: 8px; background: rgba(245,158,11,0.05); border-radius: 6px; border: 1px solid rgba(245,158,11,0.1);">
+                    <div style="font-size: 0.7rem; color: var(--text-muted);">⚡ Flash</div>
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);" id="flash-compact">--</div>
+                    <div class="progress-bar" style="margin-top: 4px; height: 3px;"><div class="progress-fill" id="flash-bar" style="width:0%"></div></div>
+                </div>
+                <div style="padding: 8px; background: rgba(139,92,246,0.05); border-radius: 6px; border: 1px solid rgba(139,92,246,0.1);">
+                    <div style="font-size: 0.7rem; color: var(--text-muted);">🧩 Pro</div>
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);" id="pro-compact">--</div>
+                    <div class="progress-bar" style="margin-top: 4px; height: 3px;"><div class="progress-fill" id="pro-bar" style="width:0%"></div></div>
+                </div>
             </div>
         </div>
 
@@ -397,22 +386,26 @@
             else if (pct > 0.7) bar.classList.add('progress-fill-warning');
         }
         
+        function formatCompact(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(0) + 'k';
+            return num.toString();
+        }
+        
         function updateTokenUI(data) {
             if (!data || !data.models) return;
             const m = data.models;
             
-            document.getElementById('kimi-session').textContent = m.kimi.sessionTokens.toLocaleString();
-            document.getElementById('kimi-monthly').textContent = m.kimi.monthlyTokens.toLocaleString();
+            // Update compact model displays
+            document.getElementById('kimi-compact').textContent = formatCompact(m.kimi.sessionTokens) + ' / ' + formatCompact(m.kimi.monthlyTokens);
             document.getElementById('kimi-bar').style.width = Math.min((m.kimi.monthlyTokens / m.kimi.monthlyLimit) * 100, 100) + '%';
             updateBarColor('kimi-bar', m.kimi.monthlyTokens, m.kimi.monthlyLimit);
             
-            document.getElementById('flash-session').textContent = m.flash.sessionTokens.toLocaleString();
-            document.getElementById('flash-monthly').textContent = m.flash.monthlyTokens.toLocaleString();
+            document.getElementById('flash-compact').textContent = formatCompact(m.flash.sessionTokens) + ' / ' + formatCompact(m.flash.monthlyTokens);
             document.getElementById('flash-bar').style.width = Math.min((m.flash.monthlyTokens / m.flash.monthlyLimit) * 100, 100) + '%';
             updateBarColor('flash-bar', m.flash.monthlyTokens, m.flash.monthlyLimit);
             
-            document.getElementById('pro-session').textContent = m.pro.sessionTokens.toLocaleString();
-            document.getElementById('pro-monthly').textContent = m.pro.monthlyTokens.toLocaleString();
+            document.getElementById('pro-compact').textContent = formatCompact(m.pro.sessionTokens) + ' / ' + formatCompact(m.pro.monthlyTokens);
             document.getElementById('pro-bar').style.width = Math.min((m.pro.monthlyTokens / m.pro.monthlyLimit) * 100, 100) + '%';
             updateBarColor('pro-bar', m.pro.monthlyTokens, m.pro.monthlyLimit);
             
@@ -422,26 +415,24 @@
                              (m.flash.monthlyTokens / 1000000 * m.flash.costPer1M) + 
                              (m.pro.monthlyTokens / 1000000 * m.pro.costPer1M);
             
-            document.getElementById('total-session').textContent = totalSession.toLocaleString();
-            document.getElementById('total-monthly').textContent = totalMonthly.toLocaleString();
+            document.getElementById('total-session').textContent = formatCompact(totalSession);
+            document.getElementById('total-monthly').textContent = formatCompact(totalMonthly);
             document.getElementById('cost-estimate').textContent = '$' + totalCost.toFixed(2);
             
             const lastSync = localStorage.getItem(LAST_SYNC_KEY);
             if (lastSync) {
                 const date = new Date(lastSync);
                 const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-                document.getElementById('token-last-updated').innerHTML = 
-                    `<span>Last synced: ${date.toLocaleDateString()} at ${timeStr}</span>
-                     <button onclick="refreshTokenData()" style="margin-left: 8px; background: var(--bg-card); border: 1px solid var(--border-glass); color: var(--text-secondary); padding: 2px 8px; border-radius: 8px; cursor: pointer; font-size: 0.65rem;">🔄 Sync</button>`;
+                document.getElementById('token-last-updated').textContent = `Updated ${date.toLocaleDateString()} ${timeStr}`;
             }
         }
         
         function refreshTokenData() {
-            const btn = event.target;
-            btn.textContent = '⏳'; btn.disabled = true;
+            const el = document.getElementById('token-last-updated');
+            const originalText = el.textContent;
+            el.textContent = 'Refreshing...';
             setTimeout(() => {
                 updateTokenUI(loadTokenData());
-                btn.textContent = '🔄 Sync'; btn.disabled = false;
             }, 500);
         }
         
