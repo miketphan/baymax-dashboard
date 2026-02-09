@@ -1,0 +1,7 @@
+# Startup Health Check Script for Baymax
+# This file tracks last check times and runs missed checks on startup
+
+# Daily version check - runs if not completed today
+# Weekly security audit - runs if not completed this week
+
+# Logic implemented in agent behavior - checks on every boot

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baymax Systems Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0a0a0f; --bg-secondary: #12121a; --bg-card: rgba(255,255,255,0.03);
+            --border-glass: rgba(255,255,255,0.08); --text-primary: #ffffff;
+            --text-secondary: rgba(255,255,255,0.6); --text-muted: rgba(255,255,255,0.4);
+            --accent-blue: #3b82f6; --accent-purple: #8b5cf6; --accent-green: #10b981;
+            --accent-yellow: #f59e0b; --accent-red: #ef4444;
+            --glow-blue: rgba(59,130,246,0.5); --glow-purple: rgba(139,92,246,0.5);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #0f0f1a 50%, var(--bg-secondary) 100%);
+            min-height: 100vh; padding: 8px 16px; color: var(--text-primary); line-height: 1.3;
+        }
+        
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at 20% 80%, rgba(59,130,246,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(139,92,246,0.08) 0%, transparent 50%);
+            pointer-events: none; z-index: -1;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        header { text-align: center; margin-bottom: 12px; padding: 6px 0; }
+        .logo-container { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+        .logo-icon { width: 28px; height: 28px; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px var(--glow-blue); overflow: hidden; }
+        .logo-icon svg { width: 20px; height: 20px; }
+        header h1 { font-size: 1.4rem; font-weight: 700; background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.3px; }
+        header .subtitle { font-size: 0.75rem; color: var(--text-secondary); }
+        .last-updated { display: inline-block; padding: 3px 10px; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 50px; margin-top: 4px; font-size: 0.7rem; color: var(--text-muted); backdrop-filter: blur(10px); }
+        
+        .stats-overview { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+        .stat-box { background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 10px; padding: 12px 8px; text-align: center; backdrop-filter: blur(20px); transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .stat-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple)); opacity: 0.5; }
+        .stat-box:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.12); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .stat-number { font-size: 1.8rem; font-weight: 700; margin-bottom: 2px; background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { color: var(--text-secondary); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
+        
+        .section-title { font-size: 1rem; font-weight: 600; margin: 16px 0 10px 0; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+        .section-title::before { content: ''; width: 3px; height: 18px; background: linear-gradient(180deg, var(--accent-blue), var(--accent-purple)); border-radius: 2px; }
+        
+        .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+        
+        .card { background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 12px; padding: 14px; backdrop-filter: blur(20px); transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%); pointer-events: none; }
+        .card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.12); box-shadow: 0 15px 35px rgba(0,0,0,0.35); }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; position: relative; z-index: 1; }
+        .card-title { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+        .card-title .icon { font-size: 1rem; }
+        
+        .status-badge { padding: 3px 8px; border-radius: 50px; font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; backdrop-filter: blur(10px); }
+        .status-online { background: rgba(16,185,129,0.12); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.25); box-shadow: 0 0 12px rgba(16,185,129,0.15); }
+        .status-warning { background: rgba(245,158,11,0.12); color: var(--accent-yellow); border: 1px solid rgba(245,158,11,0.25); }
+        .status-offline { background: rgba(239,68,68,0.12); color: var(--accent-red); border: 1px solid rgba(239,68,68,0.25); }
+        .status-info { background: rgba(59,130,246,0.12); color: var(--accent-blue); border: 1px solid rgba(59,130,246,0.25); }
+        
+        .metric-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-glass); position: relative; z-index: 1; font-size: 0.8rem; }
+        .metric-row:last-child { border-bottom: none; }
+        .metric-label { color: var(--text-secondary); font-weight: 400; }
+        .metric-value { color: var(--text-primary); font-weight: 500; }
+        
+        .progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-green), #34d399); border-radius: 2px; transition: width 0.5s ease; box-shadow: 0 0 8px rgba(16,185,129,0.4); }
+        .progress-fill-warning { background: linear-gradient(90deg, var(--accent-yellow), #fbbf24); box-shadow: 0 0 8px rgba(245,158,11,0.4); }
+        .progress-fill-danger { background: linear-gradient(90deg, var(--accent-red), #f87171); box-shadow: 0 0 8px rgba(239,68,68,0.4); }
+        
+        .timeline { background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 12px; padding: 14px; backdrop-filter: blur(20px); }
+        .timeline-item { display: flex; align-items: flex-start; padding: 8px 0; border-left: 2px solid var(--border-glass); margin-left: 8px; padding-left: 14px; position: relative; }
+        .timeline-item::before { content: ''; position: absolute; left: -5px; top: 12px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-green); border: 2px solid var(--bg-secondary); box-shadow: 0 0 10px rgba(16,185,129,0.4); }
+        .timeline-item.warning::before { background: var(--accent-yellow); box-shadow: 0 0 10px rgba(245,158,11,0.4); }
+        .timeline-item.info::before { background: var(--accent-blue); box-shadow: 0 0 10px rgba(59,130,246,0.4); }
+        .timeline-date { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 2px; font-weight: 500; }
+        .timeline-content { color: var(--text-primary); font-size: 0.8rem; line-height: 1.4; }
+        .timeline-content strong { font-weight: 600; }
+        
+        .refresh-btn { background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); border: none; color: white; padding: 10px 24px; border-radius: 50px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.3s ease; display: block; margin: 20px auto; box-shadow: 0 8px 25px rgba(59,130,246,0.35); }
+        .refresh-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(59,130,246,0.45); }
+        
+        .glow-green { color: var(--accent-green); text-shadow: 0 0 15px rgba(16,185,129,0.4); }
+        .glow-yellow { color: var(--accent-yellow); text-shadow: 0 0 15px rgba(245,158,11,0.4); }
+        .glow-blue { color: var(--accent-blue); text-shadow: 0 0 15px rgba(59,130,246,0.4); }
+        .glow-purple { color: #a78bfa; text-shadow: 0 0 15px rgba(139,92,246,0.4); }
+        
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .card, .stat-box, .timeline { animation: fadeInUp 0.5s ease forwards; }
+        .card:nth-child(1) { animation-delay: 0.08s; } .card:nth-child(2) { animation-delay: 0.16s; } .card:nth-child(3) { animation-delay: 0.24s; }
+        
+        @media (max-width: 1200px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { 
+            .dashboard-grid { grid-template-columns: 1fr; } 
+            .stats-overview { grid-template-columns: repeat(2, 1fr); }
+            header h1 { font-size: 1.2rem; }
+            .stat-number { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 100 100" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Baymax Head -->
+                        <ellipse cx="50" cy="50" rx="35" ry="30" fill="white"/>
+                        <!-- Eyes -->
+                        <circle cx="38" cy="48" r="4" fill="#1a1a2e"/>
+                        <circle cx="62" cy="48" r="4" fill="#1a1a2e"/>
+                        <!-- Mouth line -->
+                        <line x1="45" y1="58" x2="55" y2="58" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round"/>
+                        <!-- Subtle highlight -->
+                        <ellipse cx="40" cy="35" rx="8" ry="5" fill="rgba(255,255,255,0.8)"/>
+                    </svg>
+                </div>
+                <h1>Baymax Nexus</h1>
+            </div>
+            <div class="subtitle">Command & Control Interface</div>
+            <div class="last-updated">Last Updated: February 8, 2026 at 3:48 PM EST</div>
+        </header>
+        
+        <div class="stats-overview">
+            <div class="stat-box"><div class="stat-number glow-green">3</div><div class="stat-label">Systems Online</div></div>
+            <div class="stat-box"><div class="stat-number glow-yellow">1</div><div class="stat-label">Needs Attention</div></div>
+            <div class="stat-box"><div class="stat-number glow-blue">7</div><div class="stat-label">Days Active</div></div>
+            <div class="stat-box"><div class="stat-number glow-purple">22</div><div class="stat-label">Trading KB Files</div></div>
+        </div>
+        
+        <h2 class="section-title">Active Systems</h2>
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">📅</span>Google Calendar</div><span class="status-badge status-online">Online</span></div>
+                <div class="metric-row"><span class="metric-label">API Status</span><span class="metric-value" style="color: var(--accent-green);">Connected</span></div>
+                <div class="metric-row"><span class="metric-label">Events</span><span class="metric-value">4 active</span></div>
+                <div class="metric-row"><span class="metric-label">Next</span><span class="metric-value">Super Bowl Party (Tomorrow 6 PM)</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">💾</span>Auto Backups</div><span class="status-badge status-online">Online</span></div>
+                <div class="metric-row"><span class="metric-label">Last Backup</span><span class="metric-value">Feb 8, 12:23 AM</span></div>
+                <div class="metric-row"><span class="metric-label">Next</span><span class="metric-value">Feb 11, 12:00 AM</span></div>
+                <div class="metric-row"><span class="metric-label">Location</span><span class="metric-value">Google Drive</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">🔍</span>Brave Search API</div><span class="status-badge status-online">Online</span></div>
+                <div class="metric-row"><span class="metric-label">Status</span><span class="metric-value" style="color: var(--accent-green);">Active</span></div>
+                <div class="metric-row"><span class="metric-label">Limit</span><span class="metric-value">2,000/mo</span></div>
+                <div class="metric-row"><span class="metric-label">Usage</span><div style="flex:1;margin-left:8px"><div class="progress-bar"><div class="progress-fill" style="width:3%"></div></div></div></div>
+            </div>
+        </div>
+        
+        <h2 class="section-title">🧠 LLM Token Tracker</h2>
+        <div style="text-align: center; color: var(--text-muted); margin-bottom: 10px; font-size: 0.75rem;" id="token-last-updated">
+            <span>Loading token data...</span>
+            <button onclick="refreshTokenData()" style="margin-left: 8px; background: var(--bg-card); border: 1px solid var(--border-glass); color: var(--text-secondary); padding: 2px 8px; border-radius: 8px; cursor: pointer; font-size: 0.65rem;">🔄 Sync</button>
+        </div>
+        <div class="dashboard-grid" id="token-grid">
+            <!-- Token cards will be populated by JavaScript -->
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">🎯</span>Kimi (K2.5)</div><span class="status-badge status-online">Primary</span></div>
+                <div class="metric-row"><span class="metric-label">Purpose</span><span class="metric-value">Daily Chat / Complex</span></div>
+                <div class="metric-row"><span class="metric-label">Session</span><span class="metric-value" id="kimi-session">--</span></div>
+                <div class="metric-row"><span class="metric-label">Monthly</span><span class="metric-value" id="kimi-monthly">--</span></div>
+                <div class="metric-row"><span class="metric-label">Usage</span><div style="flex:1;margin-left:8px"><div class="progress-bar"><div class="progress-fill" id="kimi-bar" style="width:0%"></div></div></div></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">⚡</span>Gemini Flash</div><span class="status-badge status-info">Efficient</span></div>
+                <div class="metric-row"><span class="metric-label">Purpose</span><span class="metric-value">Simple Tasks</span></div>
+                <div class="metric-row"><span class="metric-label">Session</span><span class="metric-value" id="flash-session">--</span></div>
+                <div class="metric-row"><span class="metric-label">Monthly</span><span class="metric-value" id="flash-monthly">--</span></div>
+                <div class="metric-row"><span class="metric-label">Usage</span><div style="flex:1;margin-left:8px"><div class="progress-bar"><div class="progress-fill" id="flash-bar" style="width:0%"></div></div></div></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">🧩</span>Gemini Pro</div><span class="status-badge status-warning">Deep Analysis</span></div>
+                <div class="metric-row"><span class="metric-label">Purpose</span><span class="metric-value">Strategy / KB</span></div>
+                <div class="metric-row"><span class="metric-label">Session</span><span class="metric-value" id="pro-session">--</span></div>
+                <div class="metric-row"><span class="metric-label">Monthly</span><span class="metric-value" id="pro-monthly">--</span></div>
+                <div class="metric-row"><span class="metric-label">Usage</span><div style="flex:1;margin-left:8px"><div class="progress-bar"><div class="progress-fill" id="pro-bar" style="width:0%"></div></div></div></div>
+            </div>
+        </div>
+        
+        <!-- Token Summary -->
+        <div class="card" style="margin-bottom: 16px;">
+            <div class="card-header"><div class="card-title"><span class="icon">📊</span>Session Summary</div><span class="status-badge status-info" id="sync-status">Manual Sync</span></div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+                <div style="text-align: center; padding: 10px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-glass);">
+                    <div style="font-size: 1.4rem; font-weight: 700; color: var(--accent-blue);" id="total-session">--</div>
+                    <div style="color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase;">Session Tokens</div>
+                </div>
+                <div style="text-align: center; padding: 10px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-glass);">
+                    <div style="font-size: 1.4rem; font-weight: 700; color: var(--accent-green);" id="total-monthly">--</div>
+                    <div style="color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase;">Monthly Total</div>
+                </div>
+                <div style="text-align: center; padding: 10px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-glass);">
+                    <div style="font-size: 1.4rem; font-weight: 700; color: var(--accent-yellow);" id="cost-estimate">--</div>
+                    <div style="color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase;">Est. Cost</div>
+                </div>
+            </div>
+            <div style="margin-top: 12px; padding: 10px; background: rgba(59,130,246,0.08); border-radius: 8px; font-size: 0.7rem; color: var(--text-secondary); border: 1px solid rgba(59,130,246,0.15);">
+                <strong>💡 How to sync:</strong> Run <code style="background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px;">.\auto-update-tokens.ps1</code> on your PC, then click 🔄 Sync above. 
+                <br>Or use the <a href="file:///C:/Users/miket/.openclaw/workspace/dashboard.html" style="color: var(--accent-blue);">local dashboard</a> for real-time updates.
+            </div>
+        </div>
+
+        <h2 class="section-title">Documentation & Processes</h2>
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">⚙️</span>Update Process</div><span class="status-badge status-info">Documented</span></div>
+                <div class="metric-row"><span class="metric-label">Version</span><span class="metric-value">2026.2.6-3</span></div>
+                <div class="metric-row"><span class="metric-label">Method</span><span class="metric-value">npm (with fallback)</span></div>
+                <div class="metric-row"><span class="metric-label">Status</span><span class="metric-value" style="color: var(--accent-blue);">Script Ready</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">📊</span>Trading KB</div><span class="status-badge status-online">Complete</span></div>
+                <div class="metric-row"><span class="metric-label">Files</span><span class="metric-value">22 (~154 KB)</span></div>
+                <div class="metric-row"><span class="metric-label">Concepts</span><span class="metric-value">13 core</span></div>
+                <div class="metric-row"><span class="metric-label">Models</span><span class="metric-value">6 setups</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title"><span class="icon">🎨</span>Dashboard</div><span class="status-badge status-online">Live</span></div>
+                <div class="metric-row"><span class="metric-label">Theme</span><span class="metric-value">Dark Mode</span></div>
+                <div class="metric-row"><span class="metric-label">Security</span><span class="metric-value">Password Protected</span></div>
+                <div class="metric-row"><span class="metric-label">Deploy</span><span class="metric-value">Auto (GitHub)</span></div>
+            </div>
+        </div>
+        
+        <h2 class="section-title">Recent Activity</h2>
+        <div class="timeline">
+            <div class="timeline-item"><div><div class="timeline-date">Feb 8, 3:35 PM</div><div class="timeline-content"><strong>Compact Layout Update</strong> - Optimized for 16:9 monitors, condensed spacing</div></div></div>
+            <div class="timeline-item"><div><div class="timeline-date">Feb 8, 3:30 PM</div><div class="timeline-content"><strong>Future Projects Added</strong> - Phase 2 interactivity roadmap created</div></div></div>
+            <div class="timeline-item"><div><div class="timeline-date">Feb 8, 3:05 PM</div><div class="timeline-content"><strong>Premium Dark Mode</strong> - Glassmorphism with glowing accents deployed</div></div></div>
+            <div class="timeline-item"><div><div class="timeline-date">Feb 8, 2:50 PM</div><div class="timeline-content"><strong>Password Protection</strong> - Zero Trust Access enabled</div></div></div>
+        </div>
+        
+        <button class="refresh-btn" onclick="location.reload()">🔄 Refresh Dashboard</button>
+    </div>
+    
+    <script>
+        // Token Tracker for Deployed Dashboard
+        // Data is stored in localStorage and synced from local PC via auto-update-tokens.ps1
+        
+        const TOKEN_KEY = 'baymaxTokens_v1';
+        const LAST_SYNC_KEY = 'baymaxLastSync';
+        
+        // Default token data structure
+        function getDefaultData() {
+            return {
+                lastUpdated: new Date().toISOString(),
+                models: {
+                    kimi: { name: 'Kimi (K2.5)', sessionTokens: 23400, monthlyTokens: 456000, monthlyLimit: 1000000, costPer1M: 3.00 },
+                    flash: { name: 'Gemini Flash', sessionTokens: 0, monthlyTokens: 125000, monthlyLimit: 500000, costPer1M: 0.50 },
+                    pro: { name: 'Gemini Pro', sessionTokens: 0, monthlyTokens: 45000, monthlyLimit: 200000, costPer1M: 5.00 }
+                }
+            };
+        }
+        
+        // Load token data from localStorage
+        function loadTokenData() {
+            try {
+                const saved = localStorage.getItem(TOKEN_KEY);
+                if (saved) {
+                    return JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error('Error loading token data:', e);
+            }
+            return getDefaultData();
+        }
+        
+        // Save token data to localStorage
+        function saveTokenData(data) {
+            try {
+                localStorage.setItem(TOKEN_KEY, JSON.stringify(data));
+                localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
+            } catch (e) {
+                console.error('Error saving token data:', e);
+            }
+        }
+        
+        // Update UI with token data
+        function updateTokenUI(data) {
+            if (!data || !data.models) return;
+            
+            const models = data.models;
+            
+            // Update individual model cards
+            document.getElementById('kimi-session').textContent = models.kimi.sessionTokens.toLocaleString();
+            document.getElementById('kimi-monthly').textContent = models.kimi.monthlyTokens.toLocaleString();
+            document.getElementById('kimi-bar').style.width = Math.min((models.kimi.monthlyTokens / models.kimi.monthlyLimit) * 100, 100) + '%';
+            updateBarColor('kimi-bar', models.kimi.monthlyTokens, models.kimi.monthlyLimit);
+            
+            document.getElementById('flash-session').textContent = models.flash.sessionTokens.toLocaleString();
+            document.getElementById('flash-monthly').textContent = models.flash.monthlyTokens.toLocaleString();
+            document.getElementById('flash-bar').style.width = Math.min((models.flash.monthlyTokens / models.flash.monthlyLimit) * 100, 100) + '%';
+            updateBarColor('flash-bar', models.flash.monthlyTokens, models.flash.monthlyLimit);
+            
+            document.getElementById('pro-session').textContent = models.pro.sessionTokens.toLocaleString();
+            document.getElementById('pro-monthly').textContent = models.pro.monthlyTokens.toLocaleString();
+            document.getElementById('pro-bar').style.width = Math.min((models.pro.monthlyTokens / models.pro.monthlyLimit) * 100, 100) + '%';
+            updateBarColor('pro-bar', models.pro.monthlyTokens, models.pro.monthlyLimit);
+            
+            // Update summary
+            const totalSession = models.kimi.sessionTokens + models.flash.sessionTokens + models.pro.sessionTokens;
+            const totalMonthly = models.kimi.monthlyTokens + models.flash.monthlyTokens + models.pro.monthlyTokens;
+            const totalCost = (models.kimi.monthlyTokens / 1000000 * models.kimi.costPer1M) + 
+                             (models.flash.monthlyTokens / 1000000 * models.flash.costPer1M) + 
+                             (models.pro.monthlyTokens / 1000000 * models.pro.costPer1M);
+            
+            document.getElementById('total-session').textContent = totalSession.toLocaleString();
+            document.getElementById('total-monthly').textContent = totalMonthly.toLocaleString();
+            document.getElementById('cost-estimate').textContent = '$' + totalCost.toFixed(2);
+            
+            // Update last sync time
+            const lastSync = localStorage.getItem(LAST_SYNC_KEY);
+            if (lastSync) {
+                const date = new Date(lastSync);
+                const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                document.getElementById('token-last-updated').innerHTML = 
+                    `<span>Last synced: ${date.toLocaleDateString()} at ${timeStr}</span>
+                     <button onclick="refreshTokenData()" style="margin-left: 8px; background: var(--bg-card); border: 1px solid var(--border-glass); color: var(--text-secondary); padding: 2px 8px; border-radius: 8px; cursor: pointer; font-size: 0.65rem;">🔄 Sync</button>`;
+            }
+        }
+        
+        function updateBarColor(id, current, max) {
+            const bar = document.getElementById(id);
+            const pct = current / max;
+            bar.className = 'progress-fill';
+            if (pct > 0.9) {
+                bar.classList.add('progress-fill-danger');
+            } else if (pct > 0.7) {
+                bar.classList.add('progress-fill-warning');
+            }
+        }
+        
+        // Manual refresh (re-loads from localStorage)
+        function refreshTokenData() {
+            const btn = event.target;
+            btn.textContent = '⏳';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                const data = loadTokenData();
+                updateTokenUI(data);
+                btn.textContent = '🔄 Sync';
+                btn.disabled = false;
+            }, 500);
+        }
+        
+        // Import token data (called from local PC via the PowerShell script)
+        window.importTokenData = function(jsonData) {
+            try {
+                const data = JSON.parse(jsonData);
+                saveTokenData(data);
+                updateTokenUI(data);
+                return true;
+            } catch (e) {
+                console.error('Failed to import token data:', e);
+                return false;
+            }
+        };
+        
+        // Listen for sync messages from token-sync.html
+        window.addEventListener('message', (event) => {
+            if (event.origin !== 'file://' && !event.origin.includes('localhost')) {
+                return; // Only accept from local files
+            }
+            
+            if (event.data && event.data.type === 'TOKEN_SYNC') {
+                saveTokenData(event.data.data);
+                updateTokenUI(event.data.data);
+                document.getElementById('sync-status').textContent = 'Just Synced';
+                document.getElementById('sync-status').className = 'status-badge status-online';
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const data = loadTokenData();
+            updateTokenUI(data);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baymax Token Sync</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        h1 { font-size: 1.8rem; color: #2c3e50; margin-bottom: 10px; }
+        .subtitle { color: #6c757d; margin-bottom: 30px; }
+        .status { 
+            padding: 15px 20px; 
+            border-radius: 12px; 
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .status-success { background: #d4edda; color: #155724; }
+        .status-error { background: #f8d7da; color: #721c24; }
+        .status-info { background: #d1ecf1; color: #0c5460; }
+        .btn {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 10px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59,130,246,0.4);
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            text-align: left;
+            overflow-x: auto;
+        }
+        .data-preview {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        .data-preview table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-preview td {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .data-preview td:first-child { color: #6c757d; }
+        .data-preview td:last-child { text-align: right; font-weight: 600; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Baymax Token Sync</h1>
+        <p class="subtitle">Sync local token data to deployed dashboard</p>
+        
+        <div id="status" class="status status-info">
+            Reading local token data...
+        </div>
+        
+        <div id="data-preview" class="data-preview hidden">
+            <table>
+                <tr><td>🎯 Kimi</td><td id="preview-kimi">--</td></tr>
+                <tr><td>⚡ Flash</td><td id="preview-flash">--</td></tr>
+                <tr><td>🧩 Pro</td><td id="preview-pro">--</td></tr>
+                <tr><td><strong>💰 Total Cost</strong></td><td id="preview-cost"><strong>--</strong></td></tr>
+            </table>
+        </div>
+        
+        <div id="actions">
+            <button class="btn" onclick="syncTokens()">🔄 Sync to Dashboard</button>
+            <button class="btn btn-secondary" onclick="window.close()">❌ Close</button>
+        </div>
+        
+        <div id="success-msg" class="hidden">
+            <p style="color: #28a745; font-weight: 600; margin: 20px 0;">
+                ✅ Tokens synced successfully!
+            </p>
+            <p style="color: #6c757d; font-size: 0.9rem;">
+                Refresh your dashboard at<br>
+                <a href="https://baymax-dashboard.pages.dev/" target="_blank" style="color: #3b82f6;">
+                    baymax-dashboard.pages.dev
+                </a>
+            </p>
+        </div>
+        
+        <div class="code-block">
+            <strong>Manual sync (if automatic fails):</strong><br><br>
+            1. Run: <code>.\auto-update-tokens.ps1</code><br>
+            2. Open this file in browser<br>
+            3. Click "Sync to Dashboard"
+        </div>
+    </div>
+
+    <script>
+        const TOKEN_KEY = 'baymaxTokens_v1';
+        const LAST_SYNC_KEY = 'baymaxLastSync';
+        let tokenData = null;
+        
+        // Try to load from local JSON file
+        async function loadLocalData() {
+            try {
+                const response = await fetch('data/tokens.json?t=' + Date.now());
+                if (!response.ok) throw new Error('Failed to load');
+                tokenData = await response.json();
+                showDataPreview();
+                updateStatus('Ready to sync', 'success');
+            } catch (error) {
+                updateStatus('Could not auto-load data. Run the PowerShell script first, then refresh this page.', 'error');
+            }
+        }
+        
+        function showDataPreview() {
+            if (!tokenData) return;
+            
+            document.getElementById('preview-kimi').textContent = 
+                tokenData.models.kimi.sessionTokens.toLocaleString() + ' / ' + 
+                tokenData.models.kimi.monthlyTokens.toLocaleString();
+            
+            document.getElementById('preview-flash').textContent = 
+                tokenData.models.flash.sessionTokens.toLocaleString() + ' / ' + 
+                tokenData.models.flash.monthlyTokens.toLocaleString();
+            
+            document.getElementById('preview-pro').textContent = 
+                tokenData.models.pro.sessionTokens.toLocaleString() + ' / ' + 
+                tokenData.models.pro.monthlyTokens.toLocaleString();
+            
+            const cost = (tokenData.models.kimi.monthlyTokens / 1000000 * 3) + 
+                        (tokenData.models.flash.monthlyTokens / 1000000 * 0.5) + 
+                        (tokenData.models.pro.monthlyTokens / 1000000 * 5);
+            document.getElementById('preview-cost').textContent = '$' + cost.toFixed(2);
+            
+            document.getElementById('data-preview').classList.remove('hidden');
+        }
+        
+        function updateStatus(msg, type) {
+            const status = document.getElementById('status');
+            status.textContent = msg;
+            status.className = 'status status-' + type;
+        }
+        
+        function syncTokens() {
+            if (!tokenData) {
+                updateStatus('No data to sync. Run the PowerShell script first.', 'error');
+                return;
+            }
+            
+            try {
+                // Save to localStorage
+                localStorage.setItem(TOKEN_KEY, JSON.stringify(tokenData));
+                localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
+                
+                // Also try to sync to the deployed site via postMessage (if it's open)
+                const deployedWindow = window.open('https://baymax-dashboard.pages.dev/', 'baymax-dashboard');
+                if (deployedWindow) {
+                    setTimeout(() => {
+                        deployedWindow.postMessage({
+                            type: 'TOKEN_SYNC',
+                            data: tokenData
+                        }, 'https://baymax-dashboard.pages.dev/');
+                    }, 1000);
+                }
+                
+                document.getElementById('actions').classList.add('hidden');
+                document.getElementById('success-msg').classList.remove('hidden');
+                updateStatus('Sync complete!', 'success');
+                
+            } catch (error) {
+                updateStatus('Sync failed: ' + error.message, 'error');
+            }
+        }
+        
+        // Initialize
+        loadLocalData();
+    </script>
+</body>
+</html>
