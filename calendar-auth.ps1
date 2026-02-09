@@ -47,8 +47,8 @@ if ((Test-Path $TokenFile) -and -not $AuthCode) {
     $event = @{
         summary = "Chris & Cindy Visit (Tentative)"
         description = "Friend Chris and wife Cindy visiting from out of town. Block time to hang out - dates are tentative."
-        start = @{ date = "2025-03-05"; timeZone = "America/New_York" }
-        end = @{ date = "2025-03-10"; timeZone = "America/New_York" }
+        start = @{ date = "2026-03-05"; timeZone = "America/New_York" }
+        end = @{ date = "2026-03-10"; timeZone = "America/New_York" }
         reminders = @{ useDefault = $false; overrides = @(
             @{ method = "email"; minutes = 10080 }
             @{ method = "popup"; minutes = 2880 }
@@ -122,8 +122,8 @@ try {
     $event = @{
         summary = "Chris & Cindy Visit (Tentative)"
         description = "Friend Chris and wife Cindy visiting from out of town. Block time to hang out - dates are tentative."
-        start = @{ date = "2025-03-05"; timeZone = "America/New_York" }
-        end = @{ date = "2025-03-10"; timeZone = "America/New_York" }
+        start = @{ date = "2026-03-05"; timeZone = "America/New_York" }
+        end = @{ date = "2026-03-10"; timeZone = "America/New_York" }
         reminders = @{ useDefault = $false; overrides = @(
             @{ method = "email"; minutes = 10080 }
             @{ method = "popup"; minutes = 2880 }
@@ -133,7 +133,7 @@ try {
     $eventResponse = Invoke-RestMethod -Uri "https://www.googleapis.com/calendar/v3/calendars/primary/events" -Method POST -Headers $headers -Body $event
     Write-Host "✅ Event created successfully!" -ForegroundColor Green
     Write-Host "Event: $($eventResponse.summary)" -ForegroundColor White
-    Write-Host "Dates: March 5-9, 2025" -ForegroundColor White
+    Write-Host "Dates: March 5-9, 2026" -ForegroundColor White
     Write-Host "Link: $($eventResponse.htmlLink)" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "🔧 Future events: Run this script again (it will use saved token)" -ForegroundColor Gray
