@@ -6,11 +6,11 @@
 
 ## Executive Summary
 
-**Vision:** Phase 2 Nexus becomes an interactive, database-driven extension of Baymax — where Mike can view real-time data, manage projects via Kanban, trigger Baymax to perform work, and have all information stay in sync through Smart Cascade.
+**Vision:** Phase 2 Nexus becomes an interactive, database-driven extension of Baymax — where Mike can view real-time data, manage projects via Kanban, trigger Baymax to perform work, and have all information stay in sync through Smart Cascade. **Key Innovation:** Markdown files (PROJECTS.md, PROCESSES.md) are the source of truth, with bidirectional sync to Nexus UI.
 
 **Architecture:** Cloudflare Workers + D1 Database + KV Cache + React Frontend
 **Cost:** ~$1.50 USD (hybrid model usage) + $0/month (Cloudflare free tier)
-**Timeline:** 3 weeks (12 hours Baymax work, ~40 minutes Mike involvement)
+**Timeline:** 3 weeks (13 hours Baymax work, ~45 minutes Mike involvement)
 
 ---
 
@@ -82,6 +82,45 @@
 | **Activity Log** | D1 | Audit trail of changes |
 | **Work Requests** | D1 | Trigger Baymax queue |
 
+### Markdown Sync Architecture (Source of Truth)
+
+**Principle:** Markdown files in workspace are the **source of truth**. Nexus displays are **views** of this data.
+
+```
+┌─────────────────────────────────────────────┐
+│          MARKDOWN SOURCE FILES              │
+├─────────────────────────────────────────────┤
+│  PROJECTS.md → PROJECTS table (D1)         │
+│  PROCESSES.md → PROCESSES table (D1)       │
+│  PROTOCOLS.md → (display only, no sync)    │
+│  FEATURES.md → (display only, no sync)     │
+└──────────────────┬──────────────────────────┘
+                   │ Parser Script
+                   ▼
+┌─────────────────────────────────────────────┐
+│              D1 DATABASE                    │
+│  Structured, queryable, fast reads          │
+└──────────────────┬──────────────────────────┘
+                   │ API
+                   ▼
+┌─────────────────────────────────────────────┐
+│              NEXUS UI                       │
+│  Interactive, editable, real-time           │
+└─────────────────────────────────────────────┘
+```
+
+**Sync Strategy:**
+| Direction | Trigger | Method |
+|-----------|---------|--------|
+| Markdown → D1 | Git push to main | Parser script in GitHub Action |
+| D1 → Markdown | User edits in Nexus | "Save & Sync" button triggers git commit |
+| Bidirectional | Manual sync command | Force re-parse and update |
+
+**Bidirectional Workflow:**
+1. **I edit markdown** → commit → push → auto-parse → D1 updates
+2. **You edit in Nexus** → D1 updates → "Sync to Markdown" → git commit
+3. **Conflict resolution:** Last-write-wins with timestamp tracking
+
 ---
 
 ## Section-by-Section Breakdown
@@ -140,33 +179,38 @@
 
 ---
 
-### 4. Documentation & Processes
+### 4. Documentation & Processes (Synced from PROCESSES.md)
 
 | Aspect | Phase 1 | Phase 2 |
 |--------|---------|---------|
 | **Display** | Static HTML cards | Searchable list with descriptions |
-| **Data** | Hardcoded in HTML | Stored in D1, editable |
+| **Source** | Hardcoded in HTML | **PROCESSES.md** (markdown) → Parser → D1 |
 | **Interactions** | View only | Click → full details, "Update with Baymax" button |
 | **Baymax Awareness** | ✅ Knows content | ✅ Can edit/update processes |
-| **Update Trigger** | Manual git edit | User clicks "Update" → Work Request |
+| **Sync Trigger** | Manual git edit | Git push → auto-parse OR "Sync to Markdown" button |
+| **Bidirectional** | ❌ No | ✅ Yes (Nexus edits write back to markdown) |
 
 **Features:**
+- Auto-generated from `PROCESSES.md` via markdown parser
 - List view: Title + short description
 - Detail view: Full process steps
 - "Update with Baymax" button → Creates Work Request
+- "Sync to Markdown" button → Updates PROCESSES.md via git commit
 - Search/filter by keyword
+- Status indicators (active/paused/archived)
 
 ---
 
-### 5. Future Projects & Roadmap
+### 5. Future Projects & Roadmap (Synced from PROJECTS.md)
 
 | Aspect | Phase 1 | Phase 2 |
 |--------|---------|---------|
 | **Display** | Static cards | **Interactive Kanban board** |
-| **Data** | Hardcoded HTML | D1 with full project details |
+| **Source** | Hardcoded HTML | **PROJECTS.md** (markdown) → Parser → D1 |
 | **Interactions** | View only | Drag-drop status, CRUD, "Start Work" trigger |
 | **Baymax Awareness** | ✅ Knows roadmap | ✅ Manages active projects |
-| **Update Trigger** | Manual edit | User actions + Smart Cascade |
+| **Sync Trigger** | Manual edit | Git push → auto-parse OR "Sync to Markdown" button |
+| **Bidirectional** | ❌ No | ✅ Yes (Nexus edits write back to markdown) |
 
 **Features:**
 - **Kanban columns:** Backlog | Planned | In Progress | Complete
@@ -280,12 +324,14 @@ Nexus displays updated status
 
 ## Development Timeline
 
-### Week 1: Foundation (3 hours)
+### Week 1: Foundation + Markdown Sync (4 hours)
 
 **My Tasks:**
-- [ ] Create D1 database schema
+- [ ] Create D1 database schema (projects, processes, sync metadata)
 - [ ] Set up Cloudflare Worker API endpoints
 - [ ] Implement KV caching layer
+- [ ] **Build Markdown Parser** (PROJECTS.md → D1, PROCESSES.md → D1)
+- [ ] **Create GitHub Action** for auto-sync on push
 - [ ] Migrate Systems Overview to live data
 - [ ] Migrate Active Systems to API-driven
 - [ ] Migrate Token Tracker to KV + D1
@@ -295,11 +341,11 @@ Nexus displays updated status
 - [ ] Provide Cloudflare API token (5 min)
 - [ ] Review D1 schema (1 message)
 
-**Deliverable:** Nexus loads with live data from database
+**Deliverable:** Nexus loads with live data from database + markdown auto-sync working
 
 ---
 
-### Week 2: Projects & Documentation (4 hours)
+### Week 2: Projects & Documentation + Bidirectional Sync (4 hours)
 
 **My Tasks:**
 - [ ] Build Kanban board component (drag-drop)
@@ -307,14 +353,17 @@ Nexus displays updated status
 - [ ] Create project detail view
 - [ ] Build Documentation list view
 - [ ] Build Documentation detail view
+- [ ] **Implement "Sync to Markdown" button** (D1 → PROJECTS.md)
+- [ ] **Create git commit workflow** from Nexus edits
 - [ ] Implement "Update with Baymax" button
 - [ ] Create Work Request system
 
 **Your Involvement:**
 - [ ] Test Kanban functionality (10 min)
+- [ ] Test bidirectional sync (edit in Nexus → see in markdown) (5 min)
 - [ ] Report any bugs (1-2 messages)
 
-**Deliverable:** Interactive Projects and Documentation sections
+**Deliverable:** Interactive Projects and Documentation sections with bidirectional markdown sync
 
 ---
 
@@ -356,7 +405,7 @@ Nexus displays updated status
 | Debugging when stuck | Kimi | ~200k | ~$0.60 |
 | **Total** | **Hybrid** | **~1.6M** | **~$2.30 USD** |
 
-**Buffer:** +30% for unexpected complexity = **~$3.00 USD max**
+**Buffer:** +30% for unexpected complexity = **~$3.50 USD max**
 
 ---
 
@@ -378,6 +427,63 @@ Nexus displays updated status
 - Trading broker API (when ready)
 - TradingView webhooks
 - More notification channels
+
+---
+
+## Markdown Sync System (Technical)
+
+### Parser Requirements
+
+**Input:** `PROJECTS.md` and `PROCESSES.md` (GitHub-flavored markdown)
+**Output:** Structured JSON → D1 tables
+
+**Parsing Logic:**
+```
+# Project Title (H1) → project.name
+**Status:** Active | Backlog | Complete → project.status
+**Priority:** High | Medium | Low → project.priority
+**Description:** ... → project.description
+
+## Section Headers (H2) → project.sections[]
+- List items → project.tasks[]
+```
+
+### Sync Workflow
+
+**Git Push → D1:**
+1. GitHub Action detects push to `main`
+2. Runs `parse-markdown.js` script
+3. Compares current markdown hash with last sync
+4. If changed: parse → validate → upsert to D1
+5. Updates `sync_metadata` table with timestamp and hash
+
+**Nexus Edit → Markdown:**
+1. User drags card or edits details in Nexus
+2. D1 updates immediately (responsive UI)
+3. "Sync to Markdown" button appears (indicating drift)
+4. User clicks button → Worker calls GitHub API
+5. Creates commit with updated markdown
+6. Auto-merges if no conflicts
+
+### Conflict Resolution
+
+**Scenario:** I edit markdown while you edit Nexus
+**Detection:** Hash mismatch between D1 and markdown file
+**Resolution:** 
+- Option A: Markdown wins (my edit takes precedence)
+- Option B: Nexus wins (your edit takes precedence)  
+- Option C: Manual merge (present both, you choose)
+
+**Default:** Last-write-wins with timestamp display
+
+### Sync Status Indicators
+
+| Indicator | Meaning |
+|-----------|---------|
+| 🟢 In Sync | D1 matches markdown exactly |
+| 🟡 Drift | Nexus has edits not in markdown |
+| 🔴 Conflict | Both changed simultaneously |
+| ⏳ Syncing | Operation in progress |
 
 ---
 
@@ -419,6 +525,6 @@ Nexus displays updated status
 
 ---
 
-*Document Version: 1.0*
-*Last Updated: 2026-02-09 01:30 EST*
-*Status: READY TO EXECUTE*
+*Document Version: 2.0*
+*Last Updated: 2026-02-09 11:20 EST*
+*Status: READY TO EXECUTE — Updated with Markdown Sync Architecture*
