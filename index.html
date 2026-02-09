@@ -64,19 +64,20 @@
             100% { transform: translateX(100%) rotate(45deg); }
         }
         .logo-icon { 
-            width: 42px; 
-            height: 42px; 
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); 
+            width: 56px; 
+            height: 56px; 
+            background: linear-gradient(135deg, #ffffff, #f0f0f5); 
             border-radius: 50%; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            box-shadow: 0 0 20px var(--glow-blue), inset 0 2px 4px rgba(255,255,255,0.3); 
+            box-shadow: 0 0 30px rgba(255,255,255,0.3), inset 0 2px 8px rgba(255,255,255,0.8); 
             overflow: hidden; 
             position: relative;
             z-index: 1;
+            border: 2px solid rgba(255,255,255,0.5);
         }
-        .logo-icon svg { width: 30px; height: 30px; }
+        .logo-icon svg { width: 40px; height: 40px; }
         header h1 { 
             font-size: 1.6rem; 
             font-weight: 700; 
@@ -162,47 +163,33 @@
         <header>
             <div class="logo-container">
                 <div class="logo-icon">
-                    <svg viewBox="0 0 100 100" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                    <svg viewBox="0 0 100 100" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Clean white Baymax head -->
+                        <ellipse cx="50" cy="45" rx="38" ry="34" fill="#ffffff"/>
+                        <!-- Soft shading -->
+                        <ellipse cx="50" cy="45" rx="38" ry="34" fill="url(#baymaxShade)" opacity="0.2"/>
                         <defs>
-                            <linearGradient id="headGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
-                                <stop offset="50%" style="stop-color:#f0f0f5;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#e8e8ed;stop-opacity:1" />
-                            </linearGradient>
-                            <radialGradient id="glowGradient" cx="50%" cy="50%" r="50%">
-                                <stop offset="0%" style="stop-color:rgba(255,255,255,0.8)" />
-                                <stop offset="100%" style="stop-color:rgba(255,255,255,0)" />
+                            <radialGradient id="baymaxShade" cx="50%" cy="40%" r="60%">
+                                <stop offset="60%" stop-color="#ffffff"/>
+                                <stop offset="100%" stop-color="#d0d5dd"/>
                             </radialGradient>
-                            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                                <feMerge>
-                                    <feMergeNode in="coloredBlur"/>
-                                    <feMergeNode in="SourceGraphic"/>
-                                </feMerge>
-                            </filter>
                         </defs>
-                        <!-- Head shape with gradient -->
-                        <ellipse cx="50" cy="48" rx="32" ry="28" fill="url(#headGradient)"/>
-                        <!-- Subtle highlight -->
-                        <ellipse cx="42" cy="32" rx="12" ry="8" fill="url(#glowGradient)" opacity="0.6"/>
-                        <!-- Eyes with glow -->
-                        <circle cx="38" cy="46" r="4.5" fill="#1a1a2e" filter="url(#glow)"/>
-                        <circle cx="62" cy="46" r="4.5" fill="#1a1a2e" filter="url(#glow)"/>
-                        <!-- Eye highlights -->
-                        <circle cx="39.5" cy="44.5" r="1.2" fill="white" opacity="0.9"/>
-                        <circle cx="63.5" cy="44.5" r="1.2" fill="white" opacity="0.9"/>
-                        <!-- Mouth line -->
-                        <path d="M 43 58 Q 50 60 57 58" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>
-                        <!-- Power indicator dot -->
-                        <circle cx="50" cy="72" r="2" fill="#10b981" filter="url(#glow)">
-                            <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
-                        </circle>
+                        <!-- Eyes -->
+                        <circle cx="36" cy="42" r="5.5" fill="#1a1a2e"/>
+                        <circle cx="64" cy="42" r="5.5" fill="#1a1a2e"/>
+                        <!-- Eye shine -->
+                        <circle cx="38" cy="40" r="1.8" fill="white"/>
+                        <circle cx="66" cy="40" r="1.8" fill="white"/>
+                        <!-- Simple mouth -->
+                        <line x1="43" y1="58" x2="57" y2="58" stroke="#1a1a2e" stroke-width="3" stroke-linecap="round"/>
+                        <!-- Badge port -->
+                        <circle cx="50" cy="72" r="3.5" fill="#e8eaed" stroke="#dadce0" stroke-width="1"/>
+                        <circle cx="50" cy="72" r="2" fill="#34a853"/>
                     </svg>
                 </div>
                 <h1>Baymax Nexus</h1>
             </div>
-            <div class="subtitle">Command & Control Interface</div>
-            <div class="last-updated">Last Updated: February 8, 2026 at 3:48 PM EST</div>
+            <div class="last-updated">Last Updated: February 8, 2026 at 9:05 PM EST</div>
         </header>
         
         <div class="stats-overview">
