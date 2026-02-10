@@ -148,6 +148,55 @@ export interface UsageResponse {
 // ============================================
 export type SyncDirection = 'to_d1' | 'to_file' | 'bidirectional';
 
+// ============================================
+// Notification Types
+// ============================================
+export type NotificationType = 'baymax_alert' | 'system' | 'project_update';
+export type NotificationStatus = 'unread' | 'read' | 'acknowledged';
+
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message?: string;
+  source_id?: string;
+  source_type?: string;
+  status: NotificationStatus;
+  created_at: string;
+  read_at?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface CreateNotificationRequest {
+  type?: NotificationType;
+  title: string;
+  message?: string;
+  source_id?: string;
+  source_type?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface NotificationCount {
+  total: number;
+  unread: number;
+}
+
+// ============================================
+// Project Activity Log Types
+// ============================================
+export type ProjectActivityAction = 'created' | 'updated' | 'deleted' | 'status_changed' | 'priority_changed';
+
+export interface ProjectActivityLog {
+  id: number;
+  project_id: string;
+  action: ProjectActivityAction;
+  field?: string;
+  old_value?: string;
+  new_value?: string;
+  created_at: string;
+  metadata?: Record<string, unknown>;
+}
+
 export interface SyncState {
   section: string;
   last_sync: string | null;

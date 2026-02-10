@@ -21,7 +21,6 @@ Comprehensive personal dashboard evolution from Phase 1. Adds project management
 - Usage & Limits (expanded token + API tracking)
 - Operations Manual (viewer for protocols/processes/features)
 - Projects Kanban (drag-drop project management)
-- Tasks & Habits (to-dos + recurring habits with streaks)
 
 **Architecture:**
 - Frontend: Cloudflare Pages (nexus dashboard)
@@ -47,7 +46,7 @@ Comprehensive personal dashboard evolution from Phase 1. Adds project management
 |------|-------|--------------|
 | **Week 1** | **Architecture + Projects Kanban** | D1 schema, API endpoints, **Projects Kanban MVP** (CRUD, drag-drop, basic view), Connected Services, Usage & Limits |
 | **Week 2** | **Operations Manual + Polish** | Operations Manual viewer with Universal Update button, bidirectional sync, Projects Kanban polish ("Trigger Baymax", details view) |
-| **Week 3** | **Tasks/Habits + Final Integration** | Tasks & Habits system, full Smart Cascade integration, testing & polish |
+| **Week 3** | **Final Integration + Polish** | Smart Cascade integration, "Trigger Baymax" button, Project Details view, testing & polish |
 
 **Rationale:** Projects Kanban built in Week 1 enables using it to track remaining Nexus Phase 2 work (dogfooding).
 
@@ -91,6 +90,7 @@ Morning automated brief with calendar, priorities, market context, and daily foc
 
 ## Backlog
 
+- Tasks & Habits (to-dos + recurring habits with streaks) — *Moved out of Phase 2 MVP*
 - Trading Performance Tracker
 - Daily Brief Automation
 - Mobile-optimized Nexus view

@@ -117,6 +117,47 @@ INSERT OR IGNORE INTO sync_state (section, stale_after_minutes, sync_direction) 
 ('system_config', 30, 'bidirectional');
 
 -- ============================================
+-- Table: notifications
+-- Description: Stores notifications for Baymax/alert system
+-- ============================================
+CREATE TABLE IF NOT EXISTS notifications (
+    id TEXT PRIMARY KEY,
+    type TEXT NOT NULL CHECK(type IN ('baymax_alert', 'system', 'project_update')),
+    title TEXT NOT NULL,
+    message TEXT,
+    source_id TEXT, -- e.g., project_id, service_id, etc.
+    source_type TEXT, -- e.g., 'project', 'service'
+    status TEXT CHECK(status IN ('unread', 'read', 'acknowledged')) DEFAULT 'unread',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    read_at DATETIME,
+    metadata TEXT -- JSON for extensibility
+);
+
+-- Index for notifications
+CREATE INDEX IF NOT EXISTS idx_notifications_status ON notifications(status);
+CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at);
+CREATE INDEX IF NOT EXISTS idx_notifications_source ON notifications(source_id, source_type);
+
+-- ============================================
+-- Table: project_activity_log
+-- Description: Tracks changes to projects for history/audit
+-- ============================================
+CREATE TABLE IF NOT EXISTS project_activity_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id TEXT NOT NULL,
+    action TEXT NOT NULL CHECK(action IN ('created', 'updated', 'deleted', 'status_changed', 'priority_changed')),
+    field TEXT, -- which field changed (for updates)
+    old_value TEXT,
+    new_value TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    metadata TEXT -- JSON for additional context
+);
+
+-- Index for activity log
+CREATE INDEX IF NOT EXISTS idx_activity_project_id ON project_activity_log(project_id);
+CREATE INDEX IF NOT EXISTS idx_activity_created_at ON project_activity_log(created_at);
+
+-- ============================================
 -- Trigger: Auto-update updated_at timestamp
 -- ============================================
 CREATE TRIGGER IF NOT EXISTS trigger_projects_updated_at 

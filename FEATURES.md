@@ -131,8 +131,8 @@ Drag-and-drop project management board.
 ---
 
 ### Tasks & Habits
-**Status:** 📋 Planned  
-**Priority:** High (Week 3)
+**Status:** 📅 Backlog  
+**Priority:** Future (moved out of Phase 2 MVP)
 
 **Description:**  
 Personal productivity system with one-off tasks and recurring habits.
