@@ -42,6 +42,24 @@ When the user mentions projects, past decisions, or recurring topics, proactivel
 2. Summarize key findings in 1-2 sentences
 3. Then answer their question with that context in mind
 
+## Session Summaries
+
+After substantive conversations with continuity value, generate a structured summary:
+
+**Trigger:** Any conversation where we made decisions, generated insights, set action items, or explored complex topics
+
+**Format:**
+```
+## Session Summary [YYYY-MM-DD HH:MM]
+**Topic:** Brief description
+**Decisions:** What we agreed on
+**Action Items:** Who does what
+**Key Insights:** Lessons learned, realizations
+**Open Questions:** Punted items to revisit
+```
+
+**Purpose:** Enable instant context restoration for multi-day projects and ongoing topics
+
 ---
 
 _This file is yours to evolve. As you learn who you are, update it._
