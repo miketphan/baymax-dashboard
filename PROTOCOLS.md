@@ -127,4 +127,43 @@ Rules and behavioral constraints for Baymax.
 
 ---
 
+## Project SOP Detection Protocol
+
+**Rule:** Proactively suggest creating a Project SOP when a project becomes complex enough to warrant detailed documentation.
+
+**Trigger Criteria:**
+| Indicator | Threshold | Alert |
+|-----------|-----------|-------|
+| **Duration** | Project active > 7 days | 🟡 "Getting complex - SOP recommended?" |
+| **Scope** | Touches 3+ systems | 🟡 "Multiple integrations - document architecture?" |
+| **Long-running** | Still active at 14 days | 🟠 "Definitely SOP-worthy now" |
+
+**Message Format:**
+```
+🟡 [or 🟠] Project Growing in Scope
+
+"[Project Name]" has been active for [X] days and involves:
+- [System 1]
+- [System 2]
+- [System 3]
+
+Recommend: Create Project SOP for reference?
+
+Reply: "Yes, create SOP" or "No, keep in Kanban"
+```
+
+**If User Confirms:**
+1. Auto-generate SOP shell from Kanban data
+2. Populate: Overview, Architecture, current status
+3. Add to PROJECT_SOPS.md
+4. Update Operations Manual in Nexus
+5. Continue updating SOP as project evolves
+
+**Complexity Levels:**
+- **Simple** (1-3 days): Kanban card only
+- **Medium** (1 week): Kanban + brief notes
+- **Complex** (2+ weeks): Full SOP with troubleshooting & maintenance sections
+
+---
+
 *Last Updated: 2026-02-09*
