@@ -76,10 +76,12 @@ After substantive conversations with continuity value, generate a structured sum
 
 ## Session Wrap-Up Protocol
 
-**Manual Trigger (User says):**
-- "wrapping up"
+**Manual Trigger (User says) — Explicit save + refresh intent:**
+- "wrapping up" (when followed by /new intent)
 - "let's save and start fresh" / "let's save and start new"
 - "save and start new"
+
+**NOT a trigger:** "let's wrap up for today" — this is conversational close only, no session reset
 
 **Actions I take:**
 1. Generate session summary for current conversation
