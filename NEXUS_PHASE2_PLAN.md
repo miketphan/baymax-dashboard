@@ -125,83 +125,106 @@
 
 ## Section-by-Section Breakdown
 
-### 1. Systems Overview
+### 1. Connected Services (Consolidated)
+
+**Replaces:** Systems Overview + Active Systems (eliminated redundancy)
 
 | Aspect | Phase 1 | Phase 2 |
 |--------|---------|---------|
-| **Display** | Static count (hardcoded "3 Online") | Live health checks |
-| **Data** | Hardcoded HTML | Real status from integrations |
-| **Interactions** | View only | Click for details, option to restart/check services |
-| **Baymax Awareness** | ✅ Knows status | ✅ Can trigger actions |
-| **Update Trigger** | Manual edit | Smart Cascade (user-driven) |
+| **Display** | Static cards | Live status + expandable details |
+| **Data** | Hardcoded HTML | Real-time API health checks |
+| **Interactions** | View only | Click any card for full metrics & actions |
+| **Update Trigger** | Manual edit | Smart Cascade (single "Refresh Nexus" button) |
 
-**Features:**
-- Real-time system health (Calendar API, Backups, Brave Search)
-- Click to expand detailed status
-- Visual indicators (green/yellow/red)
-- Status timestamp ("Last checked: 2 min ago")
+**Header Design:**
+```
+┌─────────────────────────────────────────────────────────┐
+│ 🟢 4 Online    🟡 0 Attention    🔴 0 Offline  [🔄]    │
+│ Last check: 2 min ago                                   │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Services Monitored:**
+
+| Service | What It Shows | Status |
+|---------|---------------|--------|
+| 📅 **Google Calendar** | Next event, sync status, API health | Active service |
+| 💾 **Auto Backups** | Last backup, next scheduled, storage used | Scheduled maintenance |
+| 🩺 **Health Monitor** | Last heartbeat, auto-heal event count, open alerts | Self-monitoring |
+| 🔄 **System Updates** | OpenClaw version, available updates, last check | Daily monitoring |
+| 🔒 **Security Audit** | Last scan date, findings status, next scheduled | Weekly scan |
+
+**Click any card** → Expands to full metrics, logs, and manual actions
 
 ---
 
-### 2. Active Systems
+### 2. Usage & Limits (Token Tracker + Service Quotas)
 
 | Aspect | Phase 1 | Phase 2 |
 |--------|---------|---------|
-| **Display** | Static cards | Live metrics and status |
-| **Data** | Hardcoded values | Fetched from APIs |
-| **Interactions** | View only | Click → detailed metrics, troubleshooting |
-| **Baymax Awareness** | ✅ Reads data | ✅ Can diagnose/fix issues |
-| **Update Trigger** | Manual edit | Smart Cascade |
+| **Display** | Compact cards | Unified resource consumption dashboard |
+| **Data** | Token JSON only | KV cache + D1 history for all services |
+| **Services Tracked** | LLM tokens only | LLM tokens + API quotas (Brave Search) |
+| **Update Trigger** | Cron job (every 10 min) | Smart Cascade + auto-sync |
 
 **Features:**
-- Google Calendar: Next events, sync status
-- Auto Backups: Last backup time, next scheduled, storage used
-- Brave Search: Monthly usage, remaining quota
+
+**LLM Token Usage:**
+| Model | Session | Monthly | Limit | Usage Bar |
+|-------|---------|---------|-------|-----------|
+| 🎯 Kimi | 73K | 505K | 1M | ████░░░░ |
+| ⚡ Flash | 0 | 125K | 500K | ██░░░░░░ |
+| 🧩 Pro | 0 | 45K | 200K | █████░░░ |
+
+**API Service Quotas:**
+| Service | Used | Limit | Reset Date |
+|---------|------|-------|------------|
+| 🔍 Brave Search | 156 | 2,000 | Monthly |
+
+**Cost Tracking:**
+- 💰 **Est. Monthly Cost:** $1.92 USD
+- 📊 **Cost breakdown by service**
+- 📈 **7-day / 30-day trends** (expandable)
 
 ---
 
-### 3. Token Tracker
+### 3. Operations Manual (Consolidated Documentation)
+
+**Replaces:** Documentation & Processes (expanded scope)
 
 | Aspect | Phase 1 | Phase 2 |
 |--------|---------|---------|
-| **Display** | Compact cards with progress bars | Real-time + historical trends |
-| **Data** | JSON file updated every 10 min | KV cache + D1 history |
-| **Interactions** | View only | Expand for 7-day/30-day trends |
-| **Baymax Awareness** | ✅ Always monitoring | ✅ Alerts on anomalies |
-| **Update Trigger** | Cron job (every 10 min) | Smart Cascade (when user views) |
+| **Display** | Static HTML cards | Searchable, categorized knowledge base |
+| **Sources** | Hardcoded | Multiple markdown files → Parser → D1 |
+| **Interactions** | View only | Browse, search, expand, "Request Update" |
+| **Sync** | Manual git edit | Bidirectional (markdown ↔ Nexus) |
+| **Organization** | Flat list | Categorized sections |
+
+**Source of Truth Files:**
+
+| Section | Source File | Content |
+|---------|-------------|---------|
+| **Processes** | `PROCESSES.md` | Active workflows (Calendar API, Token Sync, Deploy) |
+| **Protocols** | `PROTOCOLS.md` | Rules I follow (Shutdown, Privacy, Cost, Date/Time) |
+| **System Reference** | `FEATURES.md` | How things work (Smart Cascade, Monitoring) |
+| **Project SOPs** | `PROJECT_SOPS.md` ⭐ **NEW** | Standard operating procedures for complex projects |
+
+**Project SOPs Purpose:**
+- **Kanban** shows: "Build Phase 2 — In Progress" (current state / action)
+- **Operations Manual SOP** shows: Complete architecture, troubleshooting guides, maintenance procedures (reference)
+- **Use case:** 6 months later, something breaks → quick SOP reference instead of digging through Kanban history
 
 **Features:**
-- Current session tokens
-- Monthly running total
-- Progress bars with color coding (green <70%, yellow 70-90%, red >90%)
-- Cost estimate in USD
-- Historical view (expandable)
-
----
-
-### 4. Documentation & Processes (Synced from PROCESSES.md)
-
-| Aspect | Phase 1 | Phase 2 |
-|--------|---------|---------|
-| **Display** | Static HTML cards | Searchable list with descriptions |
-| **Source** | Hardcoded in HTML | **PROCESSES.md** (markdown) → Parser → D1 |
-| **Interactions** | View only | Click → full details, "Update with Baymax" button |
-| **Baymax Awareness** | ✅ Knows content | ✅ Can edit/update processes |
-| **Sync Trigger** | Manual git edit | Git push → auto-parse OR "Sync to Markdown" button |
-| **Bidirectional** | ❌ No | ✅ Yes (Nexus edits write back to markdown) |
-
-**Features:**
-- Auto-generated from `PROCESSES.md` via markdown parser
-- List view: Title + short description
-- Detail view: Full process steps
-- "Update with Baymax" button → Creates Work Request
-- "Sync to Markdown" button → Updates PROCESSES.md via git commit
-- Search/filter by keyword
+- Global search across all sections
+- Cross-referenced links between docs
+- "Last updated" timestamps
+- "Request Update" button → Creates Work Request
+- Expandable detail views
 - Status indicators (active/paused/archived)
 
 ---
 
-### 5. Future Projects & Roadmap (Synced from PROJECTS.md)
+### 4. Future Projects & Roadmap (Synced from PROJECTS.md)
 
 | Aspect | Phase 1 | Phase 2 |
 |--------|---------|---------|
@@ -352,9 +375,8 @@ Nexus displays updated status
   - [ ] Health check functions for all systems
   - [ ] Auto-healing logic
   - [ ] Real-time alert dispatch
-- [ ] Migrate Systems Overview to live data
-- [ ] Migrate Active Systems to API-driven
-- [ ] Migrate Token Tracker to KV + D1
+- [ ] Build **Connected Services** section (consolidated: Calendar, Backups, Health Monitor, Updates, Security)
+- [ ] Build **Usage & Limits** section (Token Tracker + Brave Search quotas)
 - [ ] Set up Smart Cascade framework
 
 **Your Involvement:**
@@ -372,8 +394,8 @@ Nexus displays updated status
 - [ ] Build Kanban board component (drag-drop)
 - [ ] Implement project CRUD API
 - [ ] Create project detail view
-- [ ] Build Documentation list view
-- [ ] Build Documentation detail view
+- [ ] Build **Operations Manual** framework (4 sections: Processes, Protocols, System Reference, Project SOPs)
+- [ ] Create markdown parser for multiple source files (PROCESSES.md, PROTOCOLS.md, FEATURES.md, PROJECT_SOPS.md)
 - [ ] **Implement "Sync to Markdown" button** (D1 → PROJECTS.md)
 - [ ] **Create git commit workflow** from Nexus edits
 - [ ] Implement "Update with Baymax" button
