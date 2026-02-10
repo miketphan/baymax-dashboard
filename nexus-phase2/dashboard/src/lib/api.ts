@@ -70,6 +70,28 @@ export interface SyncResult {
   timestamp: string;
 }
 
+export interface Notification {
+  id: string;
+  type: 'baymax_alert' | 'system' | 'project_update';
+  title: string;
+  message?: string;
+  source_id?: string;
+  source_type?: string;
+  status: 'unread' | 'read' | 'acknowledged';
+  created_at: string;
+  read_at?: string;
+}
+
+export interface ProjectActivityLog {
+  id: number;
+  project_id: string;
+  action: 'created' | 'updated' | 'deleted' | 'status_changed' | 'priority_changed';
+  field?: string;
+  old_value?: string;
+  new_value?: string;
+  created_at: string;
+}
+
 class ApiClient {
   private async fetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -170,6 +192,117 @@ class ApiClient {
       method: 'POST',
       body: content ? JSON.stringify({ content }) : undefined,
     });
+    return response.data;
+  }
+
+  // Notifications / Baymax
+  async triggerBaymaxAlert(data: {
+    title: string;
+    message?: string;
+    source_id?: string;
+    source_type?: string;
+  }): Promise<{ success: boolean; message: string }> {
+    const response = await this.fetch<{ data: { success: boolean; message: string } }>('/notify', {
+      method: 'POST',
+      body: JSON.stringify({
+        type: 'baymax_alert',
+        ...data,
+      }),
+    });
+    return response.data;
+  }
+
+  async getNotifications(unreadOnly?: boolean): Promise<Notification[]> {
+    const query = unreadOnly ? '?unread=true' : '';
+    const response = await this.fetch<{ data: { notifications: Notification[] } }>(`/notifications${query}`);
+    return response.data.notifications;
+  }
+
+  async getNotificationCount(): Promise<{ total: number; unread: number }> {
+    const response = await this.fetch<{ data: { count: { total: number; unread: number } } }>('/notifications/count');
+    return response.data.count;
+  }
+
+  async markNotificationAsRead(id: string): Promise<void> {
+    await this.fetch(`/notifications/${id}/read`, { method: 'PATCH' });
+  }
+
+  async markAllNotificationsAsRead(): Promise<void> {
+    await this.fetch('/notifications/read-all', { method: 'POST' });
+  }
+
+  // Sync Health / Staleness
+  async getSyncHealth(): Promise<{
+    sections: Array<{
+      section: string;
+      isStale: boolean;
+      lastSync: string | null;
+      staleAfterMinutes: number;
+      minutesSinceSync: number | null;
+      display: {
+        text: string;
+        color: string;
+        icon: string;
+        shouldRefresh: boolean;
+      };
+    }>;
+    overall_status: 'fresh' | 'stale' | 'error';
+    timestamp: string;
+  }> {
+    const response = await this.fetch<{
+      data: {
+        sections: Array<{
+          section: string;
+          isStale: boolean;
+          lastSync: string | null;
+          staleAfterMinutes: number;
+          minutesSinceSync: number | null;
+          display: {
+            text: string;
+            color: string;
+            icon: string;
+            shouldRefresh: boolean;
+          };
+        }>;
+        overall_status: 'fresh' | 'stale' | 'error';
+        timestamp: string;
+      };
+    }>('/sync/health');
+    return response.data;
+  }
+
+  async getSectionHealth(section: string): Promise<{
+    section: string;
+    isStale: boolean;
+    lastSync: string | null;
+    staleAfterMinutes: number;
+    minutesSinceSync: number | null;
+    display: {
+      text: string;
+      color: string;
+      icon: string;
+      shouldRefresh: boolean;
+    };
+    message: string;
+    timestamp: string;
+  }> {
+    const response = await this.fetch<{
+      data: {
+        section: string;
+        isStale: boolean;
+        lastSync: string | null;
+        staleAfterMinutes: number;
+        minutesSinceSync: number | null;
+        display: {
+          text: string;
+          color: string;
+          icon: string;
+          shouldRefresh: boolean;
+        };
+        message: string;
+        timestamp: string;
+      };
+    }>(`/sync/health/${section}`);
     return response.data;
   }
 }

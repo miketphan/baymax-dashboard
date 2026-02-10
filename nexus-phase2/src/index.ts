@@ -43,6 +43,21 @@ import {
   getSectionContent,
 } from './routes/sync';
 
+import {
+  listNotifications,
+  getNotificationCountEndpoint,
+  createNotificationEndpoint,
+  createProjectNotification,
+  markNotificationRead,
+  markAllNotificationsRead,
+  deleteNotificationEndpoint,
+} from './routes/notifications';
+
+import {
+  getSyncHealth,
+  getSectionHealth,
+} from './routes/sync-health';
+
 // ============================================
 // Router
 // ============================================
@@ -170,6 +185,68 @@ const routes: Route[] = [
         getSectionContent(env, params.section),
       POST: async (env: Env, request: Request, params: Record<string, string>) => 
         syncSpecificSection(env, params.section, request),
+    },
+  },
+  
+  // Notifications API
+  {
+    pattern: /^\/api\/notifications$/,
+    methods: {
+      GET: async (env: Env, request: Request) => listNotifications(env, request),
+    },
+  },
+  {
+    pattern: /^\/api\/notifications\/count$/,
+    methods: {
+      GET: async (env: Env) => getNotificationCountEndpoint(env),
+    },
+  },
+  {
+    pattern: /^\/api\/notifications\/read-all$/,
+    methods: {
+      POST: async (env: Env) => markAllNotificationsRead(env),
+    },
+  },
+  {
+    pattern: /^\/api\/notifications\/(?<id>[^/]+)$/,
+    methods: {
+      DELETE: async (env: Env, _request: Request, params: Record<string, string>) => 
+        deleteNotificationEndpoint(env, params.id),
+    },
+  },
+  {
+    pattern: /^\/api\/notifications\/(?<id>[^/]+)\/read$/,
+    methods: {
+      PATCH: async (env: Env, _request: Request, params: Record<string, string>) => 
+        markNotificationRead(env, params.id),
+    },
+  },
+  {
+    pattern: /^\/api\/notify$/,
+    methods: {
+      POST: async (env: Env, request: Request) => createNotificationEndpoint(env, request),
+    },
+  },
+  {
+    pattern: /^\/api\/notify\/project\/(?<id>[^/]+)$/,
+    methods: {
+      POST: async (env: Env, request: Request, params: Record<string, string>) => 
+        createProjectNotification(env, params.id, request),
+    },
+  },
+  
+  // Sync Health / Staleness API
+  {
+    pattern: /^\/api\/sync\/health$/,
+    methods: {
+      GET: async (env: Env) => getSyncHealth(env),
+    },
+  },
+  {
+    pattern: /^\/api\/sync\/health\/(?<section>[^/]+)$/,
+    methods: {
+      GET: async (env: Env, _request: Request, params: Record<string, string>) => 
+        getSectionHealth(env, params.section),
     },
   },
 ];

@@ -2,6 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { Project, api } from '../lib/api';
 import { KanbanColumn } from './KanbanColumn';
 import { ProjectModal } from './ProjectModal';
+import { ProjectDetailsModal } from './ProjectDetailsModal';
+import { SkeletonLoader, ErrorState } from './LoadingStates';
 
 interface KanbanBoardProps {
   projects: Project[];
@@ -17,7 +19,9 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   onProjectsChange,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [viewingProject, setViewingProject] = useState<Project | null>(null);
   const [defaultStatus, setDefaultStatus] = useState<'backlog' | 'in_progress' | 'done' | 'archived'>('backlog');
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -42,6 +46,18 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     setEditingProject(project);
     setDefaultStatus(project.status);
     setIsModalOpen(true);
+  };
+
+  const handleViewDetails = (project: Project) => {
+    setViewingProject(project);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleDetailsSave = (updatedProject: Project) => {
+    // Update the viewing project with the new data
+    setViewingProject(updatedProject);
+    // Refresh the project list
+    onProjectsChange();
   };
 
   const handleSave = async (data: Parameters<typeof api.createProject>[0]) => {
@@ -103,37 +119,15 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   );
 
   if (loading) {
+    return <SkeletonLoader />;
+  }
+
+  if (error && !projects.length) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '400px',
-          color: '#94a3b8',
-        }}
-      >
-        <div style={{ textAlign: 'center' }}>
-          <div
-            style={{
-              width: '32px',
-              height: '32px',
-              border: '3px solid #334155',
-              borderTop: '3px solid #3b82f6',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite',
-              margin: '0 auto 16px',
-            }}
-          />
-          <style>{`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
-          Loading projects...
-        </div>
-      </div>
+      <ErrorState 
+        message={error} 
+        onRetry={onProjectsChange}
+      />
     );
   }
 
@@ -192,6 +186,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
             onDrop={handleDrop}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onViewDetails={handleViewDetails}
             onAdd={() => handleAdd(column.status)}
           />
         ))}
@@ -203,6 +198,13 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
         defaultStatus={defaultStatus}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSave}
+      />
+
+      <ProjectDetailsModal
+        project={viewingProject}
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        onSave={handleDetailsSave}
       />
     </div>
   );

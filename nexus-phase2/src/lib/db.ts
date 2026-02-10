@@ -1,6 +1,6 @@
 // Database query helpers for D1
 
-import type { D1Database, Project, Service, UsageMetric, SyncState } from '../types';
+import type { D1Database, Project, Service, UsageMetric, SyncState, Notification, ProjectActivityLog } from '../types';
 import { parseMetadata, stringifyMetadata, calculateProgressPercent, getUsageStatus } from './utils';
 
 // ============================================
@@ -468,6 +468,203 @@ export async function updateSyncState(
     .run();
   
   return getSyncState(db, section);
+}
+
+// ============================================
+// Notifications Queries
+// ============================================
+
+export async function getAllNotifications(db: D1Database, limit: number = 50): Promise<Notification[]> {
+  const result = await db
+    .prepare('SELECT * FROM notifications ORDER BY created_at DESC LIMIT ?')
+    .bind(limit)
+    .all<{
+      id: string;
+      type: string;
+      title: string;
+      message: string | null;
+      source_id: string | null;
+      source_type: string | null;
+      status: string;
+      created_at: string;
+      read_at: string | null;
+      metadata: string | null;
+    }>();
+  
+  if (!result.success) return [];
+  
+  return result.results.map(row => ({
+    id: row.id,
+    type: row.type as Notification['type'],
+    title: row.title,
+    message: row.message ?? undefined,
+    source_id: row.source_id ?? undefined,
+    source_type: row.source_type ?? undefined,
+    status: row.status as Notification['status'],
+    created_at: row.created_at,
+    read_at: row.read_at ?? undefined,
+    metadata: parseMetadata(row.metadata),
+  }));
+}
+
+export async function getUnreadNotifications(db: D1Database, limit: number = 50): Promise<Notification[]> {
+  const result = await db
+    .prepare('SELECT * FROM notifications WHERE status = ? ORDER BY created_at DESC LIMIT ?')
+    .bind('unread', limit)
+    .all<{
+      id: string;
+      type: string;
+      title: string;
+      message: string | null;
+      source_id: string | null;
+      source_type: string | null;
+      status: string;
+      created_at: string;
+      read_at: string | null;
+      metadata: string | null;
+    }>();
+  
+  if (!result.success) return [];
+  
+  return result.results.map(row => ({
+    id: row.id,
+    type: row.type as Notification['type'],
+    title: row.title,
+    message: row.message ?? undefined,
+    source_id: row.source_id ?? undefined,
+    source_type: row.source_type ?? undefined,
+    status: row.status as Notification['status'],
+    created_at: row.created_at,
+    read_at: row.read_at ?? undefined,
+    metadata: parseMetadata(row.metadata),
+  }));
+}
+
+export async function getNotificationCount(db: D1Database): Promise<{ total: number; unread: number }> {
+  const totalResult = await db.prepare('SELECT COUNT(*) as count FROM notifications').first<{ count: number }>();
+  const unreadResult = await db.prepare('SELECT COUNT(*) as count FROM notifications WHERE status = ?').bind('unread').first<{ count: number }>();
+  
+  return {
+    total: totalResult?.count ?? 0,
+    unread: unreadResult?.count ?? 0,
+  };
+}
+
+export async function createNotification(
+  db: D1Database,
+  notification: Omit<Notification, 'id' | 'created_at' | 'read_at'>
+): Promise<Notification> {
+  const id = `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const metadata = stringifyMetadata(notification.metadata);
+  
+  await db
+    .prepare(`
+      INSERT INTO notifications (id, type, title, message, source_id, source_type, status, metadata)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `)
+    .bind(
+      id,
+      notification.type,
+      notification.title,
+      notification.message ?? null,
+      notification.source_id ?? null,
+      notification.source_type ?? null,
+      notification.status,
+      metadata ?? null
+    )
+    .run();
+  
+  const created = await db.prepare('SELECT * FROM notifications WHERE id = ?').bind(id).first<Notification>();
+  if (!created) throw new Error('Failed to create notification');
+  
+  return {
+    ...created,
+    metadata: parseMetadata(created.metadata as unknown as string),
+  };
+}
+
+export async function markNotificationAsRead(db: D1Database, id: string): Promise<Notification | null> {
+  const existing = await db.prepare('SELECT * FROM notifications WHERE id = ?').bind(id).first<Notification>();
+  if (!existing) return null;
+  
+  const readAt = new Date().toISOString();
+  
+  await db
+    .prepare('UPDATE notifications SET status = ?, read_at = ? WHERE id = ?')
+    .bind('read', readAt, id)
+    .run();
+  
+  const updated = await db.prepare('SELECT * FROM notifications WHERE id = ?').bind(id).first<Notification>();
+  if (!updated) return null;
+  
+  return {
+    ...updated,
+    metadata: parseMetadata(updated.metadata as unknown as string),
+  };
+}
+
+export async function markAllNotificationsAsRead(db: D1Database): Promise<void> {
+  const readAt = new Date().toISOString();
+  await db
+    .prepare('UPDATE notifications SET status = ?, read_at = ? WHERE status = ?')
+    .bind('read', readAt, 'unread')
+    .run();
+}
+
+export async function deleteNotification(db: D1Database, id: string): Promise<boolean> {
+  const result = await db.prepare('DELETE FROM notifications WHERE id = ?').bind(id).run();
+  return result.success && result.count > 0;
+}
+
+// ============================================
+// Project Activity Log Queries
+// ============================================
+
+export async function logProjectActivity(
+  db: D1Database,
+  projectId: string,
+  action: ProjectActivityLog['action'],
+  details?: {
+    field?: string;
+    old_value?: string;
+    new_value?: string;
+    metadata?: Record<string, unknown>;
+  }
+): Promise<void> {
+  const metadata = details?.metadata ? stringifyMetadata(details.metadata) : null;
+  
+  await db
+    .prepare(`
+      INSERT INTO project_activity_log (project_id, action, field, old_value, new_value, metadata)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `)
+    .bind(
+      projectId,
+      action,
+      details?.field ?? null,
+      details?.old_value ?? null,
+      details?.new_value ?? null,
+      metadata
+    )
+    .run();
+}
+
+export async function getProjectActivityLog(
+  db: D1Database,
+  projectId: string,
+  limit: number = 50
+): Promise<ProjectActivityLog[]> {
+  const result = await db
+    .prepare('SELECT * FROM project_activity_log WHERE project_id = ? ORDER BY created_at DESC LIMIT ?')
+    .bind(projectId, limit)
+    .all<ProjectActivityLog>();
+  
+  if (!result.success) return [];
+  
+  return result.results.map(row => ({
+    ...row,
+    metadata: parseMetadata(row.metadata as unknown as string),
+  }));
 }
 
 // ============================================

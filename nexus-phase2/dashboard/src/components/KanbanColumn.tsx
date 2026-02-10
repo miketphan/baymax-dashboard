@@ -11,6 +11,7 @@ interface KanbanColumnProps {
   onDrop: (e: React.DragEvent, status: 'backlog' | 'in_progress' | 'done' | 'archived') => void;
   onEdit: (project: Project) => void;
   onDelete: (id: string) => void;
+  onViewDetails?: (project: Project) => void;
   onAdd: () => void;
 }
 
@@ -30,6 +31,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
   onDrop,
   onEdit,
   onDelete,
+  onViewDetails,
   onAdd,
 }) => {
   return (
@@ -113,6 +115,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
               project={project}
               onEdit={onEdit}
               onDelete={onDelete}
+              onViewDetails={onViewDetails}
             />
           </div>
         ))}

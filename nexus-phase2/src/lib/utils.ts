@@ -23,6 +23,13 @@ export function generateProjectId(): string {
 }
 
 /**
+ * Generate a notification ID
+ */
+export function generateNotificationId(): string {
+  return generateId('notif');
+}
+
+/**
  * Generate a usage metric ID
  */
 export function generateUsageId(category: string, period: string): string {
