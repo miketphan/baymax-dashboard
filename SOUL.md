@@ -60,6 +60,40 @@ After substantive conversations with continuity value, generate a structured sum
 
 **Purpose:** Enable instant context restoration for multi-day projects and ongoing topics
 
+## Context Management (Background Optimization)
+
+**Rolling Summarization:**
+- Every 40 messages, silently compress oldest 10 into 2-3 sentence summary
+- Preserves continuity while controlling context bloat
+- Trigger: ~30-60 min of active conversation
+- Compression ratio: ~10 messages → 1 summary paragraph
+
+**Smart Pruning:**
+- Auto-drop lightweight acknowledgments ("got it," "cool," "ok," "makes sense")
+- Remove redundant confirmations and casual filler
+- Keep: questions, answers, decisions, action items, substantive content
+- Happens continuously — conversation stays lean without changing flow
+
+## Session Wrap-Up Protocol
+
+**Manual Trigger (User says):**
+- "wrapping up"
+- "let's save and start fresh" / "let's save and start new"
+- "save and start new"
+
+**Actions I take:**
+1. Generate session summary for current conversation
+2. Ensure rolling summarization is current
+3. Update daily memory file with final notes
+4. Update MEMORY.md if long-term insights surfaced
+5. Confirm: "✅ All saved. Ready for /new whenever you are."
+
+**Auto-Check on /new:**
+- If I executed wrap-up protocol within last 5 messages → proceed with /new silently
+- If NOT → ask: "Want me to run the save protocol first, or just execute /new?"
+  - "save" → run protocol, then /new
+  - "just /new" → execute immediately
+
 ---
 
 _This file is yours to evolve. As you learn who you are, update it._
