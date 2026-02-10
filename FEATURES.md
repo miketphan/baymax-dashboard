@@ -1,96 +1,218 @@
 # Features
 
-System capabilities and functionality.
+> Source of Truth for Nexus capabilities and system features
+> Last Updated: 2026-02-10
 
 ---
 
-## Nexus Dashboard Features
-
-### Smart Cascade
-**Type:** Update mechanism
-**Function:** User-driven data refresh (not background)
-
-**Triggers:**
-- Page load (full check)
-- Manual refresh button
-- Tab switch back (if >5 min stale)
-- User actions (edit, complete, move)
-
-**Logic:** Check timestamps → update only stale sections → parallel API calls
-
----
+## Phase 1 Features (Live)
 
 ### Dark Mode
-**Type:** UI Theme
-**Description:** Premium dark glassmorphism design
-**Elements:**
-- Gradient backgrounds
-- Glass cards with blur
-- Glowing accent colors
-- Animated Baymax icon
+**Status:** ✅ Active  
+**Description:** Toggle between light and dark themes  
+**Location:** Nexus Dashboard (Phase 1)
 
 ---
 
-### Token Tracker v2 (Phase 2)
-**Type:** Data visualization
-**Function:** Real-time LLM usage tracking
-
-**Displays:**
-- Current session tokens
-- Monthly running total
-- Progress bars (green/yellow/red)
-- Cost estimate (USD)
-- Historical trends (expandable)
+### Auto-Sync
+**Status:** ✅ Active  
+**Description:** Automatic data refresh on page load  
+**Location:** Token Tracker, Systems Overview
 
 ---
 
-### Projects Kanban (Phase 2)
-**Type:** Interactive board
-**Function:** Manage roadmap items
+### Token Tracker
+**Status:** ✅ Active  
+**Description:** Live display of LLM token usage and costs  
+**Data Source:** `auto-update-tokens.ps1` + cron
+
+---
+
+### Systems Overview
+**Status:** ✅ Active  
+**Description:** Status display for connected systems  
+**Being Replaced By:** Connected Services (Phase 2)
+
+---
+
+## Phase 2 Features (Planned)
+
+### Smart Cascade
+**Status:** 📋 Planned  
+**Priority:** Core architectural feature
+
+**Description:**  
+Intelligent update mechanism that only refreshes stale data when user engages. Nexus stays static when idle to save API calls and costs.
+
+**How It Works:**
+1. User engages (open page, refresh, switch back to tab)
+2. "Pulse" fires — checks staleness of each section
+3. Updates only sections with stale data
+4. User sees fresh data without background noise
+
+**Benefits:**
+- Saves API quota
+- Reduces costs
+- Faster perceived performance
+- No wasted background updates
+
+**Applies To:** All Phase 2 sections
+
+---
+
+### Connected Services
+**Status:** 📋 Planned  
+**Priority:** High (after Kanban)  
+**Replaces:** Systems Overview + Active Systems
+
+**Description:**  
+Consolidated monitoring of all connected systems with unified refresh.
+
+**Services Monitored:**
+- 📅 Google Calendar — Next events, sync status
+- 💾 Auto Backups — Last/next backup, storage
+- 🩺 Health Monitor — Last heartbeat, auto-heal events
+- 🔄 System Updates — OpenClaw version, available updates
+- 🔒 Security Audit — Last scan date, warnings/issues
+
+**Features:**
+- Summary row (Online/Attention/Offline counts)
+- Single 🔄 Refresh button
+- Individual service details on click
+- Status indicators with color coding
+
+---
+
+### Usage & Limits
+**Status:** 📋 Planned  
+**Priority:** High (after Kanban)  
+**Replaces:** Token Tracker (expanded scope)
+
+**Description:**  
+Comprehensive resource tracking across all services.
+
+**Tracks:**
+- LLM token usage (session + monthly)
+- Brave Search API quota (2,000/month limit)
+- Cost estimates
+- Progress bars for visual feedback
+- Alerts when approaching limits
+
+**Features:**
+- Progress bars
+- Cost projections
+- Limit warnings
+- Historical trends
+
+---
+
+### Projects Kanban
+**Status:** 📋 Planned  
+**Priority:** High (Week 1)
+
+**Description:**  
+Drag-and-drop project management board.
+
+**Columns:**
+- Backlog
+- In Progress
+- Done
+- Archived
 
 **Features:**
 - Drag-drop between columns
-- Add/edit/delete projects
-- Status tracking (Backlog/Planned/In Progress/Complete)
-- Detail view with requirements
-- "Start Work" trigger button
+- Quick add/edit/delete
+- View project details & history
+- **"Trigger Baymax"** button → notifies me to start work
+- Project linking (tasks ↔ projects)
 
-**Columns:** Backlog | Planned | In Progress | Complete
+**Data:** Stored in D1, synced with `PROJECTS.md`
 
 ---
 
-### Documentation Viewer (Phase 2)
-**Type:** Content browser
-**Function:** Browse and update processes
+### Tasks & Habits
+**Status:** 📋 Planned  
+**Priority:** High (Week 3)
+
+**Description:**  
+Personal productivity system with one-off tasks and recurring habits.
+
+**Tasks:**
+- One-off to-dos
+- Due dates
+- Priorities
+- Project linking
+
+**Habits:**
+- Recurring (daily/weekly/custom)
+- Streak tracking
+- Completion history
+- Visual streak indicators
 
 **Features:**
-- List view (title + description)
-- Detail view (full content)
-- Search/filter
-- "Update with Baymax" button
+- Check off completion
+- Streak visualization
+- Historical data
+- Integration with Projects
+
+**Data:** Stored in D1, synced bidirectionally
 
 ---
 
-### Trigger Baymax Integration (Phase 2)
-**Type:** Workflow trigger
-**Function:** Initiate work directly from Nexus
+### Operations Manual Viewer
+**Status:** 📋 Planned  
+**Priority:** Medium (Week 2)
 
-**Flow:**
-1. Click "Start Work" → Confirmation dialog
-2. User confirms → Work Request created
-3. Baymax immediately notified
-4. Baymax replies: "I've begun work on [Project]"
-5. Work completed → Results saved → Status updated
+**Description:**  
+Unified viewer for protocols, processes, and features documentation.
+
+**Sections:**
+- 📋 Project SOPs — From `PROJECTS.md`
+- ⚡ Protocols — From `PROTOCOLS.md`
+- 🔄 Processes — From `PROCESSES.md`
+- 🔧 Setup Guides — Step-by-step procedures
+- 📊 Troubleshooting — Common issues & fixes
+- 📝 Runbooks — Recurring tasks
+
+**Features:**
+- **Universal "Update" button** — syncs ALL sections at once (not per-section)
+- Markdown rendering
+- Collapsible sections
+- Search/filter capability
+
+**Sync:** All source files ↔ D1 ↔ Operations Manual (bidirectional)
 
 ---
 
-## Authentication Features
+## Universal Update Button
 
-### Email Auth
-**Type:** Security
-**Method:** Google OAuth via Cloudflare Access
-**Session:** 30-day remember
+**Status:** 📋 Planned  
+**Location:** Operations Manual section header
+
+**Behavior:**
+- Single button to sync ALL Operations Manual content
+- Triggers fetch from all source files: `PROJECTS.md`, `PROCESSES.md`, `PROTOCOLS.md`, `FEATURES.md`
+- Updates D1 database
+- Refreshes Nexus view
+- NOT per-section buttons (one universal button only)
+
+**Sync Flow:**
+```
+User clicks "Update" → Fetch all markdown files → Update D1 → Refresh Nexus view
+```
 
 ---
 
-*Last Updated: 2026-02-09*
+## Feature Status Legend
+
+| Icon | Meaning |
+|------|---------|
+| ✅ | Live and active |
+| 📋 | Planned/ready to build |
+| 🔄 | In development |
+| ⚠️ | Needs attention |
+
+---
+
+**Sync:** This file ↔ D1 ↔ Nexus Operations Manual  
+**Update Method:** Universal "Update" button triggers full sync of all Operations Manual content

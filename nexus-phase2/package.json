@@ -1,0 +1,22 @@
+{
+  "name": "nexus-api",
+  "version": "1.0.0",
+  "description": "Nexus Phase 2 API - Cloudflare Workers + D1",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create nexus-production",
+    "db:migrate": "wrangler d1 migrations apply nexus-production",
+    "db:seed": "wrangler d1 execute nexus-production --file=./schema.sql",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["nexus", "cloudflare", "workers", "d1"],
+  "author": "Baymax",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240208.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.28.0"
+  }
+}
