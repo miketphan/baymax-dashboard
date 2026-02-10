@@ -1,24 +1,24 @@
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8787';
 
 export interface Project {
   id: string;
-  name: string;
+  title: string;
   description?: string;
   status: 'backlog' | 'in_progress' | 'done' | 'archived';
   priority: 'high' | 'medium' | 'low';
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CreateProjectRequest {
-  name: string;
+  title: string;
   description?: string;
   status?: 'backlog' | 'in_progress' | 'done' | 'archived';
   priority?: 'high' | 'medium' | 'low';
 }
 
 export interface UpdateProjectRequest {
-  name?: string;
+  title?: string;
   description?: string;
   status?: 'backlog' | 'in_progress' | 'done' | 'archived';
   priority?: 'high' | 'medium' | 'low';
@@ -27,18 +27,47 @@ export interface UpdateProjectRequest {
 export interface Service {
   id: string;
   name: string;
-  type: string;
-  status: 'connected' | 'disconnected' | 'error';
-  lastSync?: string;
-  config?: Record<string, unknown>;
+  display_name: string;
+  status: 'online' | 'attention' | 'offline';
+  last_check?: string;
+  next_check?: string;
+  check_interval_minutes: number;
+  details?: Record<string, unknown>;
 }
 
 export interface UsageData {
-  resource: string;
-  limit: number;
-  used: number;
+  id: string;
+  category: string;
+  display_name: string;
+  current_value: number;
+  limit_value: number;
+  period: 'session' | 'daily' | 'weekly' | 'monthly';
   unit: string;
-  period: string;
+  progress_percent: number;
+  status: 'normal' | 'warning' | 'danger';
+  last_updated?: string;
+}
+
+export interface SyncState {
+  sections: Array<{
+    section: string;
+    status: 'fresh' | 'stale' | 'error';
+    last_sync: string | null;
+    stale_after_minutes: number;
+    stale: boolean;
+    error?: string;
+  }>;
+  overall_status: 'fresh' | 'stale' | 'error';
+  timestamp: string;
+}
+
+export interface SyncResult {
+  success: boolean;
+  duration_ms?: number;
+  results?: Record<string, unknown>;
+  errors?: string[];
+  error?: string;
+  timestamp: string;
 }
 
 class ApiClient {
@@ -114,7 +143,34 @@ class ApiClient {
 
   // Usage
   async getUsage(): Promise<UsageData[]> {
-    return this.fetch<UsageData[]>('/usage');
+    const response = await this.fetch<{ data: { metrics: UsageData[] } }>('/usage');
+    return response.data.metrics;
+  }
+
+  // Sync
+  async getSyncStatus(): Promise<SyncState> {
+    const response = await this.fetch<{ data: SyncState }>('/sync');
+    return response.data;
+  }
+
+  async triggerUniversalSync(): Promise<SyncResult> {
+    const response = await this.fetch<{ data: SyncResult }>('/sync', {
+      method: 'POST',
+    });
+    return response.data;
+  }
+
+  async getSyncSectionContent(section: string): Promise<{ content: string; last_sync?: string }> {
+    const response = await this.fetch<{ data: { content: string; last_sync?: string } }>(`/sync/${section}`);
+    return response.data;
+  }
+
+  async syncProjects(content?: string): Promise<unknown> {
+    const response = await this.fetch<{ data: unknown }>('/sync/projects', {
+      method: 'POST',
+      body: content ? JSON.stringify({ content }) : undefined,
+    });
+    return response.data;
   }
 }
 

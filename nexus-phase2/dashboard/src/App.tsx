@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { ProjectsKanban } from './sections/ProjectsKanban';
 import { ConnectedServices } from './sections/ConnectedServices';
 import { UsageLimits } from './sections/UsageLimits';
+import { OperationsManual } from './sections/OperationsManual';
 
-type Section = 'projects' | 'services' | 'usage';
+type Section = 'projects' | 'services' | 'usage' | 'manual';
 
 const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState<Section>('projects');
@@ -12,6 +13,7 @@ const App: React.FC = () => {
     { id: 'projects', label: 'Projects', icon: '📋' },
     { id: 'services', label: 'Connected Services', icon: '🔌' },
     { id: 'usage', label: 'Usage & Limits', icon: '📊' },
+    { id: 'manual', label: 'Operations Manual', icon: '📖' },
   ];
 
   return (
@@ -137,6 +139,7 @@ const App: React.FC = () => {
           {activeSection === 'projects' && <ProjectsKanban />}
           {activeSection === 'services' && <ConnectedServices />}
           {activeSection === 'usage' && <UsageLimits />}
+          {activeSection === 'manual' && <OperationsManual />}
         </main>
       </div>
     </div>

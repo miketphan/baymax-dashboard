@@ -35,6 +35,14 @@ import {
   syncAllUsage,
 } from './routes/usage';
 
+import {
+  triggerUniversalSync,
+  syncProjectsEndpoint,
+  getSyncStatus,
+  syncSpecificSection,
+  getSectionContent,
+} from './routes/sync';
+
 // ============================================
 // Router
 // ============================================
@@ -137,6 +145,31 @@ const routes: Route[] = [
     methods: {
       POST: async (env: Env, _request: Request, params: Record<string, string>) => 
         syncUsageCategory(env, params.category),
+    },
+  },
+  
+  // Sync API
+  {
+    pattern: /^\/api\/sync$/,
+    methods: {
+      GET: async (env: Env) => getSyncStatus(env),
+      POST: async (env: Env, request: Request) => triggerUniversalSync(env, request),
+    },
+  },
+  {
+    pattern: /^\/api\/sync\/projects$/,
+    methods: {
+      GET: async (env: Env) => syncProjectsEndpoint(env, new Request('http://localhost')),
+      POST: async (env: Env, request: Request) => syncProjectsEndpoint(env, request),
+    },
+  },
+  {
+    pattern: /^\/api\/sync\/(?<section>[^/]+)$/,
+    methods: {
+      GET: async (env: Env, _request: Request, params: Record<string, string>) => 
+        getSectionContent(env, params.section),
+      POST: async (env: Env, request: Request, params: Record<string, string>) => 
+        syncSpecificSection(env, params.section, request),
     },
   },
 ];
