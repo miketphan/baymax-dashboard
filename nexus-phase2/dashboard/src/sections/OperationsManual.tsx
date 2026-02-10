@@ -369,7 +369,7 @@ export const OperationsManual: React.FC<OperationsManualProps> = ({ className })
     try {
       const projectsData = await api.getSyncSectionContent('projects');
       if (projectsData?.content) {
-        updateSectionContent('projects', projectsData.content, projectsData.last_sync);
+        updateSectionContent('projects', projectsData.content, projectsData.last_sync || null);
       }
     } catch (error) {
       console.error('Failed to load projects content:', error);

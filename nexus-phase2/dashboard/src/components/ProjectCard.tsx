@@ -88,7 +88,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           paddingRight: '16px',
         }}
       >
-        {project.name}
+        {project.title}
       </h4>
       {project.description && (
         <p

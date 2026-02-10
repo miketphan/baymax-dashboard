@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState } from 'react';
 import { ProjectsKanban } from './sections/ProjectsKanban';
 import { ConnectedServices } from './sections/ConnectedServices';
 import { UsageLimits } from './sections/UsageLimits';
 import { OperationsManual } from './sections/OperationsManual';
-import { SyncStatus } from './components/SyncStatus';
-import { api } from './lib/api';
 
 type Section = 'projects' | 'services' | 'usage' | 'manual';
 

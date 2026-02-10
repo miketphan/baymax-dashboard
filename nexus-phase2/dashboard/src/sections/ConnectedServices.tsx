@@ -13,9 +13,9 @@ const serviceIcons: Record<string, string> = {
 };
 
 const statusColors = {
-  connected: '#10b981',
-  disconnected: '#64748b',
-  error: '#ef4444',
+  online: '#10b981',
+  attention: '#f59e0b',
+  offline: '#ef4444',
 };
 
 export const ConnectedServices: React.FC = () => {
@@ -68,7 +68,7 @@ export const ConnectedServices: React.FC = () => {
   };
 
   const availableServices = ['github', 'discord', 'slack', 'telegram', 'email', 'calendar', 'drive'];
-  const connectedTypes = new Set(services.map((s) => s.type));
+  const connectedTypes = new Set(services.map((s) => s.id));
 
   if (loading) {
     return (
@@ -194,7 +194,7 @@ export const ConnectedServices: React.FC = () => {
                     fontSize: '24px',
                   }}
                 >
-                  {serviceIcons[service.type] || serviceIcons.default}
+                  {serviceIcons[service.id] || serviceIcons.default}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div
@@ -229,9 +229,9 @@ export const ConnectedServices: React.FC = () => {
                       fontSize: '12px',
                     }}
                   >
-                    {service.lastSync
-                      ? `Last sync: ${new Date(service.lastSync).toLocaleDateString()}`
-                      : 'Never synced'}
+                    {service.last_check
+                      ? `Last check: ${new Date(service.last_check).toLocaleDateString()}`
+                      : 'Never checked'}
                   </span>
                 </div>
                 <button

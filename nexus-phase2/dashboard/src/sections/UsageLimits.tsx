@@ -6,7 +6,9 @@ interface UsageBarProps {
 }
 
 const UsageBar: React.FC<UsageBarProps> = ({ usage }) => {
-  const percentage = Math.min((usage.used / usage.limit) * 100, 100);
+  const percentage = usage.limit_value > 0 
+    ? Math.min((usage.current_value / usage.limit_value) * 100, 100)
+    : 0;
   
   let barColor = '#10b981'; // green
   if (percentage > 75) barColor = '#f59e0b'; // yellow
@@ -39,7 +41,7 @@ const UsageBar: React.FC<UsageBarProps> = ({ usage }) => {
               textTransform: 'capitalize',
             }}
           >
-            {usage.resource.replace(/-/g, ' ')}
+            {usage.category.replace(/-/g, ' ')}
           </h3>
           <span
             style={{
@@ -67,7 +69,7 @@ const UsageBar: React.FC<UsageBarProps> = ({ usage }) => {
               fontSize: '11px',
             }}
           >
-            {usage.used.toLocaleString()} / {usage.limit.toLocaleString()} {usage.unit}
+            {usage.current_value.toLocaleString()} / {usage.limit_value.toLocaleString()} {usage.unit}
           </span>
         </div>
       </div>
@@ -133,8 +135,8 @@ export const UsageLimits: React.FC = () => {
     loadUsage();
   }, []);
 
-  const totalUsed = usageData.reduce((sum, u) => sum + u.used, 0);
-  const totalLimit = usageData.reduce((sum, u) => sum + u.limit, 0);
+  const totalUsed = usageData.reduce((sum, u) => sum + u.current_value, 0);
+  const totalLimit = usageData.reduce((sum, u) => sum + u.limit_value, 0);
   const overallPercentage = totalLimit > 0 ? (totalUsed / totalLimit) * 100 : 0;
 
   if (loading) {
@@ -319,14 +321,14 @@ export const UsageLimits: React.FC = () => {
             </span>
             <span
               style={{
-                color: usageData.filter((u) => u.used / u.limit > 0.9).length > 0
+                color: usageData.filter((u) => u.current_value / u.limit_value > 0.9).length > 0
                   ? '#ef4444'
                   : '#10b981',
                 fontSize: '20px',
                 fontWeight: 700,
               }}
             >
-              {usageData.filter((u) => u.used / u.limit > 0.9).length}
+              {usageData.filter((u) => u.current_value / u.limit_value > 0.9).length}
             </span>
           </div>
           <div>
@@ -361,7 +363,7 @@ export const UsageLimits: React.FC = () => {
         }}
       >
         {usageData.map((usage) => (
-          <UsageBar key={usage.resource} usage={usage} />
+          <UsageBar key={usage.category} usage={usage} />
         ))}
       </div>
 

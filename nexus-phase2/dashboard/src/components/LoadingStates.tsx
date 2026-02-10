@@ -50,7 +50,7 @@ export const SkeletonCard: React.FC = () => (
   </div>
 );
 
-export const SkeletonColumn: React.FC<{ title: string }> = ({ title }) => (
+export const SkeletonColumn: React.FC<{ title: string }> = ({ title: _title }) => (
   <div
     style={{
       flex: 1,

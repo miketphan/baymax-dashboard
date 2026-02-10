@@ -26,7 +26,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 
   useEffect(() => {
     if (project) {
-      setName(project.name);
+      setName(project.title);
       setDescription(project.description || '');
       setStatus(project.status);
       setPriority(project.priority);
@@ -48,7 +48,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     }
 
     const data: CreateProjectRequest | UpdateProjectRequest = {
-      name: name.trim(),
+      title: name.trim(),
       description: description.trim() || undefined,
       status,
       priority,

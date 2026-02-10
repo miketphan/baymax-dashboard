@@ -19,7 +19,7 @@ const OPERATIONS_MANUAL_FILES = [
 
 // Base URL for fetching markdown files (relative to worker)
 // In production, this would be configured via env var
-const MARKDOWN_BASE_URL = process.env.MARKDOWN_BASE_URL || '';
+// Note: Cloudflare Workers use env.MARKDOWN_BASE_URL, not process.env
 
 // ============================================
 // Helper: Fetch markdown content

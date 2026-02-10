@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Project, api, ProjectActivityLog } from '../lib/api';
+import React, { useState, useEffect } from 'react';
+import { Project, api } from '../lib/api';
 
 interface ProjectDetailsModalProps {
   project: Project | null;
@@ -24,7 +24,6 @@ export const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
   onSave,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +47,7 @@ export const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
     }
   }, [project, isOpen]);
 
-  const loadActivity = async (projectId: string) => {
+  const loadActivity = async (_projectId: string) => {
     try {
       // This will be implemented once we have the activity log endpoint
       // For now, show placeholder activity based on project data
@@ -648,9 +647,7 @@ export const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
                         gap: '12px',
                         padding: '10px',
                         borderRadius: '4px',
-                        '&:hover': {
-                          background: '#1e293b',
-                        },
+                        background: '#0f172a',
                       }}
                     >
                       <span style={{ fontSize: '16px' }}>{getActivityIcon(item.action)}</span>

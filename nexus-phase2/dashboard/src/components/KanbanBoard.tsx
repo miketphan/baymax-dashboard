@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Project, api } from '../lib/api';
+import { Project, api, CreateProjectRequest, UpdateProjectRequest } from '../lib/api';
 import { KanbanColumn } from './KanbanColumn';
 import { ProjectModal } from './ProjectModal';
 import { ProjectDetailsModal } from './ProjectDetailsModal';
@@ -60,13 +60,13 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     onProjectsChange();
   };
 
-  const handleSave = async (data: Parameters<typeof api.createProject>[0]) => {
+  const handleSave = async (data: CreateProjectRequest | UpdateProjectRequest) => {
     try {
       setActionError(null);
       if (editingProject) {
-        await api.updateProject(editingProject.id, data);
+        await api.updateProject(editingProject.id, data as UpdateProjectRequest);
       } else {
-        await api.createProject(data);
+        await api.createProject(data as CreateProjectRequest);
       }
       setIsModalOpen(false);
       onProjectsChange();
