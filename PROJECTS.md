@@ -32,21 +32,26 @@ Comprehensive personal dashboard evolution from Phase 1. Adds project management
 - Token Tracker Sync (existing, continues)
 - Smart Cascade Sync (new)
 - Projects Sync (new)
-- Tasks/Habits Sync (new)
 
-**Features Required:**
-- Smart Cascade update mechanism
-- Kanban board (drag-drop)
-- Markdown viewer with Update button
-- Streak tracking for habits
+**Features Built:**
+- ✅ Kanban board (drag-drop, CRUD)
+- ✅ Smart Cascade update mechanism
+- ✅ Markdown viewer with Update button
+- ✅ "Trigger Baymax" button
+- ✅ Project Details view
+- ✅ Loading states & error handling
+- ✅ Keyboard shortcuts
+
+**Backlogged Features:**
+- Streak tracking for habits (moved to backlog)
 
 **Revised 3-Week Build Plan:**
 
 | Week | Focus | Deliverables |
 |------|-------|--------------|
-| **Week 1** | **Architecture + Projects Kanban** | D1 schema, API endpoints, **Projects Kanban MVP** (CRUD, drag-drop, basic view), Connected Services, Usage & Limits |
-| **Week 2** | **Operations Manual + Polish** | Operations Manual viewer with Universal Update button, bidirectional sync, Projects Kanban polish ("Trigger Baymax", details view) |
-| **Week 3** | **Final Integration + Polish** | Smart Cascade integration, "Trigger Baymax" button, Project Details view, testing & polish |
+| **Week 1** | **Architecture + Core Features** | D1 schema, API endpoints, Projects Kanban MVP, Connected Services, Usage & Limits, Operations Manual viewer, bidirectional sync |
+| **Week 2** | **Polish + Advanced Features** | "Trigger Baymax" button, Project Details view, Smart Cascade integration, loading states, error handling, keyboard shortcuts |
+| **Week 3** | **Testing + Deployment** | End-to-end testing, bug fixes, performance optimization, deployment, documentation, user acceptance testing |
 
 **Rationale:** Projects Kanban built in Week 1 enables using it to track remaining Nexus Phase 2 work (dogfooding).
 
