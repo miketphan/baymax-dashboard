@@ -10,7 +10,7 @@
 
 **Architecture:** Cloudflare Workers + D1 Database + KV Cache + React Frontend
 **Cost:** ~$1.50 USD (hybrid model usage) + $0/month (Cloudflare free tier)
-**Timeline:** 3 weeks (13 hours Baymax work, ~45 minutes Mike involvement)
+**Timeline:** 3 weeks (14 hours Baymax work, ~50 minutes Mike involvement)
 
 ---
 
@@ -324,14 +324,19 @@ Nexus displays updated status
 
 ## Development Timeline
 
-### Week 1: Foundation + Markdown Sync (4 hours)
+### Week 1: Foundation + Markdown Sync + Monitoring (5 hours)
 
 **My Tasks:**
-- [ ] Create D1 database schema (projects, processes, sync metadata)
+- [ ] Create D1 database schema (projects, processes, sync metadata, monitoring logs)
 - [ ] Set up Cloudflare Worker API endpoints
 - [ ] Implement KV caching layer
 - [ ] **Build Markdown Parser** (PROJECTS.md → D1, PROCESSES.md → D1)
 - [ ] **Create GitHub Action** for auto-sync on push
+- [ ] **Build Monitoring & Alerting System**
+  - [ ] Cron heartbeat every 10 min
+  - [ ] Health check functions for all systems
+  - [ ] Auto-healing logic
+  - [ ] Real-time alert dispatch
 - [ ] Migrate Systems Overview to live data
 - [ ] Migrate Active Systems to API-driven
 - [ ] Migrate Token Tracker to KV + D1
@@ -340,8 +345,9 @@ Nexus displays updated status
 **Your Involvement:**
 - [ ] Provide Cloudflare API token (5 min)
 - [ ] Review D1 schema (1 message)
+- [ ] Confirm alert preferences (real-time vs digest)
 
-**Deliverable:** Nexus loads with live data from database + markdown auto-sync working
+**Deliverable:** Nexus loads with live data + markdown auto-sync + proactive monitoring working
 
 ---
 
@@ -405,7 +411,7 @@ Nexus displays updated status
 | Debugging when stuck | Kimi | ~200k | ~$0.60 |
 | **Total** | **Hybrid** | **~1.6M** | **~$2.30 USD** |
 
-**Buffer:** +30% for unexpected complexity = **~$3.50 USD max**
+**Buffer:** +30% for unexpected complexity = **~$4.00 USD max**
 
 ---
 
@@ -487,6 +493,71 @@ Nexus displays updated status
 
 ---
 
+## Monitoring & Alerting System (New Phase 2 Component)
+
+### Philosophy
+**Active monitoring with auto-healing.** Mike's first notice of any system issue should be a message from Baymax, not by stumbling across it in Nexus.
+
+### Two-Layer Architecture
+
+```
+┌─────────────────────────────────────────────┐
+│  BASE LAYER: Cron Heartbeat                 │
+│  Every 10 minutes when PC is on             │
+│  → Monitors all systems                     │
+│  → Auto-heals if possible                   │
+│  → Alerts of any issues (all tiers)         │
+│  (Runs regardless of Nexus being open)      │
+└─────────────────────────────────────────────┘
+                    +
+┌─────────────────────────────────────────────┐
+│  BONUS LAYER: Smart Cascade                 │
+│  When user opens/refreshes Nexus            │
+│  → Checks what's stale                      │
+│  → Updates UI immediately                   │
+│  → Additional peace of mind                 │
+│  (Extra checks on top of base layer)        │
+└─────────────────────────────────────────────┘
+```
+
+### Monitored Systems
+
+| System | Check Method | Auto-Heal Attempt | Alert Tier |
+|--------|--------------|-------------------|------------|
+| **Google Calendar API** | Auth test | Refresh token, retry auth | 🟡/🔴 |
+| **Token Sync** | Last sync timestamp | Switch model, retry | 🟡/🔴 |
+| **Cloudflare Deploy** | GitHub webhook status | Retry once | 🟡/🔴 |
+| **GitHub Connection** | API health check | None (manual fix) | 🔴 |
+| **Backups** | Last backup timestamp | Retry with delay | 🟠/🔴 |
+
+### Alert Tiers (Option A: Real-Time)
+
+| Severity | Scenario | Example Message |
+|----------|----------|-----------------|
+| **🟡 FYI** | Failed, auto-fixed immediately | "🟡 Calendar API auth expired at 2:15 PM → Auto-refreshed in 3 seconds → Operational" |
+| **🟠 Attention** | Failed, auto-fixed after retries | "🟠 Token sync failed 3 times in 10 min → Switched to Flash model → Working now, monitoring closely" |
+| **🔴 Action Needed** | Failed, couldn't auto-fix | "🚨 Backup failed, auto-retry didn't work → Error: Disk space low → Action: Clear space or guide available" |
+
+### Frequency & Cost
+
+- **Base heartbeat:** Every 10 minutes (when PC is on)
+- **Est. checks/day:** ~96 (16 active hours, not 24)
+- **Cost impact:** Minimal (~$1-2/month for monitoring)
+- **API limits:** No risk (well under all service limits)
+
+### Implementation
+
+**Week 1 addition to scope:**
+- [ ] Create monitoring cron job (10 min interval)
+- [ ] Build health check functions for each system
+- [ ] Implement auto-healing logic
+- [ ] Create alert dispatch system
+- [ ] Test each failure scenario
+
+**Deliverable:** Proactive monitoring with immediate alerts and auto-healing
+
+---
+
 ## Maintenance Plan
 
 ### Ongoing (Post-Launch)
@@ -510,6 +581,8 @@ Nexus displays updated status
 ✅ **Responsive:** Mobile experience is usable
 ✅ **Fast:** Page loads < 2s, updates < 1s
 ✅ **Reliable:** 99% uptime (Cloudflare SLA)
+✅ **Monitored:** Proactive alerts within 10 min of any failure
+✅ **Auto-Healing:** Common issues resolve without user intervention
 ✅ **Cost-Effective:** <$5 total build cost
 
 ---
@@ -525,6 +598,6 @@ Nexus displays updated status
 
 ---
 
-*Document Version: 2.0*
-*Last Updated: 2026-02-09 11:20 EST*
-*Status: READY TO EXECUTE — Updated with Markdown Sync Architecture*
+*Document Version: 3.0*
+*Last Updated: 2026-02-09 8:25 PM EST*
+*Status: READY TO EXECUTE — Updated with Markdown Sync Architecture + Monitoring & Alerting System*
