@@ -139,7 +139,7 @@
 - Real-time system health (Calendar API, Backups, Brave Search)
 - Click to expand detailed status
 - Visual indicators (green/yellow/red)
-- Option to "Check Now" (force refresh)
+- Status timestamp ("Last checked: 2 min ago")
 
 ---
 
@@ -277,9 +277,23 @@ Nexus displays updated status
 
 ## Smart Cascade Implementation
 
+### Philosophy
+**One-button refresh.** Instead of per-section refresh buttons, a single "Refresh Nexus" button triggers comprehensive freshness checks. Smart Cascade intelligently updates only what's stale, not blindly re-fetching everything.
+
+### Header Design
+```
+┌─────────────────────────────────────────────┐
+│  🤖 Baymax Nexus          [🔄 Refresh]      │
+│                                             │
+│  Last full check: 4 minutes ago             │
+│  Systems updated: Token Tracker, Calendar   │
+│  (Auto-refresh on tab switch)               │
+└─────────────────────────────────────────────┘
+```
+
 ### Trigger Events
 1. **Page Load** — Full check, refresh all stale data
-2. **Refresh Button Click** — Force refresh all sections
+2. **🔄 Refresh Button Click** — Force comprehensive refresh (one button for all)
 3. **Tab Visibility Change** — Quick check if >5 min since last update
 4. **User Action** (complete task, move project) — Update that section + check others
 
@@ -294,10 +308,11 @@ Nexus displays updated status
 | Projects | 5 min | D1 query |
 
 ### Optimization
-- Only fetch what's stale
+- Only fetch what's stale (not blind re-fetch)
 - Parallel API calls where possible
 - Cache aggressively in KV
 - Lazy load sections below fold
+- Show transparency: which sections actually updated
 
 ---
 
