@@ -186,6 +186,17 @@
 - 📊 **Cost breakdown by service**
 - 📈 **7-day / 30-day trends** (expandable)
 
+**Model Usage Strategy vs. Actual:** ⭐ NEW
+| Model | Strategy | Actual This Month | Variance |
+|-------|----------|-------------------|----------|
+| 🎯 Kimi | ~60% | 58% | ✅ On target |
+| ⚡ Flash | ~39% | 41% | ✅ On target |
+| 🧩 Pro | ~1% | 1% | ✅ On target |
+
+- 📋 **Model Strategy doc** (editable in Operations Manual)
+- 🔔 **Monthly insights:** "Flash usage high — review task routing"
+- 🧪 **Experiment tracking:** New models being tested
+
 ---
 
 ### 3. Operations Manual (Consolidated Documentation)
@@ -208,6 +219,7 @@
 | **Protocols** | `PROTOCOLS.md` | Rules I follow (Shutdown, Privacy, Cost, Date/Time) |
 | **System Reference** | `FEATURES.md` | How things work (Smart Cascade, Monitoring) |
 | **Project SOPs** | `PROJECT_SOPS.md` ⭐ **NEW** | Standard operating procedures for complex projects |
+| **Model Strategy** | `MODEL_STRATEGY.md` ⭐ **NEW** | Model routing guidelines, usage targets, experiments |
 
 **Project SOPs Purpose:**
 - **Kanban** shows: "Build Phase 2 — In Progress" (current state / action)
