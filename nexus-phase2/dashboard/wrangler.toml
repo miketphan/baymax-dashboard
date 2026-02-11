@@ -5,10 +5,3 @@ pages_build_output_dir = "dist"
 # Environment variables (non-sensitive)
 [vars]
 ENVIRONMENT = "production"
-
-# Environment-specific overrides
-[env.development]
-vars = { ENVIRONMENT = "development" }
-
-[env.staging]
-vars = { ENVIRONMENT = "staging" }
