@@ -51,20 +51,6 @@ const getStatusDot = (status: SectionState['status']): string => {
   }
 };
 
-const formatTimeAgo = (date: Date | null): string => {
-  if (!date) return 'Never';
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  
-  if (diffMins < 1) return 'Just now';
-  if (diffMins === 1) return '1 min ago';
-  if (diffMins < 60) return `${diffMins} mins ago`;
-  const diffHours = Math.floor(diffMins / 60);
-  if (diffHours === 1) return '1 hour ago';
-  return `${diffHours} hours ago`;
-};
-
 // ============================================
 // Section Header Component
 // ============================================
@@ -148,7 +134,6 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({ icon, title, state, onRef
         ) : (
           <span>↻</span>
         )}
-        {formatTimeAgo(state.lastRefresh)}
       </button>
     )}
   </div>
@@ -168,7 +153,6 @@ const App: React.FC = () => {
   });
 
   const [isGlobalRefreshing, setIsGlobalRefreshing] = useState(false);
-  const [lastGlobalRefresh, setLastGlobalRefresh] = useState<Date | null>(null);
   const refreshInProgress = useRef(false);
 
   // Update section state helper
@@ -253,7 +237,6 @@ const App: React.FC = () => {
       sections.map(section => refreshSection(section, true))
     );
 
-    setLastGlobalRefresh(new Date());
     setIsGlobalRefreshing(false);
     refreshInProgress.current = false;
   }, [refreshSection]);
@@ -268,8 +251,6 @@ const App: React.FC = () => {
       usage: { lastRefresh: now, isLoading: false, error: null, status: 'fresh' },
       manual: { lastRefresh: now, isLoading: false, error: null, status: 'fresh' },
     });
-    setLastGlobalRefresh(now);
-
     // Handle visibility change (tab focus)
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -331,57 +312,44 @@ const App: React.FC = () => {
           zIndex: 100,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 1,
+            gap: '12px',
+          }}
+        >
           <div
             style={{
-              width: '40px',
-              height: '40px',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '20px',
-              boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)',
-            }}
-          >
-            🧠
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div
-            style={{
-              width: '40px',
-              height: '40px',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+              width: '44px',
+              height: '44px',
+              background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
               borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '24px',
-              boxShadow: '0 4px 14px rgba(59, 130, 246, 0.3)',
+              boxShadow: '0 0 20px rgba(220, 38, 38, 0.4)',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
             }}
           >
             🤖
           </div>
-          <div>
+          <div style={{ textAlign: 'center' }}>
             <h1
               style={{
                 margin: 0,
-                fontSize: '22px',
+                fontSize: '24px',
                 fontWeight: 800,
-                background: 'linear-gradient(135deg, #f8fafc 0%, #94a3b8 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+                color: '#f8fafc',
                 letterSpacing: '-0.5px',
               }}
             >
               Baymax Nexus
             </h1>
-            <span style={{ color: '#64748b', fontSize: '12px' }}>
-              {lastGlobalRefresh ? `Last updated ${formatTimeAgo(lastGlobalRefresh)}` : 'Initializing...'}
-            </span>
           </div>
-        </div>
         </div>
 
         {/* Universal Refresh Button */}
