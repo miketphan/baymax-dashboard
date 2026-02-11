@@ -213,11 +213,13 @@ export async function deleteExistingProject(env: Env, id: string): Promise<Respo
   try {
     const deleted = await deleteProject(env.DB, id);
     if (!deleted) {
-      return errors.internalError('Failed to delete project');
+      console.error(`Delete returned false for project ${id}`);
+      return errors.internalError('Failed to delete project - no rows affected');
     }
     return successResponse({ deleted: true, id });
   } catch (error) {
     console.error('Failed to delete project:', error);
-    return errors.internalError('Failed to delete project');
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return errors.internalError(`Failed to delete project: ${errorMessage}`);
   }
 }

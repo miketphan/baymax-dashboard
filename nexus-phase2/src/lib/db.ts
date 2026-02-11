@@ -157,12 +157,25 @@ export async function updateProject(
 }
 
 export async function deleteProject(db: D1Database, id: string): Promise<boolean> {
-  const result = await db
-    .prepare('DELETE FROM projects WHERE id = ?')
-    .bind(id)
-    .run();
-  
-  return result.success && result.count > 0;
+  try {
+    const result = await db
+      .prepare('DELETE FROM projects WHERE id = ?')
+      .bind(id)
+      .run();
+    
+    console.log('Delete result:', JSON.stringify({
+      success: result.success,
+      count: result.count,
+      meta: result.meta,
+    }));
+    
+    // D1 returns count in result.meta?.changes or result.count depending on version
+    const changes = result.count ?? result.meta?.changes ?? 0;
+    return result.success && changes > 0;
+  } catch (error) {
+    console.error('Delete error:', error);
+    throw error;
+  }
 }
 
 // ============================================
