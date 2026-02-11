@@ -205,3 +205,13 @@ When an update is available and Mike confirms he wants to proceed:
 - Could have delegated boilerplate (config files, docs) to Flash
 - Kept Kimi for complex logic but didn't delegate enough — ~40% token waste
 - Going forward: Flash for scaffolding, Kimi for architecture & user-facing
+
+---
+
+## Nexus Dashboard (Phase 2)
+
+**Current URL:** https://f6a4ff0a.nexus-dashboard-34z.pages.dev
+
+**Status:** Mobile optimization deployed
+
+**Note:** Always provide this URL when Mike asks for the latest Nexus link.
