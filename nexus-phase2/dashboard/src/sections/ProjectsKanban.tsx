@@ -3,10 +3,10 @@ import { KanbanBoard } from '../components/KanbanBoard';
 import { Project, api } from '../lib/api';
 
 interface ProjectsKanbanProps {
-  onRefresh?: () => void;
+  refreshKey?: number;
 }
 
-export const ProjectsKanban: React.FC<ProjectsKanbanProps> = ({ onRefresh }) => {
+export const ProjectsKanban: React.FC<ProjectsKanbanProps> = ({ refreshKey }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +17,6 @@ export const ProjectsKanban: React.FC<ProjectsKanbanProps> = ({ onRefresh }) => 
       setError(null);
       const data = await api.getProjects();
       setProjects(data);
-      if (onRefresh) onRefresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load projects');
     } finally {
@@ -28,6 +27,13 @@ export const ProjectsKanban: React.FC<ProjectsKanbanProps> = ({ onRefresh }) => 
   useEffect(() => {
     loadProjects();
   }, []);
+
+  // Refresh when refreshKey changes
+  useEffect(() => {
+    if (refreshKey && refreshKey > 0) {
+      loadProjects();
+    }
+  }, [refreshKey]);
 
   return (
     <div style={{ height: '100%', minHeight: '400px' }}>

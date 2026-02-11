@@ -153,6 +153,7 @@ const App: React.FC = () => {
   });
 
   const [isGlobalRefreshing, setIsGlobalRefreshing] = useState(false);
+  const [projectsRefreshKey, setProjectsRefreshKey] = useState(0);
   const refreshInProgress = useRef(false);
 
   // Update section state helper
@@ -236,6 +237,9 @@ const App: React.FC = () => {
     await Promise.all(
       sections.map(section => refreshSection(section, true))
     );
+
+    // Trigger projects refresh
+    setProjectsRefreshKey(prev => prev + 1);
 
     setIsGlobalRefreshing(false);
     refreshInProgress.current = false;
@@ -460,7 +464,7 @@ const App: React.FC = () => {
             state={sectionStates.projects}
             onRefresh={() => refreshSection('projects', true)}
           />
-          <ProjectsKanban />
+          <ProjectsKanban refreshKey={projectsRefreshKey} />
         </section>
 
         {/* Bottom Row: Operations Manual - Collapsible */}

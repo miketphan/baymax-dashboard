@@ -22,6 +22,16 @@ const columnColors: Record<string, string> = {
   archived: '#94a3b8',
 };
 
+const priorityOrder: Record<string, number> = {
+  high: 3,
+  medium: 2,
+  low: 1,
+};
+
+const sortByPriority = (projects: Project[]): Project[] => {
+  return [...projects].sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
+};
+
 export const KanbanColumn: React.FC<KanbanColumnProps> = ({
   title,
   status,
@@ -34,6 +44,9 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
   onViewDetails,
   onAdd,
 }) => {
+  // Sort projects by priority (high to low)
+  const sortedProjects = sortByPriority(projects);
+  
   return (
     <div
       className="kanban-column"
@@ -74,7 +87,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
               fontWeight: 600,
             }}
           >
-            {projects.length}
+            {sortedProjects.length}
           </span>
         </div>
         <button
@@ -104,7 +117,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
           minHeight: '100px',
         }}
       >
-        {projects.map((project) => (
+        {sortedProjects.map((project) => (
           <div
             key={project.id}
             draggable
@@ -119,7 +132,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
             />
           </div>
         ))}
-        {projects.length === 0 && (
+        {sortedProjects.length === 0 && (
           <div
             style={{
               textAlign: 'center',
