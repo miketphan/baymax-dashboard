@@ -1,0 +1,64 @@
+/* ConnectedServices.css */
+
+.services-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.services-summary {
+  display: flex;
+  gap: 6px;
+}
+
+.summary-card {
+  flex: 1;
+  padding: 10px 4px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.summary-card.online {
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.summary-card.attention {
+  background: linear-gradient(145deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.summary-card.offline {
+  background: linear-gradient(145deg, rgba(220, 38, 38, 0.1) 0%, rgba(185, 28, 28, 0.05) 100%);
+  border: 1px solid rgba(220, 38, 38, 0.4);
+}
+
+.service-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.service-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(145deg, rgba(26, 35, 50, 0.6) 0%, rgba(15, 23, 42, 0.4) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+@media (max-width: 414px) {
+  .services-summary {
+    flex-wrap: wrap;
+  }
+
+  .summary-card {
+    flex-basis: calc(50% - 3px);
+  }
+}

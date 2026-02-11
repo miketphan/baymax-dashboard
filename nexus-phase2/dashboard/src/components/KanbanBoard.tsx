@@ -189,6 +189,10 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
           height: 'calc(100% - 60px)',
           overflowX: 'auto',
           paddingBottom: '8px',
+          scrollSnapType: 'x mandatory',
+          '-webkit-overflow-scrolling': 'touch',
+          'scrollbar-width': 'none',
+          'ms-overflow-style': 'none',
         }}
       >
         {columns.map((column) => (

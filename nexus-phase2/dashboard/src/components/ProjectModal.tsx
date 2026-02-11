@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Project, CreateProjectRequest, UpdateProjectRequest } from '../lib/api';
+import './ProjectModal.css';
 
 interface ProjectModalProps {
   isOpen: boolean;
@@ -39,6 +40,17 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     setErrors({});
   }, [project, defaultStatus, isOpen]);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -60,32 +72,11 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0, 0, 0, 0.7)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: '#1e293b',
-          borderRadius: '12px',
-          padding: '24px',
-          width: '100%',
-          maxWidth: '480px',
-          border: '1px solid #334155',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close-btn" onClick={onClose}>
+          &times;
+        </button>
         <h2
           style={{
             margin: '0 0 20px 0',
