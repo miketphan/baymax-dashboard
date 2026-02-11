@@ -210,8 +210,10 @@ When an update is available and Mike confirms he wants to proceed:
 
 ## Nexus Dashboard (Phase 2)
 
-**Current URL:** https://f6a4ff0a.nexus-dashboard-34z.pages.dev
+**Current URL:** https://adff9163.nexus-dashboard-34z.pages.dev
 
-**Status:** Mobile optimization deployed
+**Status:** Mobile vertical stack layout deployed
 
 **Note:** Always provide this URL when Mike asks for the latest Nexus link.
+
+**Nexus API URL:** https://nexus-api.miket-phan.workers.dev/api

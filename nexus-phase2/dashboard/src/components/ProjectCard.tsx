@@ -46,7 +46,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = memo(({
   onDelete,
   onViewDetails,
   dragHandleProps,
-  isMobile = false,
+  // isMobile = false,
 }) => {
   const [isNotifying, setIsNotifying] = useState(false);
   const [notificationSent, setNotificationSent] = useState(false);
