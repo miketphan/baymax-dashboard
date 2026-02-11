@@ -347,23 +347,41 @@ const App: React.FC = () => {
           >
             🧠
           </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px',
+              boxShadow: '0 4px 14px rgba(59, 130, 246, 0.3)',
+            }}
+          >
+            🤖
+          </div>
           <div>
             <h1
               style={{
                 margin: 0,
-                fontSize: '20px',
-                fontWeight: 700,
+                fontSize: '22px',
+                fontWeight: 800,
                 background: 'linear-gradient(135deg, #f8fafc 0%, #94a3b8 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
+                letterSpacing: '-0.5px',
               }}
             >
-              Nexus Command Center
+              Baymax Nexus
             </h1>
             <span style={{ color: '#64748b', fontSize: '12px' }}>
               {lastGlobalRefresh ? `Last updated ${formatTimeAgo(lastGlobalRefresh)}` : 'Initializing...'}
             </span>
           </div>
+        </div>
         </div>
 
         {/* Universal Refresh Button */}

@@ -34,7 +34,7 @@ export const ConnectedServices: React.FC<ConnectedServicesProps> = ({ compact = 
       setLoading(true);
       setError(null);
       const data = await api.getServices();
-      setServices(data);
+      setServices(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load services');
     } finally {
@@ -73,9 +73,10 @@ export const ConnectedServices: React.FC<ConnectedServicesProps> = ({ compact = 
   };
 
   // In compact mode, only show first 5 services
-  const displayedServices = compact ? services.slice(0, 5) : services;
+  const safeServices = Array.isArray(services) ? services : [];
+  const displayedServices = compact ? safeServices.slice(0, 5) : safeServices;
   const availableServices = ['github', 'discord', 'slack', 'telegram', 'email'];
-  const connectedTypes = new Set(services.map((s) => s.id));
+  const connectedTypes = new Set(safeServices.map((s) => s.id));
 
   if (loading) {
     return (
@@ -264,7 +265,7 @@ export const ConnectedServices: React.FC<ConnectedServicesProps> = ({ compact = 
           ))}
       </div>
 
-      {services.length === 0 && !loading && (
+      {safeServices.length === 0 && !loading && (
         <div
           style={{
             padding: '32px',
@@ -279,7 +280,7 @@ export const ConnectedServices: React.FC<ConnectedServicesProps> = ({ compact = 
         </div>
       )}
 
-      {compact && services.length > 5 && (
+      {compact && safeServices.length > 5 && (
         <div
           style={{
             textAlign: 'center',
@@ -288,7 +289,7 @@ export const ConnectedServices: React.FC<ConnectedServicesProps> = ({ compact = 
             fontSize: '13px',
           }}
         >
-          +{services.length - 5} more services
+          +{safeServices.length - 5} more services
         </div>
       )}
     </div>

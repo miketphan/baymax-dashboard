@@ -144,14 +144,15 @@ class ApiClient {
   }
 
   async deleteProject(id: string): Promise<void> {
-    return this.fetch(`/projects/${id}`, {
+    await this.fetch(`/projects/${id}`, {
       method: 'DELETE',
     });
   }
 
   // Services
   async getServices(): Promise<Service[]> {
-    return this.fetch<Service[]>('/services');
+    const response = await this.fetch<{ data: { services: Service[] } }>('/services');
+    return response.data.services;
   }
 
   async connectService(type: string, config: Record<string, unknown>): Promise<Service> {
