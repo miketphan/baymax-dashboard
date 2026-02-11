@@ -8,6 +8,7 @@ interface ProjectCardProps {
   onDelete: (id: string) => void;
   onViewDetails?: (project: Project) => void;
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
+  isMobile?: boolean;
 }
 
 const priorityConfig = {
@@ -45,6 +46,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = memo(({
   onDelete,
   onViewDetails,
   dragHandleProps,
+  isMobile = false,
 }) => {
   const [isNotifying, setIsNotifying] = useState(false);
   const [notificationSent, setNotificationSent] = useState(false);

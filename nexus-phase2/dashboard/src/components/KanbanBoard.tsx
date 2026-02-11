@@ -1,9 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Project, api, CreateProjectRequest, UpdateProjectRequest } from '../lib/api';
 import { KanbanColumn } from './KanbanColumn';
 import { ProjectModal } from './ProjectModal';
 import { ProjectDetailsModal } from './ProjectDetailsModal';
 import { SkeletonLoader, ErrorState } from './LoadingStates';
+import './KanbanBoard.css';
 
 interface KanbanBoardProps {
   projects: Project[];
@@ -26,6 +27,17 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const columns: { status: 'backlog' | 'in_progress' | 'done'; title: string }[] = [
     { status: 'backlog', title: 'Backlog' },
@@ -54,9 +66,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   };
 
   const handleDetailsSave = (updatedProject: Project) => {
-    // Update the viewing project with the new data
     setViewingProject(updatedProject);
-    // Refresh the project list
     onProjectsChange();
   };
 
@@ -87,36 +97,43 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     }
   };
 
+  // Mobile: Move project to different status
+  const handleMoveProject = async (project: Project, newStatus: 'backlog' | 'in_progress' | 'done' | 'archived') => {
+    try {
+      setActionError(null);
+      await api.patchProject(project.id, { status: newStatus });
+      onProjectsChange();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Failed to move project');
+    }
+  };
+
   const handleDragStart = useCallback((e: React.DragEvent, project: Project) => {
+    if (isMobile) return;
     setDraggedProject(project);
     e.dataTransfer.effectAllowed = 'move';
-  }, []);
+  }, [isMobile]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
+    if (isMobile) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-  }, []);
+  }, [isMobile]);
 
   const handleDrop = useCallback(
     async (e: React.DragEvent, status: 'backlog' | 'in_progress' | 'done' | 'archived') => {
+      if (isMobile) return;
       e.preventDefault();
       
-      // Safety check: ensure we have a valid dragged project
-      if (!draggedProject) {
-        console.log('Drop ignored: no dragged project');
-        return;
-      }
+      if (!draggedProject) return;
       
-      // Safety check: don't update if status hasn't changed
       if (draggedProject.status === status) {
         setDraggedProject(null);
         return;
       }
       
-      // Safety check: ensure dragged project is in the current project list
       const projectExists = projects.find(p => p.id === draggedProject.id);
       if (!projectExists) {
-        console.log('Drop ignored: project not in current list');
         setDraggedProject(null);
         return;
       }
@@ -131,7 +148,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
         setDraggedProject(null);
       }
     },
-    [draggedProject, onProjectsChange, projects]
+    [draggedProject, onProjectsChange, projects, isMobile]
   );
 
   if (loading) {
@@ -148,53 +165,17 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   }
 
   return (
-    <div style={{ height: '100%' }}>
+    <div className="kanban-board">
       {(error || actionError) && (
-        <div
-          style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '8px',
-            padding: '12px 16px',
-            marginBottom: '16px',
-            color: '#ef4444',
-            fontSize: '13px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}
-        >
+        <div className="kanban-error-banner">
           <span>⚠️</span>
           <span>{error || actionError}</span>
-          <button
-            onClick={() => setActionError(null)}
-            style={{
-              marginLeft: 'auto',
-              background: 'transparent',
-              border: 'none',
-              color: '#ef4444',
-              cursor: 'pointer',
-              fontSize: '16px',
-            }}
-          >
-            ×
-          </button>
+          <button onClick={() => setActionError(null)}>×</button>
         </div>
       )}
 
-      <div
-        style={{
-          display: 'flex',
-          gap: '16px',
-          height: 'calc(100% - 60px)',
-          overflowX: 'auto',
-          paddingBottom: '8px',
-          scrollSnapType: 'x mandatory',
-          '-webkit-overflow-scrolling': 'touch',
-          'scrollbar-width': 'none',
-          'ms-overflow-style': 'none',
-        }}
-      >
+      {/* Desktop: Horizontal Layout */}
+      <div className="kanban-board-desktop">
         {columns.map((column) => (
           <KanbanColumn
             key={column.status}
@@ -208,97 +189,62 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
             onDelete={handleDelete}
             onViewDetails={handleViewDetails}
             onAdd={() => handleAdd(column.status)}
+            isMobile={false}
+          />
+        ))}
+      </div>
+
+      {/* Mobile: Vertical Stack Layout */}
+      <div className="kanban-board-mobile">
+        {columns.map((column) => (
+          <KanbanColumn
+            key={column.status}
+            title={column.title}
+            status={column.status}
+            projects={getProjectsByStatus(column.status)}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onViewDetails={handleViewDetails}
+            onAdd={() => handleAdd(column.status)}
+            onMoveProject={handleMoveProject}
+            isMobile={true}
           />
         ))}
       </div>
 
       {/* Archived Section - Collapsible */}
-      <div style={{ marginTop: '16px' }}>
+      <div className="kanban-archived-section">
         <button
+          className="kanban-archived-toggle"
           onClick={() => setShowArchived(!showArchived)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '10px 16px',
-            background: 'linear-gradient(145deg, rgba(107, 114, 128, 0.2) 0%, rgba(75, 85, 99, 0.1) 100%)',
-            border: '1px solid rgba(107, 114, 128, 0.3)',
-            borderRadius: '10px',
-            color: '#9ca3af',
-            fontSize: '12px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            width: '100%',
-            justifyContent: 'flex-start',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = 'rgba(107, 114, 128, 0.5)';
-            e.currentTarget.style.color = '#d1d5db';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'rgba(107, 114, 128, 0.3)';
-            e.currentTarget.style.color = '#9ca3af';
-          }}
         >
           <span style={{ 
             transform: showArchived ? 'rotate(90deg)' : 'rotate(0deg)',
             transition: 'transform 0.2s ease',
           }}>▶</span>
           <span>📦 Archived</span>
-          <span style={{ 
-            marginLeft: 'auto', 
-            background: 'rgba(107, 114, 128, 0.25)',
-            padding: '2px 8px',
-            borderRadius: '9999px',
-            fontSize: '11px',
-          }}>
+          <span className="kanban-archived-count">
             {getProjectsByStatus('archived').length}
           </span>
         </button>
         
         {showArchived && (
-          <div
-            style={{
-              marginTop: '12px',
-              padding: '16px',
-              background: 'linear-gradient(145deg, rgba(26, 35, 50, 0.5) 0%, rgba(15, 23, 42, 0.3) 100%)',
-              borderRadius: '12px',
-              border: '1px solid rgba(107, 114, 128, 0.2)',
-            }}
-          >
+          <div className="kanban-archived-content">
             {getProjectsByStatus('archived').length === 0 ? (
-              <div style={{ color: '#6b7280', fontSize: '13px', textAlign: 'center', padding: '20px' }}>
-                No archived projects
-              </div>
+              <div className="kanban-archived-empty">No archived projects</div>
             ) : (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+              <div className="kanban-archived-list">
                 {getProjectsByStatus('archived').map((project) => (
                   <div
                     key={project.id}
+                    className="kanban-archived-item"
                     onClick={() => handleViewDetails(project)}
-                    style={{
-                      padding: '10px 14px',
-                      background: 'rgba(15, 23, 42, 0.6)',
-                      borderRadius: '8px',
-                      border: '1px solid rgba(107, 114, 128, 0.2)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      transition: 'all 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = 'rgba(107, 114, 128, 0.4)';
-                      e.currentTarget.style.background = 'rgba(15, 23, 42, 0.8)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = 'rgba(107, 114, 128, 0.2)';
-                      e.currentTarget.style.background = 'rgba(15, 23, 42, 0.6)';
-                    }}
                   >
-                    <span style={{ fontSize: '10px', opacity: 0.5 }}>📦</span>
-                    <span style={{ fontSize: '12px', color: '#9ca3af' }}>{project.title}</span>
+                    <span>📦</span>
+                    <span>{project.title}</span>
                   </div>
                 ))}
               </div>

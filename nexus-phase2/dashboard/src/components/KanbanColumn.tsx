@@ -14,9 +14,10 @@ interface KanbanColumnProps {
   onDelete: (id: string) => void;
   onViewDetails?: (project: Project) => void;
   onAdd: () => void;
+  onMoveProject?: (project: Project, newStatus: 'backlog' | 'in_progress' | 'done' | 'archived') => void;
+  isMobile?: boolean;
 }
 
-// Command Center Column Config
 const columnConfig: Record<string, { 
   color: string; 
   gradient: string; 
@@ -64,6 +65,26 @@ const sortByPriority = (projects: Project[]): Project[] => {
   return [...projects].sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
 };
 
+// Mobile move options based on current status
+const getMoveOptions = (currentStatus: string): { label: string; status: 'backlog' | 'in_progress' | 'done' | 'archived' }[] => {
+  const options: { label: string; status: 'backlog' | 'in_progress' | 'done' | 'archived' }[] = [];
+  
+  if (currentStatus !== 'backlog') {
+    options.push({ label: '← Backlog', status: 'backlog' });
+  }
+  if (currentStatus !== 'in_progress') {
+    options.push({ label: '⚡ In Progress', status: 'in_progress' });
+  }
+  if (currentStatus !== 'done') {
+    options.push({ label: '✓ Done', status: 'done' });
+  }
+  if (currentStatus !== 'archived') {
+    options.push({ label: '📦 Archive', status: 'archived' });
+  }
+  
+  return options;
+};
+
 export const KanbanColumn: React.FC<KanbanColumnProps> = memo(({
   title,
   status,
@@ -75,13 +96,15 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = memo(({
   onDelete,
   onViewDetails,
   onAdd,
+  onMoveProject,
+  isMobile = false,
 }) => {
   const sortedProjects = sortByPriority(projects);
   const config = columnConfig[status];
 
   return (
     <div
-      className="kanban-column"
+      className={`kanban-column ${isMobile ? 'kanban-column-mobile' : ''}`}
       style={{
         '--column-accent': config.accentColor,
         '--column-glow': config.glowColor,
@@ -89,10 +112,9 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = memo(({
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, status)}
     >
-      {/* Column Header - Command Center Style */}
+      {/* Column Header */}
       <div className="kanban-column-header">
         <div className="kanban-column-title">
-          {/* Icon with glow */}
           <div
             className="kanban-column-icon"
             style={{ background: config.gradient }}
@@ -110,7 +132,6 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = memo(({
           </div>
         </div>
         
-        {/* Add Button */}
         <button
           className="kanban-add-btn"
           onClick={onAdd}
@@ -125,7 +146,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = memo(({
         {sortedProjects.map((project, index) => (
           <div
             key={project.id}
-            draggable
+            draggable={!isMobile}
             onDragStart={(e) => onDragStart(e, project)}
             className="kanban-project-wrapper"
             style={{ animationDelay: `${index * 0.03}s` }}
@@ -135,14 +156,30 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = memo(({
               onEdit={onEdit}
               onDelete={onDelete}
               onViewDetails={onViewDetails}
+              isMobile={isMobile}
             />
+            
+            {/* Mobile Move Buttons */}
+            {isMobile && onMoveProject && (
+              <div className="kanban-mobile-move-actions">
+                {getMoveOptions(project.status).map((option) => (
+                  <button
+                    key={option.status}
+                    className="kanban-move-btn"
+                    onClick={() => onMoveProject(project, option.status)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         ))}
         
         {sortedProjects.length === 0 && (
           <div className="kanban-empty-state">
             <div className="kanban-empty-icon">📋</div>
-            <div>Drop projects here</div>
+            <div>{isMobile ? 'No projects yet' : 'Drop projects here'}</div>
           </div>
         )}
       </div>

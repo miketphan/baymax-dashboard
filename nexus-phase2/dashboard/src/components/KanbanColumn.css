@@ -139,13 +139,50 @@
   opacity: 0.5;
 }
 
+/* Mobile Move Actions */
+.kanban-mobile-move-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.kanban-move-btn {
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.5);
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.kanban-move-btn:hover {
+  background: rgba(153, 27, 27, 0.2);
+  border-color: rgba(153, 27, 27, 0.4);
+  color: #f8fafc;
+}
+
+.kanban-move-btn:active {
+  transform: scale(0.95);
+}
+
 /* Mobile Optimizations */
 @media (max-width: 768px) {
   .kanban-column {
-    min-width: 85vw;
-    max-width: 90vw;
+    min-width: 100%;
+    max-width: 100%;
+    width: 100%;
     padding: 16px;
     border-radius: 16px;
+  }
+
+  .kanban-column-mobile {
+    margin-bottom: 0;
   }
 
   .kanban-column-header {
@@ -176,24 +213,48 @@
     font-size: 22px;
   }
 
+  .kanban-add-btn:hover {
+    transform: none;
+  }
+
+  .kanban-add-btn:active {
+    background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+    color: #ffffff;
+    transform: scale(0.95);
+  }
+
   .kanban-projects-list {
     gap: 10px;
-    min-height: 120px;
+    min-height: auto;
+    max-height: none;
+  }
+
+  .kanban-project-wrapper {
+    cursor: default;
   }
 
   .kanban-empty-state {
-    padding: 40px 20px;
+    padding: 30px 20px;
     font-size: 12px;
   }
 
   .kanban-empty-icon {
     font-size: 28px;
   }
+
+  .kanban-mobile-move-actions {
+    gap: 8px;
+  }
+
+  .kanban-move-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: 36px;
+  }
 }
 
 @media (max-width: 414px) {
   .kanban-column {
-    min-width: 88vw;
     padding: 14px;
   }
 
@@ -209,7 +270,6 @@
 
 @media (max-width: 375px) {
   .kanban-column {
-    min-width: 90vw;
     padding: 12px;
   }
 
@@ -228,7 +288,6 @@
 
 @media (max-width: 320px) {
   .kanban-column {
-    min-width: 92vw;
     padding: 10px;
   }
 
@@ -238,6 +297,11 @@
 
   .kanban-projects-list {
     gap: 8px;
+  }
+
+  .kanban-move-btn {
+    padding: 6px 10px;
+    font-size: 11px;
   }
 }
 
@@ -250,18 +314,14 @@
     min-height: 44px;
   }
 
-  .kanban-add-btn:hover {
-    transform: none;
-  }
-
-  .kanban-add-btn:active {
-    background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
-    color: #ffffff;
-    transform: scale(0.95);
-  }
-
   .kanban-column:hover {
     border-color: rgba(255, 255, 255, 0.06);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .kanban-empty-state:hover {
+    border-color: rgba(59, 130, 246, 0.15);
+    background: rgba(15, 23, 42, 0.3);
+    color: #64748b;
   }
 }
