@@ -25,12 +25,12 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const [defaultStatus, setDefaultStatus] = useState<'backlog' | 'in_progress' | 'done' | 'archived'>('backlog');
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
 
-  const columns: { status: 'backlog' | 'in_progress' | 'done' | 'archived'; title: string }[] = [
+  const columns: { status: 'backlog' | 'in_progress' | 'done'; title: string }[] = [
     { status: 'backlog', title: 'Backlog' },
     { status: 'in_progress', title: 'In Progress' },
     { status: 'done', title: 'Done' },
-    { status: 'archived', title: 'Archived' },
   ];
 
   const getProjectsByStatus = (status: string) =>
@@ -100,7 +100,23 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const handleDrop = useCallback(
     async (e: React.DragEvent, status: 'backlog' | 'in_progress' | 'done' | 'archived') => {
       e.preventDefault();
-      if (!draggedProject || draggedProject.status === status) {
+      
+      // Safety check: ensure we have a valid dragged project
+      if (!draggedProject) {
+        console.log('Drop ignored: no dragged project');
+        return;
+      }
+      
+      // Safety check: don't update if status hasn't changed
+      if (draggedProject.status === status) {
+        setDraggedProject(null);
+        return;
+      }
+      
+      // Safety check: ensure dragged project is in the current project list
+      const projectExists = projects.find(p => p.id === draggedProject.id);
+      if (!projectExists) {
+        console.log('Drop ignored: project not in current list');
         setDraggedProject(null);
         return;
       }
@@ -115,7 +131,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
         setDraggedProject(null);
       }
     },
-    [draggedProject, onProjectsChange]
+    [draggedProject, onProjectsChange, projects]
   );
 
   if (loading) {
@@ -190,6 +206,101 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
             onAdd={() => handleAdd(column.status)}
           />
         ))}
+      </div>
+
+      {/* Archived Section - Collapsible */}
+      <div style={{ marginTop: '16px' }}>
+        <button
+          onClick={() => setShowArchived(!showArchived)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 16px',
+            background: 'linear-gradient(145deg, rgba(107, 114, 128, 0.2) 0%, rgba(75, 85, 99, 0.1) 100%)',
+            border: '1px solid rgba(107, 114, 128, 0.3)',
+            borderRadius: '10px',
+            color: '#9ca3af',
+            fontSize: '12px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            width: '100%',
+            justifyContent: 'flex-start',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(107, 114, 128, 0.5)';
+            e.currentTarget.style.color = '#d1d5db';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(107, 114, 128, 0.3)';
+            e.currentTarget.style.color = '#9ca3af';
+          }}
+        >
+          <span style={{ 
+            transform: showArchived ? 'rotate(90deg)' : 'rotate(0deg)',
+            transition: 'transform 0.2s ease',
+          }}>▶</span>
+          <span>📦 Archived</span>
+          <span style={{ 
+            marginLeft: 'auto', 
+            background: 'rgba(107, 114, 128, 0.25)',
+            padding: '2px 8px',
+            borderRadius: '9999px',
+            fontSize: '11px',
+          }}>
+            {getProjectsByStatus('archived').length}
+          </span>
+        </button>
+        
+        {showArchived && (
+          <div
+            style={{
+              marginTop: '12px',
+              padding: '16px',
+              background: 'linear-gradient(145deg, rgba(26, 35, 50, 0.5) 0%, rgba(15, 23, 42, 0.3) 100%)',
+              borderRadius: '12px',
+              border: '1px solid rgba(107, 114, 128, 0.2)',
+            }}
+          >
+            {getProjectsByStatus('archived').length === 0 ? (
+              <div style={{ color: '#6b7280', fontSize: '13px', textAlign: 'center', padding: '20px' }}>
+                No archived projects
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                {getProjectsByStatus('archived').map((project) => (
+                  <div
+                    key={project.id}
+                    onClick={() => handleViewDetails(project)}
+                    style={{
+                      padding: '10px 14px',
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(107, 114, 128, 0.2)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(107, 114, 128, 0.4)';
+                      e.currentTarget.style.background = 'rgba(15, 23, 42, 0.8)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(107, 114, 128, 0.2)';
+                      e.currentTarget.style.background = 'rgba(15, 23, 42, 0.6)';
+                    }}
+                  >
+                    <span style={{ fontSize: '10px', opacity: 0.5 }}>📦</span>
+                    <span style={{ fontSize: '12px', color: '#9ca3af' }}>{project.title}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <ProjectModal

@@ -2,529 +2,246 @@ import React, { useState, useEffect } from 'react';
 import { UsageData, api } from '../lib/api';
 import { Spinner, ErrorState } from '../components/LoadingStates';
 
-interface UsageLimitsProps {
-  compact?: boolean;
-}
+// Status Eye Component - Command Center Style
+const StatusEye: React.FC<{ status: 'healthy' | 'attention' | 'critical' }> = ({ status }) => {
+  const getStatusColor = () => {
+    switch (status) {
+      case 'healthy':
+        return { bg: '#10b981', glow: '0 0 10px rgba(16, 185, 129, 0.5)' };
+      case 'attention':
+        return { bg: '#f59e0b', glow: '0 0 10px rgba(245, 158, 11, 0.5)' };
+      case 'critical':
+        return { bg: '#dc2626', glow: '0 0 12px rgba(220, 38, 38, 0.6)', pulse: true };
+      default:
+        return { bg: '#6b7280', glow: 'none' };
+    }
+  };
 
-interface UsageBarProps {
-  usage: UsageData;
-  compact?: boolean;
-}
-
-const UsageBar: React.FC<UsageBarProps> = ({ usage, compact = false }) => {
-  const percentage = usage.limit_value > 0 
-    ? Math.min((usage.current_value / usage.limit_value) * 100, 100)
-    : 0;
-  
-  let barColor = '#10b981'; // green
-  if (percentage > 75) barColor = '#f59e0b'; // yellow
-  if (percentage > 90) barColor = '#ef4444'; // red
-
-  if (compact) {
-    return (
-      <div style={{ marginBottom: '12px' }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '6px',
-          }}
-        >
-          <span
-            style={{
-              color: '#f8fafc',
-              fontSize: '13px',
-              fontWeight: 500,
-              textTransform: 'capitalize',
-            }}
-          >
-            {usage.category.replace(/-/g, ' ')}
-          </span>
-          <span
-            style={{
-              color: percentage > 90 ? '#ef4444' : '#94a3b8',
-              fontSize: '12px',
-              fontWeight: 600,
-            }}
-          >
-            {Math.round(percentage)}%
-          </span>
-        </div>
-        <div
-          style={{
-            height: '6px',
-            background: '#1e293b',
-            borderRadius: '3px',
-            overflow: 'hidden',
-          }}
-        >
-          <div
-            style={{
-              width: `${percentage}%`,
-              height: '100%',
-              background: barColor,
-              borderRadius: '3px',
-              transition: 'width 0.3s ease',
-              boxShadow: percentage > 90 ? '0 0 10px rgba(239, 68, 68, 0.5)' : 'none',
-            }}
-          />
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginTop: '4px',
-          }}
-        >
-          <span style={{ color: '#64748b', fontSize: '10px' }}>
-            {usage.current_value.toLocaleString()} {usage.unit}
-          </span>
-          <span style={{ color: '#64748b', fontSize: '10px' }}>
-            {usage.limit_value.toLocaleString()} {usage.unit}
-          </span>
-        </div>
-      </div>
-    );
-  }
+  const colors = getStatusColor();
 
   return (
     <div
       style={{
-        background: '#1e293b',
-        borderRadius: '12px',
-        padding: '20px',
-        border: '1px solid #334155',
+        width: '14px',
+        height: '14px',
+        borderRadius: '50%',
+        background: colors.bg,
+        border: '2px solid #0a0f1a',
+        boxShadow: colors.glow,
+        position: 'relative',
+        flexShrink: 0,
+        animation: colors.pulse ? 'pulse 2s ease-in-out infinite' : 'none',
       }}
     >
       <div
         style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '12px',
+          position: 'absolute',
+          top: '2px',
+          left: '2px',
+          width: '3px',
+          height: '3px',
+          borderRadius: '50%',
+          background: 'rgba(255, 255, 255, 0.9)',
         }}
-      >
-        <div>
-          <h3
-            style={{
-              margin: '0 0 4px 0',
-              color: '#f8fafc',
-              fontSize: '14px',
-              fontWeight: 600,
-              textTransform: 'capitalize',
-            }}
-          >
-            {usage.category.replace(/-/g, ' ')}
-          </h3>
-          <span
-            style={{
-              color: '#64748b',
-              fontSize: '12px',
-            }}
-          >
-            {usage.period}
-          </span>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <span
-            style={{
-              color: '#f8fafc',
-              fontSize: '18px',
-              fontWeight: 700,
-            }}
-          >
-            {Math.round(percentage)}%
-          </span>
-          <span
-            style={{
-              display: 'block',
-              color: '#64748b',
-              fontSize: '11px',
-            }}
-          >
-            {usage.current_value.toLocaleString()} / {usage.limit_value.toLocaleString()} {usage.unit}
-          </span>
-        </div>
-      </div>
-
-      <div
-        style={{
-          height: '8px',
-          background: '#0f172a',
-          borderRadius: '4px',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            width: `${percentage}%`,
-            height: '100%',
-            background: barColor,
-            borderRadius: '4px',
-            transition: 'width 0.3s ease',
-          }}
-        />
-      </div>
-
-      {percentage > 90 && (
-        <div
-          style={{
-            marginTop: '12px',
-            padding: '8px 12px',
-            background: 'rgba(239, 68, 68, 0.1)',
-            borderRadius: '6px',
-            color: '#ef4444',
-            fontSize: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}
-        >
-          <span>⚠️</span>
-          Approaching limit
-        </div>
-      )}
+      />
     </div>
   );
 };
 
-export const UsageLimits: React.FC<UsageLimitsProps> = ({ compact = false }) => {
+export const UsageLimits: React.FC = () => {
   const [usageData, setUsageData] = useState<UsageData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadUsage = async () => {
-      try {
-        setLoading(true);
-        const data = await api.getUsage();
-        setUsageData(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load usage data');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadUsage = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await api.getUsage();
+      setUsageData(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load usage');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadUsage();
   }, []);
 
-  const totalUsed = usageData.reduce((sum, u) => sum + u.current_value, 0);
-  const totalLimit = usageData.reduce((sum, u) => sum + u.limit_value, 0);
-  const overallPercentage = totalLimit > 0 ? (totalUsed / totalLimit) * 100 : 0;
+  if (loading) return <Spinner size="small" />;
+  if (error) return <ErrorState message={error} onRetry={loadUsage} />;
 
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-        <Spinner size="medium" />
+  // Calculate overall health
+  const warningCount = usageData.filter(u => (u.current_value / u.limit_value) > 0.9).length;
+  const criticalCount = usageData.filter(u => (u.current_value / u.limit_value) > 0.95).length;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Compact Gauges Row - Sidebar Optimized */}
+      <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+        {usageData.map((usage) => {
+          const percent = usage.limit_value > 0 
+            ? Math.min((usage.current_value / usage.limit_value) * 100, 100)
+            : 0;
+          
+          const isCritical = percent > 95;
+          const isWarning = percent > 90;
+          
+          const color = isCritical ? '#dc2626' : isWarning ? '#f59e0b' : '#10b981';
+          const glowColor = isCritical ? 'rgba(220, 38, 38, 0.4)' : isWarning ? 'rgba(245, 158, 11, 0.3)' : 'rgba(16, 185, 129, 0.3)';
+          const borderColor = isCritical ? 'rgba(220, 38, 38, 0.4)' : isWarning ? 'rgba(245, 158, 11, 0.4)' : 'rgba(16, 185, 129, 0.4)';
+          
+          const icon = usage.category === 'llm_tokens' ? '🤖' : 
+                      usage.category === 'brave_search' ? '🔍' : '⚡';
+          
+          const shortName = usage.category === 'llm_tokens' ? 'Tokens' : 
+                           usage.category === 'brave_search' ? 'Search' : 'API';
+          
+          return (
+            <div
+              key={usage.category}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '10px 6px',
+                background: 'linear-gradient(145deg, rgba(26, 35, 50, 0.7) 0%, rgba(15, 23, 42, 0.5) 100%)',
+                borderRadius: '12px',
+                border: `1px solid ${borderColor}`,
+                boxShadow: `0 4px 16px rgba(0, 0, 0, 0.3), 0 0 20px ${glowColor}`,
+                flex: 1,
+                minWidth: 0,
+              }}
+            >
+              {/* Mini Gauge - Smaller */}
+              <div style={{ position: 'relative', width: '36px', height: '36px' }}>
+                <svg width="36" height="36" viewBox="0 0 50 50">
+                  <path
+                    d="M 10 42 A 20 20 0 1 1 40 42"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.08)"
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M 10 42 A 20 20 0 1 1 40 42"
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                    strokeDasharray={`${percent * 0.94} 126`}
+                    strokeDashoffset="0"
+                    style={{ 
+                      transition: 'stroke-dasharray 0.5s ease',
+                      filter: `drop-shadow(0 0 4px ${color})`,
+                    }}
+                    transform="rotate(-180 25 25)"
+                  />
+                </svg>
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    fontSize: '12px',
+                  }}
+                >
+                  {icon}
+                </div>
+              </div>
+              
+              {/* Label */}
+              <span style={{ 
+                color: '#94a3b8', 
+                fontSize: '9px', 
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.3px',
+              }}>
+                {shortName}
+              </span>
+              
+              {/* Percentage */}
+              <span style={{ 
+                color: color,
+                fontSize: '12px',
+                fontWeight: 700,
+                textShadow: `0 0 10px ${glowColor}`,
+              }}>
+                {Math.round(percent)}%
+              </span>
+            </div>
+          );
+        })}
       </div>
-    );
-  }
 
-  if (error) {
-    return <ErrorState message={error} />;
-  }
-
-  if (compact) {
-    return (
-      <div>
-        {/* Compact Header with Overall Stats */}
+      {/* Health Indicator - Dark Tech Card Style */}
+      {criticalCount > 0 && (
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
-            marginBottom: '16px',
-            padding: '12px',
-            background: '#1e293b',
-            borderRadius: '10px',
+            justifyContent: 'center',
+            gap: '10px',
+            padding: '14px 18px',
+            background: 'linear-gradient(145deg, rgba(220, 38, 38, 0.1) 0%, rgba(185, 28, 28, 0.05) 100%)',
+            borderRadius: '14px',
+            border: '1px solid rgba(220, 38, 38, 0.3)',
+            boxShadow: '0 4px 16px rgba(220, 38, 38, 0.15)',
           }}
         >
-          <div
-            style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '50%',
-              background: `conic-gradient(#3b82f6 ${overallPercentage * 3.6}deg, #334155 0deg)`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <div
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '50%',
-                background: '#0f172a',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <span
-                style={{
-                  color: '#f8fafc',
-                  fontWeight: 700,
-                  fontSize: '12px',
-                }}
-              >
-                {Math.round(overallPercentage)}%
-              </span>
-            </div>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <span style={{ color: '#f8fafc', fontWeight: 600, fontSize: '14px' }}>
-                Overall Usage
-              </span>
-              <span
-                style={{
-                  color: usageData.filter((u) => u.current_value / u.limit_value > 0.9).length > 0
-                    ? '#ef4444'
-                    : '#10b981',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                }}
-              >
-                {usageData.filter((u) => u.current_value / u.limit_value > 0.9).length > 0 ? '⚠️ ' : '✅ '}
-                {usageData.filter((u) => u.current_value / u.limit_value > 0.9).length} near limit
-              </span>
-            </div>
-            <div
-              style={{
-                height: '4px',
-                background: '#334155',
-                borderRadius: '2px',
-                marginTop: '8px',
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  width: `${overallPercentage}%`,
-                  height: '100%',
-                  background: overallPercentage > 90 ? '#ef4444' : '#3b82f6',
-                  borderRadius: '2px',
-                }}
-              />
-            </div>
-          </div>
+          <StatusEye status="critical" />
+          <span style={{ color: '#fca5a5', fontSize: '13px', fontWeight: 600 }}>
+            {criticalCount} critical limit reached
+          </span>
         </div>
-
-        {/* Compact Progress Bars */}
-        <div>
-          {usageData.slice(0, 4).map((usage) => (
-            <UsageBar key={usage.category} usage={usage} compact />
-          ))}
-        </div>
-
-        {usageData.length === 0 && (
-          <div
-            style={{
-              padding: '24px',
-              textAlign: 'center',
-              color: '#64748b',
-              fontSize: '13px',
-            }}
-          >
-            No usage data available
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // Full mode
-  return (
-    <div>
-      {/* Overview Card */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-          borderRadius: '16px',
-          padding: '24px',
-          marginBottom: '24px',
-          border: '1px solid #334155',
-        }}
-      >
+      )}
+      
+      {criticalCount === 0 && warningCount > 0 && (
         <div
           style={{
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            marginBottom: '16px',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            padding: '14px 18px',
+            background: 'linear-gradient(145deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%)',
+            borderRadius: '14px',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            boxShadow: '0 4px 16px rgba(245, 158, 11, 0.15)',
           }}
         >
-          <div>
-            <h2
-              style={{
-                margin: '0 0 4px 0',
-                color: '#f8fafc',
-                fontSize: '16px',
-                fontWeight: 600,
-              }}
-            >
-              Overall Usage
-            </h2>
-            <p
-              style={{
-                margin: 0,
-                color: '#64748b',
-                fontSize: '13px',
-              }}
-            >
-              Across all resources
-            </p>
-          </div>
-          <div
-            style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '50%',
-              background: `conic-gradient(#3b82f6 ${overallPercentage * 3.6}deg, #334155 0deg)`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <div
-              style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                background: '#0f172a',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <span
-                style={{
-                  color: '#f8fafc',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                }}
-              >
-                {Math.round(overallPercentage)}%
-              </span>
-            </div>
-          </div>
+          <StatusEye status="attention" />
+          <span style={{ color: '#fcd34d', fontSize: '13px', fontWeight: 600 }}>
+            {warningCount} near limit
+          </span>
         </div>
-
+      )}
+      
+      {criticalCount === 0 && warningCount === 0 && (
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '16px',
-            paddingTop: '16px',
-            borderTop: '1px solid #334155',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            padding: '14px 18px',
+            background: 'linear-gradient(145deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
+            borderRadius: '14px',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            boxShadow: '0 4px 16px rgba(16, 185, 129, 0.15)',
           }}
         >
-          <div>
-            <span
-              style={{
-                display: 'block',
-                color: '#64748b',
-                fontSize: '11px',
-                marginBottom: '4px',
-              }}
-            >
-              Active Resources
-            </span>
-            <span
-              style={{
-                color: '#f8fafc',
-                fontSize: '20px',
-                fontWeight: 700,
-              }}
-            >
-              {usageData.length}
-            </span>
-          </div>
-          <div>
-            <span
-              style={{
-                display: 'block',
-                color: '#64748b',
-                fontSize: '11px',
-                marginBottom: '4px',
-              }}
-            >
-              Near Limit
-            </span>
-            <span
-              style={{
-                color: usageData.filter((u) => u.current_value / u.limit_value > 0.9).length > 0
-                  ? '#ef4444'
-                  : '#10b981',
-                fontSize: '20px',
-                fontWeight: 700,
-              }}
-            >
-              {usageData.filter((u) => u.current_value / u.limit_value > 0.9).length}
-            </span>
-          </div>
-          <div>
-            <span
-              style={{
-                display: 'block',
-                color: '#64748b',
-                fontSize: '11px',
-                marginBottom: '4px',
-              }}
-            >
-              Plan
-            </span>
-            <span
-              style={{
-                color: '#f8fafc',
-                fontSize: '14px',
-                fontWeight: 600,
-              }}
-            >
-              Pro
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Usage Bars */}
-      <div
-        style={{
-          display: 'grid',
-          gap: '16px',
-        }}
-      >
-        {usageData.map((usage) => (
-          <UsageBar key={usage.category} usage={usage} />
-        ))}
-      </div>
-
-      {usageData.length === 0 && !error && (
-        <div
-          style={{
-            padding: '48px',
-            textAlign: 'center',
-            color: '#64748b',
-            background: '#0f172a',
-            borderRadius: '12px',
-            border: '1px dashed #334155',
-          }}
-        >
-          No usage data available
+          <StatusEye status="healthy" />
+          <span style={{ color: '#6ee7b7', fontSize: '13px', fontWeight: 600 }}>
+            All systems healthy
+          </span>
         </div>
       )}
     </div>
   );
 };
-
-export default UsageLimits;
