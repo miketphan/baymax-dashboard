@@ -21,29 +21,14 @@ const StatusEye: React.FC<{ status: 'online' | 'attention' | 'offline' }> = ({ s
 
   return (
     <div
+      className="w-3 h-3 rounded-full border-2 border-slate-900 flex-shrink-0"
       style={{
-        width: '12px',
-        height: '12px',
-        borderRadius: '50%',
         background: colors.bg,
-        border: '2px solid #0a0f1a',
         boxShadow: colors.glow,
-        position: 'relative',
-        flexShrink: 0,
       }}
     >
       {/* Eye highlight */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '1.5px',
-          left: '2px',
-          width: '3px',
-          height: '3px',
-          borderRadius: '50%',
-          background: 'rgba(255, 255, 255, 0.9)',
-        }}
-      />
+      <div className="w-[3px] h-[3px] rounded-full bg-white/90 mt-[1.5px] ml-[2px]" />
     </div>
   );
 };
@@ -86,106 +71,43 @@ export const ConnectedServices: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      {/* Status Summary - Sidebar Optimized */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '6px',
-        }}
-      >
-        <div
-          style={{
-            flex: 1,
-            padding: '10px 4px',
-            background: 'linear-gradient(145deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)',
-            borderRadius: '10px',
-            border: '1px solid rgba(16, 185, 129, 0.25)',
-            textAlign: 'center',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-          }}
-        >
-          <div style={{ fontSize: '14px', marginBottom: '2px' }}>✓</div>
-          <div style={{ color: '#10b981', fontSize: '16px', fontWeight: 700, textShadow: '0 0 10px rgba(16, 185, 129, 0.3)' }}>{onlineCount}</div>
-          <div style={{ color: '#64748b', fontSize: '9px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px' }}>Online</div>
+    <div className="flex flex-col gap-2">
+      {/* Status Summary */}
+      <div className="flex gap-2">
+        <div className="flex-1 py-2 px-1 bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 rounded-lg border border-emerald-500/25 text-center">
+          <div className="text-sm mb-0.5">✓</div>
+          <div className="text-emerald-500 text-base font-bold">{onlineCount}</div>
+          <div className="text-slate-500 text-[9px] font-semibold uppercase tracking-wide">Online</div>
         </div>
         
-        <div
-          style={{
-            flex: 1,
-            padding: '10px 4px',
-            background: 'linear-gradient(145deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%)',
-            borderRadius: '10px',
-            border: `1px solid ${attentionCount > 0 ? 'rgba(245, 158, 11, 0.4)' : 'rgba(255, 255, 255, 0.08)'}`,
-            textAlign: 'center',
-            boxShadow: attentionCount > 0 ? '0 4px 12px rgba(245, 158, 11, 0.15)' : '0 4px 12px rgba(0, 0, 0, 0.2)',
-          }}
-        >
-          <div style={{ fontSize: '14px', marginBottom: '2px' }}>⚠</div>
-          <div style={{ color: attentionCount > 0 ? '#f59e0b' : '#64748b', fontSize: '16px', fontWeight: 700 }}>{attentionCount}</div>
-          <div style={{ color: '#64748b', fontSize: '9px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px' }}>Alert</div>
+        <div className={`flex-1 py-2 px-1 rounded-lg border text-center ${attentionCount > 0 ? 'bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-amber-500/40' : 'bg-slate-800/50 border-white/5'}`}>
+          <div className="text-sm mb-0.5">⚠</div>
+          <div className={`text-base font-bold ${attentionCount > 0 ? 'text-amber-500' : 'text-slate-500'}`}>{attentionCount}</div>
+          <div className="text-slate-500 text-[9px] font-semibold uppercase tracking-wide">Alert</div>
         </div>
         
-        <div
-          style={{
-            flex: 1,
-            padding: '10px 4px',
-            background: 'linear-gradient(145deg, rgba(220, 38, 38, 0.1) 0%, rgba(185, 28, 28, 0.05) 100%)',
-            borderRadius: '10px',
-            border: `1px solid ${offlineCount > 0 ? 'rgba(220, 38, 38, 0.4)' : 'rgba(255, 255, 255, 0.08)'}`,
-            textAlign: 'center',
-            boxShadow: offlineCount > 0 ? '0 4px 12px rgba(220, 38, 38, 0.15)' : '0 4px 12px rgba(0, 0, 0, 0.2)',
-          }}
-        >
-          <div style={{ fontSize: '14px', marginBottom: '2px' }}>✕</div>
-          <div style={{ color: offlineCount > 0 ? '#dc2626' : '#64748b', fontSize: '16px', fontWeight: 700 }}>{offlineCount}</div>
-          <div style={{ color: '#64748b', fontSize: '9px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px' }}>Offline</div>
+        <div className={`flex-1 py-2 px-1 rounded-lg border text-center ${offlineCount > 0 ? 'bg-gradient-to-br from-red-500/10 to-red-600/5 border-red-500/40' : 'bg-slate-800/50 border-white/5'}`}>
+          <div className="text-sm mb-0.5">✕</div>
+          <div className={`text-base font-bold ${offlineCount > 0 ? 'text-red-500' : 'text-slate-500'}`}>{offlineCount}</div>
+          <div className="text-slate-500 text-[9px] font-semibold uppercase tracking-wide">Offline</div>
         </div>
       </div>
 
-      {/* Compact Service List - Dark Tech Cards */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      {/* Service List - Compact */}
+      <div className="flex flex-col gap-1.5">
         {services.map((service) => (
           <div
             key={service.id}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              padding: '12px 14px',
-              background: 'linear-gradient(145deg, rgba(26, 35, 50, 0.6) 0%, rgba(15, 23, 42, 0.4) 100%)',
-              borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.06)',
-              transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-              cursor: 'pointer',
-              backdropFilter: 'blur(8px)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.3)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.06)';
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
+            className="flex items-center gap-2 px-2 py-2 bg-slate-800/40 rounded-lg border border-white/5 transition-all hover:border-blue-500/30"
           >
-            <span style={{ fontSize: '18px' }}>{serviceIcons[service.id] || '🔌'}</span>
+            <span className="text-base">{serviceIcons[service.id] || '🔌'}</span>
             
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ 
-                color: '#f8fafc', 
-                fontSize: '13px', 
-                fontWeight: 600,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}>
+            <div className="flex-1 min-w-0">
+              <div className="text-slate-200 text-xs font-medium truncate">
                 {service.display_name || service.name}
               </div>
               {service.last_check && (
-                <div style={{ color: '#64748b', fontSize: '10px', fontWeight: 500 }}>
+                <div className="text-slate-500 text-[9px]">
                   {new Date(service.last_check).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
               )}

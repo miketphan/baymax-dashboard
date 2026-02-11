@@ -210,9 +210,9 @@ When an update is available and Mike confirms he wants to proceed:
 
 ## Nexus Dashboard (Phase 2)
 
-**Current URL:** https://adff9163.nexus-dashboard-34z.pages.dev
+**Current URL:** https://7a3f4faa.nexus-dashboard-34z.pages.dev
 
-**Status:** Mobile vertical stack layout deployed
+**Status:** All sections restored, proper padding
 
 **Note:** Always provide this URL when Mike asks for the latest Nexus link.
 

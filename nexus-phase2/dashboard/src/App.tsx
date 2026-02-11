@@ -107,12 +107,13 @@ const BaymaxArmoredHead: React.FC<{ className?: string }> = ({ className }) => (
 // SimpleCard Component - Performance Optimized (no backdrop-filter)
 // ============================================
 
-const SimpleCard: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ 
+const SimpleCard: React.FC<{ children: React.ReactNode; style?: React.CSSProperties; className?: string }> = ({ 
   children, 
-  style = {} 
+  style = {},
+  className = ''
 }) => (
   <div
-    className="simple-card"
+    className={`simple-card ${className}`}
     style={{
       background: 'linear-gradient(145deg, rgba(26, 35, 50, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
       borderRadius: '16px',
@@ -469,56 +470,75 @@ const App: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main
-        style={{
-          padding: '24px',
-          maxWidth: '1800px',
-          margin: '0 auto',
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
-        {/* Main Layout - Usage Sidebar */}
-        <div style={{ display: 'flex', gap: '20px' }}>
-          {/* Sidebar - Usage & Services */}
-          <div style={{ width: '280px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <SimpleCard style={{ padding: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                <span style={{ fontSize: '14px' }}>📊</span>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc' }}>Usage</span>
+      <main className="flex-1 px-4 py-3 md:p-6 max-w-[1800px] mx-auto relative z-10 w-full">
+        {/* Main Layout - Stack everything on mobile */}
+        <div className="flex flex-col gap-3 md:gap-5">
+          
+          {/* Mobile: Usage & Services - Full width, above projects */}
+          <div className="flex flex-col gap-3 md:hidden">
+            <SimpleCard className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-sm">📊</span>
+                <span className="text-xs font-semibold text-slate-100">Usage</span>
               </div>
               <UsageLimits />
             </SimpleCard>
 
-            <SimpleCard style={{ padding: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                <span style={{ fontSize: '14px' }}>🔌</span>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc' }}>Services</span>
+            <SimpleCard className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-sm">🔌</span>
+                <span className="text-xs font-semibold text-slate-100">Services</span>
               </div>
               <ConnectedServices />
             </SimpleCard>
           </div>
 
-          {/* Main Content */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Projects Section */}
-            <SimpleCard style={{ flex: 1, padding: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                <span style={{ fontSize: '14px' }}>📋</span>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc' }}>Projects</span>
-              </div>
-              <ProjectsKanban refreshKey={projectsRefreshKey} />
-            </SimpleCard>
+          {/* Projects Section - Full width */}
+          <SimpleCard className="flex-1 p-4 md:p-4 overflow-hidden">
+            <div className="flex items-center gap-2 mb-2 md:mb-3">
+              <span className="text-sm">📋</span>
+              <span className="text-xs font-semibold text-slate-100">Projects</span>
+            </div>
+            <ProjectsKanban refreshKey={projectsRefreshKey} />
+          </SimpleCard>
 
-            {/* Operations Manual */}
-            <SimpleCard style={{ padding: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                <span style={{ fontSize: '14px' }}>📖</span>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc' }}>Operations Manual</span>
-              </div>
-              <OperationsManual />
-            </SimpleCard>
+          {/* Desktop: Sidebar */}
+          <div className="hidden md:flex gap-5">
+            <div className="w-[280px] flex-shrink-0 flex flex-col gap-4">
+              <SimpleCard className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-sm">📊</span>
+                  <span className="text-xs font-semibold text-slate-100">Usage</span>
+                </div>
+                <UsageLimits />
+              </SimpleCard>
+
+              <SimpleCard className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-sm">🔌</span>
+                  <span className="text-xs font-semibold text-slate-100">Services</span>
+                </div>
+                <ConnectedServices />
+              </SimpleCard>
+
+              <SimpleCard className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-sm">📖</span>
+                  <span className="text-xs font-semibold text-slate-100">Operations Manual</span>
+                </div>
+                <OperationsManual />
+              </SimpleCard>
+            </div>
           </div>
+
+          {/* Mobile: Operations Manual */}
+          <SimpleCard className="md:hidden p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs">📖</span>
+              <span className="text-[10px] font-semibold text-slate-100">Operations Manual</span>
+            </div>
+            <OperationsManual />
+          </SimpleCard>
         </div>
       </main>
     </div>

@@ -12,31 +12,23 @@ interface ProjectCardProps {
 
 const priorityConfig = {
   high: { 
-    bgClass: 'bg-red-700/15',
-    borderClass: 'border-red-600/30',
-    glowClass: 'shadow-red-600/20',
+    bgClass: 'bg-red-500/20',
+    borderClass: 'border-red-500/30',
+    dotClass: 'bg-red-500',
     label: 'HIGH',
-    textClass: 'text-red-300',
   },
   medium: { 
-    bgClass: 'bg-amber-500/12',
-    borderClass: 'border-amber-500/25',
-    glowClass: 'shadow-amber-500/15',
+    bgClass: 'bg-amber-500/20',
+    borderClass: 'border-amber-500/30',
+    dotClass: 'bg-amber-500',
     label: 'MED',
-    textClass: 'text-amber-300',
   },
   low: { 
-    bgClass: 'bg-blue-700/12',
-    borderClass: 'border-blue-500/25',
-    glowClass: 'shadow-blue-500/15',
+    bgClass: 'bg-blue-500/20',
+    borderClass: 'border-blue-500/30',
+    dotClass: 'bg-blue-500',
     label: 'LOW',
-    textClass: 'text-blue-300',
   },
-};
-
-const truncateDescription = (text: string, maxLength: number = 80): string => {
-  if (!text || text.length <= maxLength) return text || '';
-  return text.substring(0, maxLength).trim() + '...';
 };
 
 export const ProjectCard: React.FC<ProjectCardProps> = memo(({
@@ -49,7 +41,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = memo(({
 }) => {
   const [isNotifying, setIsNotifying] = useState(false);
   const [notificationSent, setNotificationSent] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleTriggerBaymax = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -73,115 +64,93 @@ export const ProjectCard: React.FC<ProjectCardProps> = memo(({
   };
 
   const handleCardClick = () => {
-    if (onViewDetails && !isExpanded) {
+    if (onViewDetails) {
       onViewDetails(project);
-    } else {
-      setIsExpanded(!isExpanded);
     }
   };
 
   const config = priorityConfig[project.priority];
 
+  // Truncate description
+  const shortDesc = project.description 
+    ? project.description.length > 60 
+      ? project.description.substring(0, 60) + '...'
+      : project.description
+    : null;
+
   return (
     <div
       className={`
-        relative p-3 md:p-4 rounded-xl
-        bg-slate-900/60 border ${config.borderClass}
-        backdrop-blur-sm
-        transition-all duration-300
-        hover:border-opacity-60 hover:shadow-lg ${config.glowClass}
-        cursor-pointer
-        ${isMobile ? 'touch-manipulation' : ''}
+        relative rounded-lg border ${config.borderClass} ${config.bgClass}
+        transition-all duration-200 active:scale-[0.98]
+        ${isMobile ? 'p-2' : 'p-3'}
       `}
       onClick={handleCardClick}
       {...dragHandleProps}
     >
-      {/* Priority Badge */}
-      <div
-        className={`
-          inline-block px-2 py-0.5 rounded text-[10px] font-bold tracking-wider
-          ${config.bgClass} ${config.textClass} ${config.borderClass}
-          border mb-2
-        `}
-      >
-        {config.label}
+      {/* Top Row: Priority dot + Title + Actions */}
+      <div className="flex items-start gap-2">
+        {/* Priority indicator */}
+        <div className={`w-2 h-2 rounded-full ${config.dotClass} mt-1.5 flex-shrink-0`} />
+        
+        {/* Title */}
+        <h4 className={`flex-1 font-medium text-slate-200 leading-tight ${isMobile ? 'text-xs' : 'text-sm'}`}>
+          {project.title}
+        </h4>
+        
+        {/* Quick Actions */}
+        <div className="flex gap-0.5 flex-shrink-0">
+          <button
+            onClick={handleTriggerBaymax}
+            disabled={isNotifying}
+            className={`
+              p-1 rounded transition-colors
+              ${notificationSent 
+                ? 'text-emerald-400' 
+                : 'text-slate-500 hover:text-slate-300'}
+              disabled:opacity-50
+            `}
+            title="Alert Baymax"
+          >
+            <span className="text-xs">{isNotifying ? '⏳' : notificationSent ? '✓' : '🤖'}</span>
+          </button>
+          
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(project);
+            }}
+            className="p-1 rounded text-slate-500 hover:text-slate-300 transition-colors"
+            title="Edit"
+          >
+            <span className="text-xs">✎</span>
+          </button>
+        </div>
       </div>
-
-      {/* Title */}
-      <h4 className="text-sm md:text-base font-semibold text-slate-100 mb-1 pr-12">
-        {project.title}
-      </h4>
-
-      {/* Short Description */}
-      {project.description && (
-        <p className="text-xs md:text-sm text-slate-400 line-clamp-2">
-          {truncateDescription(project.description)}
+      
+      {/* Description - only if exists */}
+      {shortDesc && (
+        <p className={`mt-1 text-slate-500 leading-snug ${isMobile ? 'text-[10px] line-clamp-1' : 'text-xs line-clamp-2'}`}>
+          {shortDesc}
         </p>
       )}
-
-      {/* Expanded Details */}
-      {isExpanded && project.description && project.description.length > 80 && (
-        <div className="mt-3 p-3 bg-slate-800/50 rounded-lg border border-white/5">
-          <p className="text-xs md:text-sm text-slate-300">
-            {project.description}
-          </p>
-        </div>
-      )}
-
-      {/* Action Buttons */}
-      <div className="flex gap-2 mt-3">
-        <button
-          onClick={handleTriggerBaymax}
-          disabled={isNotifying}
-          className={`
-            flex-1 flex items-center justify-center gap-1.5
-            px-3 py-2 rounded-lg text-xs font-medium
-            transition-all duration-200
-            ${notificationSent 
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-              : 'bg-red-700/20 text-red-300 border border-red-700/30 hover:bg-red-700/30'}
-            disabled:opacity-50
-          `}
-        >
-          <span>{isNotifying ? '⏳' : notificationSent ? '✓' : '🤖'}</span>
-          <span>{isNotifying ? '...' : notificationSent ? 'Sent' : 'Alert'}</span>
-        </button>
-
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(project);
-          }}
-          className="
-            px-3 py-2 rounded-lg text-xs font-medium
-            bg-blue-600/20 text-blue-300 border border-blue-600/30
-            transition-all hover:bg-blue-600/30
-          "
-        >
-          Edit
-        </button>
-
+      
+      {/* Bottom: Priority label & Delete */}
+      <div className="flex justify-between items-center mt-2">
+        <span className={`text-[9px] font-bold tracking-wider ${config.dotClass.replace('bg-', 'text-')}`}>
+          {config.label}
+        </span>
+        
         <button
           onClick={(e) => {
             e.stopPropagation();
             onDelete(project.id);
           }}
-          className="
-            px-3 py-2 rounded-lg text-xs font-medium
-            bg-red-600/20 text-red-300 border border-red-600/30
-            transition-all hover:bg-red-600/30
-          "
+          className="text-[10px] text-slate-600 hover:text-red-400 transition-colors"
         >
-          Del
+          Delete
         </button>
       </div>
-
-      {/* Click hint */}
-      {project.description && project.description.length > 80 && (
-        <div className="text-[10px] text-slate-500 mt-2 text-center">
-          {isExpanded ? '▼ Click to collapse' : '▶ Click to expand'}
-        </div>
-      )}
     </div>
   );
 });

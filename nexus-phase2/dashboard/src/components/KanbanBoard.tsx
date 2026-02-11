@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Project, api, CreateProjectRequest, UpdateProjectRequest } from '../lib/api';
 import { KanbanColumn } from './KanbanColumn';
 import { ProjectModal } from './ProjectModal';
@@ -26,7 +26,9 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [activeColumn, setActiveColumn] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   // Detect mobile viewport
   useEffect(() => {
@@ -38,14 +40,33 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const columns: { status: 'backlog' | 'in_progress' | 'done'; title: string }[] = [
-    { status: 'backlog', title: 'Backlog' },
-    { status: 'in_progress', title: 'In Progress' },
-    { status: 'done', title: 'Done' },
+  const columns: { status: 'backlog' | 'in_progress' | 'done'; title: string; color: string }[] = [
+    { status: 'backlog', title: 'Backlog', color: '#6b7280' },
+    { status: 'in_progress', title: 'In Progress', color: '#dc2626' },
+    { status: 'done', title: 'Done', color: '#10b981' },
   ];
 
   const getProjectsByStatus = (status: string) =>
     projects.filter((p) => p.status === status);
+
+  // Handle scroll snap to detect active column
+  const handleScroll = () => {
+    if (!scrollRef.current || !isMobile) return;
+    const scrollLeft = scrollRef.current.scrollLeft;
+    const columnWidth = scrollRef.current.offsetWidth;
+    const newIndex = Math.round(scrollLeft / columnWidth);
+    if (newIndex !== activeColumn && newIndex >= 0 && newIndex < columns.length) {
+      setActiveColumn(newIndex);
+    }
+  };
+
+  // Scroll to specific column
+  const scrollToColumn = (index: number) => {
+    if (!scrollRef.current) return;
+    const columnWidth = scrollRef.current.offsetWidth;
+    scrollRef.current.scrollTo({ left: columnWidth * index, behavior: 'smooth' });
+    setActiveColumn(index);
+  };
 
   const handleAdd = (status: 'backlog' | 'in_progress' | 'done' | 'archived') => {
     setEditingProject(null);
@@ -107,6 +128,17 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     }
   };
 
+  // Quick move to next/previous column
+  const handleQuickMove = async (project: Project, direction: 'left' | 'right') => {
+    const statusOrder = ['backlog', 'in_progress', 'done'];
+    const currentIndex = statusOrder.indexOf(project.status);
+    let newIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
+    
+    if (newIndex >= 0 && newIndex < statusOrder.length) {
+      await handleMoveProject(project, statusOrder[newIndex] as 'backlog' | 'in_progress' | 'done');
+    }
+  };
+
   const handleDragStart = useCallback((e: React.DragEvent, project: Project) => {
     if (isMobile) return;
     setDraggedProject(project);
@@ -164,23 +196,49 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   }
 
   return (
-    <div className="h-full">
+    <div className="h-full flex flex-col">
       {/* Error Banner */}
       {(error || actionError) && (
-        <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 mb-4 text-red-400 text-sm">
+        <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 mb-3 text-red-400 text-xs flex-shrink-0">
           <span>⚠️</span>
-          <span>{error || actionError}</span>
+          <span className="flex-1 truncate">{error || actionError}</span>
           <button 
             onClick={() => setActionError(null)}
-            className="ml-auto bg-transparent border-none text-red-400 text-lg hover:text-red-300"
+            className="text-red-400 hover:text-red-300 text-lg leading-none"
           >
             ×
           </button>
         </div>
       )}
 
+      {/* Mobile: Column Tabs */}
+      {isMobile && (
+        <div className="flex-shrink-0 flex gap-1 mb-2 bg-slate-800/50 p-1 rounded-lg">
+          {columns.map((col, idx) => (
+            <button
+              key={col.status}
+              onClick={() => scrollToColumn(idx)}
+              className={`
+                flex-1 py-2 px-2 rounded-md text-xs font-medium transition-all
+                ${activeColumn === idx 
+                  ? 'bg-slate-700 text-white shadow' 
+                  : 'text-slate-400 hover:text-slate-200'}
+              `}
+              style={{ 
+                borderBottom: activeColumn === idx ? `2px solid ${col.color}` : '2px solid transparent'
+              }}
+            >
+              <span className="block truncate">{col.title}</span>
+              <span className="text-[10px] opacity-70">
+                {getProjectsByStatus(col.status).length}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Desktop: Horizontal Layout */}
-      <div className="hidden md:flex gap-4 h-[calc(100%-60px)] overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
+      <div className="hidden md:flex gap-3 flex-1 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
         {columns.map((column) => (
           <KanbanColumn
             key={column.status}
@@ -199,32 +257,56 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
         ))}
       </div>
 
-      {/* Mobile: Vertical Stack Layout */}
-      <div className="flex md:hidden flex-col gap-5 pb-24">
+      {/* Mobile: Swipeable Horizontal Layout - No overflow */}
+      <div 
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex md:hidden flex-1 w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+      >
         {columns.map((column) => (
-          <KanbanColumn
+          <div 
             key={column.status}
-            title={column.title}
-            status={column.status}
-            projects={getProjectsByStatus(column.status)}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onViewDetails={handleViewDetails}
-            onAdd={() => handleAdd(column.status)}
-            onMoveProject={handleMoveProject}
-            isMobile={true}
-          />
+            className="w-full h-full flex-shrink-0 snap-start px-2"
+          >
+            <KanbanColumn
+              title={column.title}
+              status={column.status}
+              projects={getProjectsByStatus(column.status)}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onViewDetails={handleViewDetails}
+              onAdd={() => handleAdd(column.status)}
+              onQuickMove={handleQuickMove}
+              isMobile={true}
+            />
+          </div>
         ))}
       </div>
 
+      {/* Mobile: Column Indicator Dots */}
+      {isMobile && (
+        <div className="flex-shrink-0 flex justify-center gap-2 py-2">
+          {columns.map((col, idx) => (
+            <button
+              key={col.status}
+              onClick={() => scrollToColumn(idx)}
+              className={`
+                w-2 h-2 rounded-full transition-all
+                ${activeColumn === idx ? 'bg-white w-4' : 'bg-slate-600'}
+              `}
+            />
+          ))}
+        </div>
+      )}
+
       {/* Archived Section - Collapsible */}
-      <div className="mt-4">
+      <div className="flex-shrink-0 mt-2">
         <button
           onClick={() => setShowArchived(!showArchived)}
-          className="flex items-center gap-2 w-full px-4 py-2.5 bg-gradient-to-br from-gray-700/20 to-gray-600/10 border border-gray-500/30 rounded-lg text-gray-400 text-xs font-semibold transition-all hover:border-gray-500/50 hover:text-gray-300"
+          className="flex items-center gap-2 w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-slate-400 text-xs font-medium transition-all hover:border-slate-600 hover:text-slate-300"
         >
           <span 
             className="transition-transform duration-200"
@@ -233,25 +315,25 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
             ▶
           </span>
           <span>📦 Archived</span>
-          <span className="ml-auto bg-gray-600/25 px-2 py-0.5 rounded-full text-xs">
+          <span className="ml-auto bg-slate-700/50 px-2 py-0.5 rounded-full text-[10px]">
             {getProjectsByStatus('archived').length}
           </span>
         </button>
         
         {showArchived && (
-          <div className="mt-3 p-4 bg-gradient-to-br from-slate-800/50 to-slate-900/30 rounded-xl border border-gray-500/20">
+          <div className="mt-2 p-3 bg-slate-800/30 rounded-lg border border-slate-700/30">
             {getProjectsByStatus('archived').length === 0 ? (
-              <div className="text-gray-500 text-sm text-center py-5">No archived projects</div>
+              <div className="text-slate-500 text-xs text-center py-3">No archived projects</div>
             ) : (
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2">
                 {getProjectsByStatus('archived').map((project) => (
                   <div
                     key={project.id}
                     onClick={() => handleViewDetails(project)}
-                    className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-900/60 rounded-lg border border-gray-500/20 cursor-pointer transition-all hover:border-gray-500/40 hover:bg-slate-900/80"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-900/60 rounded-md border border-slate-700/30 cursor-pointer text-xs text-slate-400 hover:border-slate-600 hover:bg-slate-900/80"
                   >
-                    <span className="text-xs opacity-50">📦</span>
-                    <span className="text-xs text-gray-400">{project.title}</span>
+                    <span className="opacity-50">📦</span>
+                    <span className="truncate max-w-[120px]">{project.title}</span>
                   </div>
                 ))}
               </div>
