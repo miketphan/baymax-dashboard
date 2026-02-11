@@ -104,16 +104,20 @@ const BaymaxArmoredHead: React.FC<{ className?: string }> = ({ className }) => (
 );
 
 // ============================================
-// GlassCard Component - Command Center Style
+// SimpleCard Component - Performance Optimized (no backdrop-filter)
 // ============================================
 
-const GlassCard: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ 
+const SimpleCard: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ 
   children, 
   style = {} 
 }) => (
   <div
-    className="glass-card"
+    className="simple-card"
     style={{
+      background: 'linear-gradient(145deg, rgba(26, 35, 50, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
+      borderRadius: '16px',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
       padding: '20px',
       ...style,
     }}
@@ -299,16 +303,16 @@ const App: React.FC = () => {
           right: 0,
           bottom: 0,
           backgroundImage: `
-            linear-gradient(rgba(59, 130, 246, 0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(59, 130, 246, 0.04) 1px, transparent 1px)
+            linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px)
           `,
-          backgroundSize: '40px 40px',
+          backgroundSize: '50px 50px',
           pointerEvents: 'none',
           zIndex: 0,
         }}
       />
       
-      {/* Scan Lines Effect - Behind cards */}
+      {/* Scan Lines Effect - Simplified for performance */}
       <div
         style={{
           position: 'fixed',
@@ -316,24 +320,24 @@ const App: React.FC = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.15) 2px, rgba(0, 0, 0, 0.15) 4px)',
+          background: 'repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(0, 0, 0, 0.1) 4px, rgba(0, 0, 0, 0.1) 8px)',
           pointerEvents: 'none',
           zIndex: 0,
-          opacity: 0.4,
+          opacity: 0.3,
         }}
       />
       
-      {/* Moving Scan Line - Behind cards */}
+      {/* Moving Scan Line - CSS only */}
       <div
+        className="scanline"
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           height: '2px',
-          background: 'linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.4), transparent)',
-          boxShadow: '0 0 10px rgba(59, 130, 246, 0.6)',
-          animation: 'scanline 8s linear infinite',
+          background: 'linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent)',
+          animation: 'scanline 12s linear infinite',
           pointerEvents: 'none',
           zIndex: 0,
         }}
@@ -342,8 +346,9 @@ const App: React.FC = () => {
       {/* Command Center Header */}
       <header
         style={{
-          background: 'linear-gradient(180deg, rgba(10, 15, 26, 0.95) 0%, rgba(15, 23, 42, 0.9) 100%)',
-          backdropFilter: 'blur(20px) saturate(180%)',
+          background: 'linear-gradient(180deg, rgba(10, 15, 26, 0.98) 0%, rgba(15, 23, 42, 0.95) 100%)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
           borderBottom: '1px solid rgba(153, 27, 27, 0.3)',
           padding: '16px 24px',
           display: 'flex',
@@ -352,7 +357,7 @@ const App: React.FC = () => {
           position: 'sticky',
           top: 0,
           zIndex: 100,
-          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.5), 0 0 40px rgba(153, 27, 27, 0.1)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
         }}
       >
         <div
@@ -400,7 +405,7 @@ const App: React.FC = () => {
                 textShadow: '0 0 10px rgba(153, 27, 27, 0.5)',
               }}
             >
-              Command Center
+              Mainframe
             </span>
           </div>
         </div>
@@ -477,42 +482,42 @@ const App: React.FC = () => {
         <div style={{ display: 'flex', gap: '20px' }}>
           {/* Sidebar - Usage & Services */}
           <div style={{ width: '280px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <GlassCard style={{ padding: '16px' }}>
+            <SimpleCard style={{ padding: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <span style={{ fontSize: '14px' }}>📊</span>
                 <span style={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc' }}>Usage</span>
               </div>
               <UsageLimits />
-            </GlassCard>
+            </SimpleCard>
 
-            <GlassCard style={{ padding: '16px' }}>
+            <SimpleCard style={{ padding: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <span style={{ fontSize: '14px' }}>🔌</span>
                 <span style={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc' }}>Services</span>
               </div>
               <ConnectedServices />
-            </GlassCard>
+            </SimpleCard>
           </div>
 
           {/* Main Content */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {/* Projects Section */}
-            <GlassCard style={{ flex: 1, padding: '16px' }}>
+            <SimpleCard style={{ flex: 1, padding: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <span style={{ fontSize: '14px' }}>📋</span>
                 <span style={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc' }}>Projects</span>
               </div>
               <ProjectsKanban refreshKey={projectsRefreshKey} />
-            </GlassCard>
+            </SimpleCard>
 
             {/* Operations Manual */}
-            <GlassCard style={{ padding: '16px' }}>
+            <SimpleCard style={{ padding: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <span style={{ fontSize: '14px' }}>📖</span>
                 <span style={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc' }}>Operations Manual</span>
               </div>
               <OperationsManual />
-            </GlassCard>
+            </SimpleCard>
           </div>
         </div>
       </main>

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { Project, api } from '../lib/api';
+import './ProjectCard.css';
 
 interface ProjectCardProps {
   project: Project;
@@ -38,7 +39,7 @@ const truncateDescription = (text: string, maxLength: number = 80): string => {
   return text.substring(0, maxLength).trim() + '...';
 };
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({
+export const ProjectCard: React.FC<ProjectCardProps> = memo(({
   project,
   onEdit,
   onDelete,
@@ -82,175 +83,88 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
   return (
     <div
+      className={`project-card project-card--${project.priority}`}
       style={{
-        background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)',
-        borderRadius: '12px',
-        padding: '14px',
-        cursor: 'pointer',
-        border: `1px solid ${config.border}`,
-        position: 'relative',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
-      }}
+        '--card-border': config.border,
+        '--card-glow': config.glow,
+        '--card-color': config.color,
+      } as React.CSSProperties}
       onClick={handleCardClick}
       {...dragHandleProps}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-3px) scale(1.01)';
-        e.currentTarget.style.boxShadow = config.glow;
-        e.currentTarget.style.borderColor = config.color;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0) scale(1)';
-        e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.3)';
-        e.currentTarget.style.borderColor = config.border;
-      }}
     >
       {/* Priority Badge */}
       <div
+        className="priority-badge"
         style={{
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
-          padding: '3px 10px',
-          borderRadius: '6px',
-          fontSize: '9px',
-          fontWeight: 800,
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
           background: config.bg,
           color: config.color,
-          border: `1px solid ${config.border}`,
-          boxShadow: config.glow,
+          borderColor: config.border,
         }}
       >
         {config.label}
       </div>
 
       {/* Title */}
-      <h4
-        style={{
-          margin: '0 0 8px 0',
-          color: '#f8fafc',
-          fontSize: '14px',
-          fontWeight: 600,
-          paddingRight: '60px',
-          lineHeight: '1.3',
-        }}
-      >
+      <h4 className="project-title">
         {project.title}
       </h4>
 
       {/* Short Description */}
       {project.description && (
-        <p
-          style={{
-            margin: '0 0 10px 0',
-            color: '#94a3b8',
-            fontSize: '12px',
-            lineHeight: '1.4',
-            maxHeight: '34px',
-            overflow: 'hidden',
-          }}
-        >
+        <p className="project-description">
           {truncateDescription(project.description)}
         </p>
       )}
 
       {/* Expanded Details */}
       {isExpanded && project.description && project.description.length > 80 && (
-        <div
-          style={{
-            margin: '12px 0',
-            padding: '12px',
-            background: 'rgba(0, 0, 0, 0.4)',
-            borderRadius: '8px',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
-          }}
-        >
-          <p
-            style={{
-              margin: 0,
-              color: '#e2e8f0',
-              fontSize: '12px',
-              lineHeight: '1.5',
-              whiteSpace: 'pre-wrap',
-            }}
-          >
+        <div className="project-expanded">
+          <p className="project-expanded-text">
             {project.description}
           </p>
         </div>
       )}
 
       {/* Action Buttons */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '6px',
-          justifyContent: 'flex-end',
-        }}
-      >
+      <div className="project-actions">
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleTriggerBaymax(e);
-          }}
+          className={`btn-baymax ${notificationSent ? 'sent' : ''} ${isNotifying ? 'loading' : ''}`}
+          onClick={handleTriggerBaymax}
           disabled={isNotifying}
-          style={{
-            padding: '5px 10px',
-            fontSize: '11px',
-            background: notificationSent ? 'rgba(16, 185, 129, 0.15)' : isNotifying ? 'rgba(100, 100, 100, 0.1)' : 'rgba(220, 38, 38, 0.12)',
-            color: notificationSent ? '#6ee7b7' : isNotifying ? '#9ca3af' : '#fca5a5',
-            border: `1px solid ${notificationSent ? 'rgba(16, 185, 129, 0.25)' : isNotifying ? 'rgba(100, 100, 100, 0.2)' : 'rgba(220, 38, 38, 0.25)'}`,
-            borderRadius: '6px',
-            cursor: isNotifying ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            transition: 'all 0.2s ease',
-            fontWeight: 600,
-          }}
         >
-          {isNotifying ? '...' : notificationSent ? 'Sent' : 'Baymax'}
+          <span>{isNotifying ? '⏳' : notificationSent ? '✓' : '🤖'}</span>
+          <span>{isNotifying ? '...' : notificationSent ? 'Sent' : 'Alert'}</span>
         </button>
+
         <button
+          className="btn-edit"
           onClick={(e) => {
             e.stopPropagation();
             onEdit(project);
           }}
-          style={{
-            padding: '5px 10px',
-            fontSize: '11px',
-            background: 'rgba(59, 130, 246, 0.12)',
-            color: '#93c5fd',
-            border: '1px solid rgba(59, 130, 246, 0.25)',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontWeight: 600,
-            transition: 'all 0.2s ease',
-          }}
         >
           Edit
         </button>
+
         <button
+          className="btn-delete"
           onClick={(e) => {
             e.stopPropagation();
             onDelete(project.id);
-          }}
-          style={{
-            padding: '5px 10px',
-            fontSize: '11px',
-            background: 'rgba(100, 100, 100, 0.08)',
-            color: '#9ca3af',
-            border: '1px solid rgba(100, 100, 100, 0.15)',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontWeight: 600,
-            transition: 'all 0.2s ease',
           }}
         >
           Del
         </button>
       </div>
+
+      {/* Click hint */}
+      {project.description && project.description.length > 80 && (
+        <div className="expand-hint">
+          {isExpanded ? '▼ Click to collapse' : '▶ Click to expand'}
+        </div>
+      )}
     </div>
   );
-};
+});
+
+ProjectCard.displayName = 'ProjectCard';
