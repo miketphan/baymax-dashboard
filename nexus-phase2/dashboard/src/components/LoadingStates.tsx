@@ -1,98 +1,24 @@
 import React from 'react';
 
-// ============================================
-// Skeleton Loader Components
-// ============================================
-
+// Skeleton Card Component
 export const SkeletonCard: React.FC = () => (
-  <div
-    style={{
-      background: '#1e293b',
-      borderRadius: '8px',
-      padding: '12px',
-      marginBottom: '8px',
-      border: '1px solid #334155',
-      animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-    }}
-  >
-    <div
-      style={{
-        height: '16px',
-        background: '#334155',
-        borderRadius: '4px',
-        marginBottom: '8px',
-        width: '70%',
-      }}
-    />
-    <div
-      style={{
-        height: '12px',
-        background: '#334155',
-        borderRadius: '4px',
-        marginBottom: '8px',
-        width: '100%',
-      }}
-    />
-    <div
-      style={{
-        height: '12px',
-        background: '#334155',
-        borderRadius: '4px',
-        width: '50%',
-      }}
-    />
-    <style>{`
-      @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-      }
-    `}</style>
+  <div className="bg-slate-800 rounded-lg p-3 mb-2 border border-slate-700 animate-pulse">
+    <div className="h-4 bg-slate-700 rounded mb-2 w-[70%]" />
+    <div className="h-3 bg-slate-700 rounded mb-2 w-full" />
+    <div className="h-3 bg-slate-700 rounded w-1/2" />
   </div>
 );
 
+// Skeleton Column Component
 export const SkeletonColumn: React.FC<{ title: string }> = ({ title: _title }) => (
-  <div
-    style={{
-      flex: 1,
-      minWidth: '250px',
-      background: '#0f172a',
-      borderRadius: '12px',
-      padding: '16px',
-      display: 'flex',
-      flexDirection: 'column',
-      border: '1px solid #1e293b',
-    }}
-  >
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '16px',
-        paddingBottom: '12px',
-        borderBottom: '2px solid #334155',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div
-          style={{
-            height: '16px',
-            background: '#334155',
-            borderRadius: '4px',
-            width: '80px',
-          }}
-        />
-        <div
-          style={{
-            height: '18px',
-            background: '#334155',
-            borderRadius: '12px',
-            width: '24px',
-          }}
-        />
+  <div className="flex-1 min-w-[250px] bg-slate-900 rounded-xl p-4 flex flex-col border border-slate-800">
+    <div className="flex justify-between items-center mb-4 pb-3 border-b-2 border-slate-700">
+      <div className="flex items-center gap-2">
+        <div className="h-4 bg-slate-700 rounded w-20" />
+        <div className="h-4.5 bg-slate-700 rounded-full w-6" />
       </div>
     </div>
-    <div style={{ flex: 1 }}>
+    <div className="flex-1">
       <SkeletonCard />
       <SkeletonCard />
       <SkeletonCard />
@@ -100,27 +26,16 @@ export const SkeletonColumn: React.FC<{ title: string }> = ({ title: _title }) =
   </div>
 );
 
+// Skeleton Loader Component
 export const SkeletonLoader: React.FC = () => (
-  <div
-    style={{
-      display: 'flex',
-      gap: '16px',
-      height: '100%',
-      overflowX: 'auto',
-      paddingBottom: '8px',
-    }}
-  >
+  <div className="flex gap-4 h-full overflow-x-auto pb-2">
     <SkeletonColumn title="Backlog" />
     <SkeletonColumn title="In Progress" />
     <SkeletonColumn title="Done" />
-    <SkeletonColumn title="Archived" />
   </div>
 );
 
-// ============================================
 // Spinner Component
-// ============================================
-
 interface SpinnerProps {
   size?: 'small' | 'medium' | 'large';
   color?: string;
@@ -131,99 +46,37 @@ export const Spinner: React.FC<SpinnerProps> = ({
   color = '#3b82f6'
 }) => {
   const sizes = {
-    small: { width: 16, height: 16, border: 2 },
-    medium: { width: 32, height: 32, border: 3 },
-    large: { width: 48, height: 48, border: 4 },
+    small: 'w-4 h-4 border-2',
+    medium: 'w-8 h-8 border-[3px]',
+    large: 'w-12 h-12 border-4',
   };
-  
-  const s = sizes[size];
 
   return (
     <div
+      className={`${sizes[size]} rounded-full animate-spin`}
       style={{
-        width: s.width,
-        height: s.height,
-        border: `${s.border}px solid #334155`,
-        borderTop: `${s.border}px solid ${color}`,
-        borderRadius: '50%',
-        animation: 'spin 1s linear infinite',
+        borderColor: '#334155',
+        borderTopColor: color,
       }}
-    >
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
+    />
   );
 };
 
-// ============================================
 // Error State Component
-// ============================================
-
 interface ErrorStateProps {
   message: string;
   onRetry?: () => void;
 }
 
 export const ErrorState: React.FC<ErrorStateProps> = ({ message, onRetry }) => (
-  <div
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '400px',
-      color: '#ef4444',
-      textAlign: 'center',
-      padding: '20px',
-    }}
-  >
-    <div
-      style={{
-        fontSize: '48px',
-        marginBottom: '16px',
-      }}
-    >
-      ⚠️
-    </div>
-    <h3
-      style={{
-        margin: '0 0 8px 0',
-        color: '#f8fafc',
-        fontSize: '18px',
-      }}
-    >
-      Something went wrong
-    </h3>
-    <p
-      style={{
-        margin: '0 0 20px 0',
-        color: '#94a3b8',
-        fontSize: '14px',
-        maxWidth: '400px',
-      }}
-    >
-      {message}
-    </p>
+  <div className="flex flex-col items-center justify-center h-96 text-red-500 text-center p-5">
+    <div className="text-5xl mb-4">⚠️</div>
+    <h3 className="m-0 mb-2 text-slate-100 text-lg">Something went wrong</h3>
+    <p className="m-0 mb-5 text-slate-400 text-sm max-w-md">{message}</p>
     {onRetry && (
       <button
         onClick={onRetry}
-        style={{
-          padding: '10px 20px',
-          background: '#3b82f6',
-          border: 'none',
-          borderRadius: '6px',
-          color: 'white',
-          fontSize: '14px',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          fontWeight: 500,
-        }}
+        className="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 border-0 rounded-md text-white text-sm font-medium cursor-pointer flex items-center gap-2 transition-colors"
       >
         <span>↻</span> Try Again
       </button>
@@ -231,10 +84,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({ message, onRetry }) => (
   </div>
 );
 
-// ============================================
 // Empty State Component
-// ============================================
-
 interface EmptyStateProps {
   message?: string;
   actionLabel?: string;
@@ -246,31 +96,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   actionLabel,
   onAction 
 }) => (
-  <div
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '40px',
-      color: '#64748b',
-      textAlign: 'center',
-    }}
-  >
-    <div style={{ fontSize: '32px', marginBottom: '12px' }}>📭</div>
-    <p style={{ margin: '0 0 16px 0', fontSize: '14px' }}>{message}</p>
+  <div className="flex flex-col items-center justify-center p-10 text-slate-500 text-center">
+    <div className="text-3xl mb-3">📭</div>
+    <p className="m-0 mb-4 text-sm">{message}</p>
     {actionLabel && onAction && (
       <button
         onClick={onAction}
-        style={{
-          padding: '8px 16px',
-          background: '#334155',
-          border: 'none',
-          borderRadius: '6px',
-          color: '#f8fafc',
-          fontSize: '13px',
-          cursor: 'pointer',
-        }}
+        className="px-4 py-2 bg-slate-700 hover:bg-slate-600 border-0 rounded-md text-slate-100 text-xs cursor-pointer transition-colors"
       >
         {actionLabel}
       </button>
@@ -278,10 +110,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   </div>
 );
 
-// ============================================
 // Loading Overlay Component
-// ============================================
-
 interface LoadingOverlayProps {
   message?: string;
 }
@@ -289,24 +118,8 @@ interface LoadingOverlayProps {
 export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ 
   message = 'Loading...' 
 }) => (
-  <div
-    style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(15, 23, 42, 0.8)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 9999,
-    }}
-  >
+  <div className="fixed inset-0 bg-slate-900/80 flex flex-col items-center justify-center z-[9999]">
     <Spinner size="large" />
-    <p style={{ marginTop: '16px', color: '#94a3b8', fontSize: '14px' }}>
-      {message}
-    </p>
+    <p className="mt-4 text-slate-400 text-sm">{message}</p>
   </div>
 );

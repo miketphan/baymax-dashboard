@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import { Project } from '../lib/api';
 import { ProjectCard } from './ProjectCard';
-import './KanbanColumn.css';
 
 interface KanbanColumnProps {
   title: string;
@@ -19,39 +18,34 @@ interface KanbanColumnProps {
 }
 
 const columnConfig: Record<string, { 
-  color: string; 
-  gradient: string; 
   icon: string;
-  accentColor: string;
-  glowColor: string;
+  bgClass: string;
+  borderClass: string;
+  glowClass: string;
 }> = {
   backlog: { 
-    color: '#4b5563', 
-    gradient: 'linear-gradient(135deg, #374151 0%, #4b5563 100%)',
     icon: '📥',
-    accentColor: '#4b5563',
-    glowColor: 'rgba(75, 85, 99, 0.3)'
+    bgClass: 'from-gray-700 to-gray-600',
+    borderClass: 'border-gray-600',
+    glowClass: 'shadow-gray-900/50',
   },
   in_progress: { 
-    color: '#991b1b', 
-    gradient: 'linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%)',
     icon: '⚡',
-    accentColor: '#991b1b',
-    glowColor: 'rgba(153, 27, 27, 0.4)'
+    bgClass: 'from-red-800 to-red-900',
+    borderClass: 'border-red-800',
+    glowClass: 'shadow-red-900/50',
   },
   done: { 
-    color: '#10b981', 
-    gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
     icon: '✓',
-    accentColor: '#10b981',
-    glowColor: 'rgba(16, 185, 129, 0.4)'
+    bgClass: 'from-emerald-600 to-emerald-700',
+    borderClass: 'border-emerald-600',
+    glowClass: 'shadow-emerald-900/50',
   },
   archived: { 
-    color: '#6b7280', 
-    gradient: 'linear-gradient(135deg, #4b5563 0%, #6b7280 100%)',
     icon: '📦',
-    accentColor: '#6b7280',
-    glowColor: 'rgba(107, 114, 128, 0.2)'
+    bgClass: 'from-gray-600 to-gray-700',
+    borderClass: 'border-gray-600',
+    glowClass: 'shadow-gray-900/30',
   },
 };
 
@@ -104,51 +98,72 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = memo(({
 
   return (
     <div
-      className={`kanban-column ${isMobile ? 'kanban-column-mobile' : ''}`}
-      style={{
-        '--column-accent': config.accentColor,
-        '--column-glow': config.glowColor,
-      } as React.CSSProperties}
+      className={`
+        flex-1 flex flex-col rounded-2xl p-4 md:p-5
+        bg-gradient-to-b from-slate-800/80 to-slate-900/60
+        border border-t-[3px] border-white/5 ${config.borderClass}
+        shadow-lg ${config.glowClass}
+        transition-all duration-300
+        hover:border-opacity-30 hover:shadow-xl
+        snap-start
+        ${isMobile ? 'w-full mb-0' : 'min-w-[280px] md:min-w-[300px] max-w-[420px]'}
+      `}
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, status)}
     >
       {/* Column Header */}
-      <div className="kanban-column-header">
-        <div className="kanban-column-title">
+      <div className="flex justify-between items-center mb-3.5 md:mb-4 pb-3 md:pb-3.5 border-b border-white/5">
+        <div className="flex items-center gap-2 md:gap-3">
+          {/* Icon */}
           <div
-            className="kanban-column-icon"
-            style={{ background: config.gradient }}
+            className={`
+              w-8 h-8 md:w-9 md:h-9 rounded-lg flex items-center justify-center text-sm md:text-base
+              bg-gradient-to-br ${config.bgClass}
+              shadow-lg border border-white/10
+            `}
           >
             {config.icon}
           </div>
           
-          <h3 className="kanban-column-name">{title}</h3>
+          <h3 className="text-sm md:text-base font-semibold text-slate-100 tracking-tight">{title}</h3>
           
           <div
-            className="kanban-column-count"
-            style={{ background: config.gradient }}
+            className={`
+              px-2.5 py-1 rounded-full text-xs font-bold text-white
+              bg-gradient-to-br ${config.bgClass}
+              shadow-lg border border-white/10 min-w-[28px] text-center
+            `}
           >
             {sortedProjects.length}
           </div>
         </div>
         
+        {/* Add Button */}
         <button
-          className="kanban-add-btn"
           onClick={onAdd}
           title="Add new project"
+          className="
+            w-9 h-9 md:w-8 md:h-8 rounded-lg
+            flex items-center justify-center
+            border border-red-700/40 bg-red-700/10 text-red-700
+            text-lg md:text-xl font-bold
+            transition-all duration-300
+            hover:bg-gradient-to-br hover:from-red-700 hover:to-red-800 hover:text-white hover:scale-110 hover:rotate-90
+            active:scale-95
+          "
         >
           +
         </button>
       </div>
 
       {/* Projects List */}
-      <div className="kanban-projects-list">
+      <div className="flex-1 min-h-[120px] md:min-h-[150px] flex flex-col gap-2.5 md:gap-3 overflow-y-auto">
         {sortedProjects.map((project, index) => (
           <div
             key={project.id}
             draggable={!isMobile}
             onDragStart={(e) => onDragStart(e, project)}
-            className="kanban-project-wrapper"
+            className="cursor-grab animate-slide-in"
             style={{ animationDelay: `${index * 0.03}s` }}
           >
             <ProjectCard
@@ -161,12 +176,19 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = memo(({
             
             {/* Mobile Move Buttons */}
             {isMobile && onMoveProject && (
-              <div className="kanban-mobile-move-actions">
+              <div className="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-white/5">
                 {getMoveOptions(project.status).map((option) => (
                   <button
                     key={option.status}
-                    className="kanban-move-btn"
                     onClick={() => onMoveProject(project, option.status)}
+                    className="
+                      px-2.5 py-1.5 text-xs font-medium
+                      rounded-md border border-white/10
+                      bg-slate-900/50 text-slate-400
+                      transition-all duration-200
+                      hover:bg-red-700/20 hover:border-red-700/40 hover:text-slate-100
+                      active:scale-95
+                    "
                   >
                     {option.label}
                   </button>
@@ -177,8 +199,8 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = memo(({
         ))}
         
         {sortedProjects.length === 0 && (
-          <div className="kanban-empty-state">
-            <div className="kanban-empty-icon">📋</div>
+          <div className="text-center py-8 md:py-12 px-5 text-slate-500 text-xs md:text-sm font-medium border-2 border-dashed border-blue-500/15 rounded-2xl bg-slate-900/30 transition-all hover:border-blue-500/30 hover:bg-slate-900/50 hover:text-slate-400">
+            <div className="text-2xl md:text-3xl mb-2 opacity-50">📋</div>
             <div>{isMobile ? 'No projects yet' : 'Drop projects here'}</div>
           </div>
         )}

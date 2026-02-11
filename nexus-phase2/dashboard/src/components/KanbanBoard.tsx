@@ -4,7 +4,6 @@ import { KanbanColumn } from './KanbanColumn';
 import { ProjectModal } from './ProjectModal';
 import { ProjectDetailsModal } from './ProjectDetailsModal';
 import { SkeletonLoader, ErrorState } from './LoadingStates';
-import './KanbanBoard.css';
 
 interface KanbanBoardProps {
   projects: Project[];
@@ -165,17 +164,23 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   }
 
   return (
-    <div className="kanban-board">
+    <div className="h-full">
+      {/* Error Banner */}
       {(error || actionError) && (
-        <div className="kanban-error-banner">
+        <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 mb-4 text-red-400 text-sm">
           <span>⚠️</span>
           <span>{error || actionError}</span>
-          <button onClick={() => setActionError(null)}>×</button>
+          <button 
+            onClick={() => setActionError(null)}
+            className="ml-auto bg-transparent border-none text-red-400 text-lg hover:text-red-300"
+          >
+            ×
+          </button>
         </div>
       )}
 
       {/* Desktop: Horizontal Layout */}
-      <div className="kanban-board-desktop">
+      <div className="hidden md:flex gap-4 h-[calc(100%-60px)] overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
         {columns.map((column) => (
           <KanbanColumn
             key={column.status}
@@ -195,7 +200,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
       </div>
 
       {/* Mobile: Vertical Stack Layout */}
-      <div className="kanban-board-mobile">
+      <div className="flex md:hidden flex-col gap-5 pb-24">
         {columns.map((column) => (
           <KanbanColumn
             key={column.status}
@@ -216,35 +221,37 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
       </div>
 
       {/* Archived Section - Collapsible */}
-      <div className="kanban-archived-section">
+      <div className="mt-4">
         <button
-          className="kanban-archived-toggle"
           onClick={() => setShowArchived(!showArchived)}
+          className="flex items-center gap-2 w-full px-4 py-2.5 bg-gradient-to-br from-gray-700/20 to-gray-600/10 border border-gray-500/30 rounded-lg text-gray-400 text-xs font-semibold transition-all hover:border-gray-500/50 hover:text-gray-300"
         >
-          <span style={{ 
-            transform: showArchived ? 'rotate(90deg)' : 'rotate(0deg)',
-            transition: 'transform 0.2s ease',
-          }}>▶</span>
+          <span 
+            className="transition-transform duration-200"
+            style={{ transform: showArchived ? 'rotate(90deg)' : 'rotate(0deg)' }}
+          >
+            ▶
+          </span>
           <span>📦 Archived</span>
-          <span className="kanban-archived-count">
+          <span className="ml-auto bg-gray-600/25 px-2 py-0.5 rounded-full text-xs">
             {getProjectsByStatus('archived').length}
           </span>
         </button>
         
         {showArchived && (
-          <div className="kanban-archived-content">
+          <div className="mt-3 p-4 bg-gradient-to-br from-slate-800/50 to-slate-900/30 rounded-xl border border-gray-500/20">
             {getProjectsByStatus('archived').length === 0 ? (
-              <div className="kanban-archived-empty">No archived projects</div>
+              <div className="text-gray-500 text-sm text-center py-5">No archived projects</div>
             ) : (
-              <div className="kanban-archived-list">
+              <div className="flex flex-wrap gap-3">
                 {getProjectsByStatus('archived').map((project) => (
                   <div
                     key={project.id}
-                    className="kanban-archived-item"
                     onClick={() => handleViewDetails(project)}
+                    className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-900/60 rounded-lg border border-gray-500/20 cursor-pointer transition-all hover:border-gray-500/40 hover:bg-slate-900/80"
                   >
-                    <span>📦</span>
-                    <span>{project.title}</span>
+                    <span className="text-xs opacity-50">📦</span>
+                    <span className="text-xs text-gray-400">{project.title}</span>
                   </div>
                 ))}
               </div>
