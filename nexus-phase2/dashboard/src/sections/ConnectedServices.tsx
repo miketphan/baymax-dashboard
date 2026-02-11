@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Service, api } from '../lib/api';
+import { Spinner, ErrorState } from '../components/LoadingStates';
 
 const serviceIcons: Record<string, string> = {
   github: '🔗',
@@ -18,7 +19,11 @@ const statusColors = {
   offline: '#ef4444',
 };
 
-export const ConnectedServices: React.FC = () => {
+interface ConnectedServicesProps {
+  compact?: boolean;
+}
+
+export const ConnectedServices: React.FC<ConnectedServicesProps> = ({ compact = false }) => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +31,7 @@ export const ConnectedServices: React.FC = () => {
 
   const loadServices = async () => {
     try {
+      setLoading(true);
       setError(null);
       const data = await api.getServices();
       setServices(data);
@@ -43,7 +49,6 @@ export const ConnectedServices: React.FC = () => {
   const handleConnect = async (type: string) => {
     setActionInProgress(type);
     try {
-      // Mock config - in real app, this would open a config modal
       await api.connectService(type, { oauth: true });
       await loadServices();
     } catch (err) {
@@ -67,258 +72,227 @@ export const ConnectedServices: React.FC = () => {
     }
   };
 
-  const availableServices = ['github', 'discord', 'slack', 'telegram', 'email', 'calendar', 'drive'];
+  // In compact mode, only show first 5 services
+  const displayedServices = compact ? services.slice(0, 5) : services;
+  const availableServices = ['github', 'discord', 'slack', 'telegram', 'email'];
   const connectedTypes = new Set(services.map((s) => s.id));
 
   if (loading) {
     return (
-      <div style={{ padding: '24px', textAlign: 'center', color: '#94a3b8' }}>
-        <div
-          style={{
-            width: '32px',
-            height: '32px',
-            border: '3px solid #334155',
-            borderTop: '3px solid #3b82f6',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px',
-          }}
-        />
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
-        Loading services...
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+        <Spinner size="medium" />
       </div>
     );
   }
 
+  if (error) {
+    return <ErrorState message={error} onRetry={loadServices} />;
+  }
+
   return (
     <div>
-      <div style={{ marginBottom: '24px' }}>
-        <h1
-          style={{
-            margin: '0 0 4px 0',
-            color: '#f8fafc',
-            fontSize: '24px',
-            fontWeight: 700,
-          }}
-        >
-          Connected Services
-        </h1>
-        <p
-          style={{
-            margin: 0,
-            color: '#94a3b8',
-            fontSize: '14px',
-          }}
-        >
-          Manage your third-party integrations
-        </p>
-      </div>
-
-      {error && (
-        <div
-          style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '8px',
-            padding: '12px 16px',
-            marginBottom: '24px',
-            color: '#ef4444',
-            fontSize: '13px',
-          }}
-        >
-          ⚠️ {error}
-        </div>
-      )}
-
-      {/* Connected Services */}
-      <div style={{ marginBottom: '32px' }}>
-        <h2
-          style={{
-            margin: '0 0 16px 0',
-            color: '#f8fafc',
-            fontSize: '16px',
-            fontWeight: 600,
-          }}
-        >
-          Connected ({services.length})
-        </h2>
-        
-        {services.length === 0 ? (
+      {/* Connected Services Grid */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: compact 
+            ? 'repeat(auto-fit, minmax(160px, 1fr))' 
+            : 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: '12px',
+        }}
+      >
+        {displayedServices.map((service) => (
           <div
+            key={service.id}
             style={{
-              padding: '32px',
-              textAlign: 'center',
-              color: '#64748b',
-              background: '#0f172a',
+              background: '#1e293b',
               borderRadius: '12px',
-              border: '1px dashed #334155',
+              padding: compact ? '12px' : '16px',
+              border: '1px solid #334155',
+              display: 'flex',
+              alignItems: 'center',
+              gap: compact ? '8px' : '12px',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#3b82f6';
+              e.currentTarget.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#334155';
+              e.currentTarget.style.boxShadow = 'none';
             }}
           >
-            No services connected yet
-          </div>
-        ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '16px',
-            }}
-          >
-            {services.map((service) => (
+            <div
+              style={{
+                width: compact ? '36px' : '48px',
+                height: compact ? '36px' : '48px',
+                background: '#0f172a',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: compact ? '18px' : '24px',
+                flexShrink: 0,
+              }}
+            >
+              {serviceIcons[service.id] || serviceIcons.default}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div
-                key={service.id}
                 style={{
-                  background: '#1e293b',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  border: '1px solid #334155',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px',
+                  gap: '6px',
+                  marginBottom: '2px',
                 }}
               >
-                <div
-                  style={{
-                    width: '48px',
-                    height: '48px',
-                    background: '#0f172a',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '24px',
-                  }}
-                >
-                  {serviceIcons[service.id] || serviceIcons.default}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      marginBottom: '4px',
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: '#f8fafc',
-                        fontWeight: 600,
-                        textTransform: 'capitalize',
-                      }}
-                    >
-                      {service.name}
-                    </span>
-                    <span
-                      style={{
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        background: statusColors[service.status],
-                      }}
-                    />
-                  </div>
-                  <span
-                    style={{
-                      color: '#64748b',
-                      fontSize: '12px',
-                    }}
-                  >
-                    {service.last_check
-                      ? `Last check: ${new Date(service.last_check).toLocaleDateString()}`
-                      : 'Never checked'}
-                  </span>
-                </div>
-                <button
-                  onClick={() => handleDisconnect(service.id)}
-                  disabled={actionInProgress === service.id}
-                  style={{
-                    padding: '6px 12px',
-                    background: 'transparent',
-                    border: '1px solid #ef4444',
-                    borderRadius: '6px',
-                    color: '#ef4444',
-                    fontSize: '12px',
-                    cursor: 'pointer',
-                    opacity: actionInProgress === service.id ? 0.5 : 1,
-                  }}
-                >
-                  {actionInProgress === service.id ? '...' : 'Disconnect'}
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Available Services */}
-      <div>
-        <h2
-          style={{
-            margin: '0 0 16px 0',
-            color: '#f8fafc',
-            fontSize: '16px',
-            fontWeight: 600,
-          }}
-        >
-          Available
-        </h2>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: '16px',
-          }}
-        >
-          {availableServices
-            .filter((type) => !connectedTypes.has(type))
-            .map((type) => (
-              <button
-                key={type}
-                onClick={() => handleConnect(type)}
-                disabled={actionInProgress === type}
-                style={{
-                  background: '#0f172a',
-                  border: '1px dashed #334155',
-                  borderRadius: '12px',
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#3b82f6';
-                  e.currentTarget.style.background = '#1e293b';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = '#334155';
-                  e.currentTarget.style.background = '#0f172a';
-                }}
-              >
-                <span style={{ fontSize: '32px' }}>
-                  {serviceIcons[type] || serviceIcons.default}
-                </span>
                 <span
                   style={{
                     color: '#f8fafc',
-                    fontWeight: 500,
+                    fontWeight: 600,
                     textTransform: 'capitalize',
+                    fontSize: compact ? '13px' : '14px',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
                   }}
                 >
-                  {actionInProgress === type ? 'Connecting...' : type}
+                  {service.name}
                 </span>
+                <span
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: statusColors[service.status],
+                    boxShadow: `0 0 6px ${statusColors[service.status]}`,
+                    flexShrink: 0,
+                  }}
+                />
+              </div>
+              {!compact && (
+                <span
+                  style={{
+                    color: '#64748b',
+                    fontSize: '11px',
+                  }}
+                >
+                  {service.last_check
+                    ? `Last check: ${new Date(service.last_check).toLocaleDateString()}`
+                    : 'Never checked'}
+                </span>
+              )}
+            </div>
+            {!compact && (
+              <button
+                onClick={() => handleDisconnect(service.id)}
+                disabled={actionInProgress === service.id}
+                style={{
+                  padding: '6px 12px',
+                  background: 'transparent',
+                  border: '1px solid #ef4444',
+                  borderRadius: '6px',
+                  color: '#ef4444',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  opacity: actionInProgress === service.id ? 0.5 : 1,
+                  flexShrink: 0,
+                }}
+              >
+                {actionInProgress === service.id ? '...' : 'Disconnect'}
               </button>
-            ))}
-        </div>
+            )}
+          </div>
+        ))}
+
+        {/* Empty slots for available services */}
+        {displayedServices.length < 5 && availableServices
+          .filter((type) => !connectedTypes.has(type))
+          .slice(0, 5 - displayedServices.length)
+          .map((type) => (
+            <button
+              key={type}
+              onClick={() => handleConnect(type)}
+              disabled={actionInProgress === type}
+              style={{
+                background: 'transparent',
+                border: '1px dashed #334155',
+                borderRadius: '12px',
+                padding: compact ? '12px' : '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: compact ? '8px' : '12px',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                opacity: actionInProgress === type ? 0.5 : 1,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#3b82f6';
+                e.currentTarget.style.background = '#1e293b';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#334155';
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              <div
+                style={{
+                  width: compact ? '36px' : '48px',
+                  height: compact ? '36px' : '48px',
+                  background: '#0f172a',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: compact ? '18px' : '24px',
+                }}
+              >
+                {serviceIcons[type] || serviceIcons.default}
+              </div>
+              <span
+                style={{
+                  color: '#64748b',
+                  fontWeight: 500,
+                  textTransform: 'capitalize',
+                  fontSize: compact ? '13px' : '14px',
+                }}
+              >
+                {actionInProgress === type ? 'Connecting...' : `Connect ${type}`}
+              </span>
+            </button>
+          ))}
       </div>
+
+      {services.length === 0 && !loading && (
+        <div
+          style={{
+            padding: '32px',
+            textAlign: 'center',
+            color: '#64748b',
+            background: '#0f172a',
+            borderRadius: '12px',
+            border: '1px dashed #334155',
+          }}
+        >
+          No services connected. Click a service above to connect.
+        </div>
+      )}
+
+      {compact && services.length > 5 && (
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '12px',
+            color: '#64748b',
+            fontSize: '13px',
+          }}
+        >
+          +{services.length - 5} more services
+        </div>
+      )}
     </div>
   );
 };
+
+export default ConnectedServices;

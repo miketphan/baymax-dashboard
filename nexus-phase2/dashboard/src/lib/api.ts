@@ -1,7 +1,7 @@
 const API_BASE_URL = 'https://nexus-api.miket-phan.workers.dev/api';
 
 // Local dev server endpoints for file sync (only available in dev mode)
-const LOCAL_API_URL = ''; // Empty means use relative URLs (same origin)
+// const LOCAL_API_URL = ''; // Empty means use relative URLs (same origin)
 
 export interface Project {
   id: string;

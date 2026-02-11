@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { UsageData, api } from '../lib/api';
+import { Spinner, ErrorState } from '../components/LoadingStates';
+
+interface UsageLimitsProps {
+  compact?: boolean;
+}
 
 interface UsageBarProps {
   usage: UsageData;
+  compact?: boolean;
 }
 
-const UsageBar: React.FC<UsageBarProps> = ({ usage }) => {
+const UsageBar: React.FC<UsageBarProps> = ({ usage, compact = false }) => {
   const percentage = usage.limit_value > 0 
     ? Math.min((usage.current_value / usage.limit_value) * 100, 100)
     : 0;
@@ -13,6 +19,74 @@ const UsageBar: React.FC<UsageBarProps> = ({ usage }) => {
   let barColor = '#10b981'; // green
   if (percentage > 75) barColor = '#f59e0b'; // yellow
   if (percentage > 90) barColor = '#ef4444'; // red
+
+  if (compact) {
+    return (
+      <div style={{ marginBottom: '12px' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '6px',
+          }}
+        >
+          <span
+            style={{
+              color: '#f8fafc',
+              fontSize: '13px',
+              fontWeight: 500,
+              textTransform: 'capitalize',
+            }}
+          >
+            {usage.category.replace(/-/g, ' ')}
+          </span>
+          <span
+            style={{
+              color: percentage > 90 ? '#ef4444' : '#94a3b8',
+              fontSize: '12px',
+              fontWeight: 600,
+            }}
+          >
+            {Math.round(percentage)}%
+          </span>
+        </div>
+        <div
+          style={{
+            height: '6px',
+            background: '#1e293b',
+            borderRadius: '3px',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              width: `${percentage}%`,
+              height: '100%',
+              background: barColor,
+              borderRadius: '3px',
+              transition: 'width 0.3s ease',
+              boxShadow: percentage > 90 ? '0 0 10px rgba(239, 68, 68, 0.5)' : 'none',
+            }}
+          />
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginTop: '4px',
+          }}
+        >
+          <span style={{ color: '#64748b', fontSize: '10px' }}>
+            {usage.current_value.toLocaleString()} {usage.unit}
+          </span>
+          <span style={{ color: '#64748b', fontSize: '10px' }}>
+            {usage.limit_value.toLocaleString()} {usage.unit}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -115,7 +189,7 @@ const UsageBar: React.FC<UsageBarProps> = ({ usage }) => {
   );
 };
 
-export const UsageLimits: React.FC = () => {
+export const UsageLimits: React.FC<UsageLimitsProps> = ({ compact = false }) => {
   const [usageData, setUsageData] = useState<UsageData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -123,6 +197,7 @@ export const UsageLimits: React.FC = () => {
   useEffect(() => {
     const loadUsage = async () => {
       try {
+        setLoading(true);
         const data = await api.getUsage();
         setUsageData(data);
       } catch (err) {
@@ -141,69 +216,136 @@ export const UsageLimits: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ padding: '24px', textAlign: 'center', color: '#94a3b8' }}>
-        <div
-          style={{
-            width: '32px',
-            height: '32px',
-            border: '3px solid #334155',
-            borderTop: '3px solid #3b82f6',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px',
-          }}
-        />
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
-        Loading usage data...
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+        <Spinner size="medium" />
       </div>
     );
   }
 
-  return (
-    <div>
-      <div style={{ marginBottom: '24px' }}>
-        <h1
-          style={{
-            margin: '0 0 4px 0',
-            color: '#f8fafc',
-            fontSize: '24px',
-            fontWeight: 700,
-          }}
-        >
-          Usage & Limits
-        </h1>
-        <p
-          style={{
-            margin: 0,
-            color: '#94a3b8',
-            fontSize: '14px',
-          }}
-        >
-          Monitor your resource consumption
-        </p>
-      </div>
+  if (error) {
+    return <ErrorState message={error} />;
+  }
 
-      {error && (
+  if (compact) {
+    return (
+      <div>
+        {/* Compact Header with Overall Stats */}
         <div
           style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '8px',
-            padding: '12px 16px',
-            marginBottom: '24px',
-            color: '#ef4444',
-            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            marginBottom: '16px',
+            padding: '12px',
+            background: '#1e293b',
+            borderRadius: '10px',
           }}
         >
-          ⚠️ {error}
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              background: `conic-gradient(#3b82f6 ${overallPercentage * 3.6}deg, #334155 0deg)`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                background: '#0f172a',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <span
+                style={{
+                  color: '#f8fafc',
+                  fontWeight: 700,
+                  fontSize: '12px',
+                }}
+              >
+                {Math.round(overallPercentage)}%
+              </span>
+            </div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <span style={{ color: '#f8fafc', fontWeight: 600, fontSize: '14px' }}>
+                Overall Usage
+              </span>
+              <span
+                style={{
+                  color: usageData.filter((u) => u.current_value / u.limit_value > 0.9).length > 0
+                    ? '#ef4444'
+                    : '#10b981',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                }}
+              >
+                {usageData.filter((u) => u.current_value / u.limit_value > 0.9).length > 0 ? '⚠️ ' : '✅ '}
+                {usageData.filter((u) => u.current_value / u.limit_value > 0.9).length} near limit
+              </span>
+            </div>
+            <div
+              style={{
+                height: '4px',
+                background: '#334155',
+                borderRadius: '2px',
+                marginTop: '8px',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  width: `${overallPercentage}%`,
+                  height: '100%',
+                  background: overallPercentage > 90 ? '#ef4444' : '#3b82f6',
+                  borderRadius: '2px',
+                }}
+              />
+            </div>
+          </div>
         </div>
-      )}
 
+        {/* Compact Progress Bars */}
+        <div>
+          {usageData.slice(0, 4).map((usage) => (
+            <UsageBar key={usage.category} usage={usage} compact />
+          ))}
+        </div>
+
+        {usageData.length === 0 && (
+          <div
+            style={{
+              padding: '24px',
+              textAlign: 'center',
+              color: '#64748b',
+              fontSize: '13px',
+            }}
+          >
+            No usage data available
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Full mode
+  return (
+    <div>
       {/* Overview Card */}
       <div
         style={{
@@ -384,3 +526,5 @@ export const UsageLimits: React.FC = () => {
     </div>
   );
 };
+
+export default UsageLimits;
