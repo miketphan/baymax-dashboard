@@ -353,7 +353,44 @@ export const OperationsManual: React.FC<OperationsManualProps> = ({ className })
   useEffect(() => {
     loadAllSections();
     loadSyncStatus();
+    
+    // Set up polling for auto-refresh (every 10 seconds)
+    const pollInterval = setInterval(() => {
+      checkForUpdates();
+    }, 10000);
+    
+    return () => clearInterval(pollInterval);
   }, []);
+
+  // Mark readonly sections
+  const isReadOnly = (id: string) => ['protocols', 'processes', 'features'].includes(id);
+  
+  // Check for updates without full reload
+  const checkForUpdates = async () => {
+    try {
+      const status = await api.getSyncStatus();
+      const prevStatus = syncStatus;
+      
+      // Update sync status
+      setSyncStatus(status);
+      
+      // If any section became stale or was updated, reload content
+      if (prevStatus && status.sections) {
+        const hasChanges = status.sections.some((section: { section: string; last_sync: string | null }) => {
+          const prevSection = prevStatus.sections.find(
+            (s: { section: string }) => s.section === section.section
+          );
+          return prevSection?.last_sync !== section.last_sync;
+        });
+        
+        if (hasChanges) {
+          await loadAllSections();
+        }
+      }
+    } catch (error) {
+      console.error('Failed to check for updates:', error);
+    }
+  };
 
   const loadSyncStatus = async () => {
     try {
@@ -365,14 +402,18 @@ export const OperationsManual: React.FC<OperationsManualProps> = ({ className })
   };
 
   const loadAllSections = async () => {
-    // Load projects content from API
-    try {
-      const projectsData = await api.getSyncSectionContent('projects');
-      if (projectsData?.content) {
-        updateSectionContent('projects', projectsData.content, projectsData.last_sync || null);
+    // Load all sections
+    const sectionsToLoad = ['projects', 'protocols', 'processes', 'features'];
+    
+    for (const sectionId of sectionsToLoad) {
+      try {
+        const sectionData = await api.getSyncSectionContent(sectionId);
+        if (sectionData?.content) {
+          updateSectionContent(sectionId, sectionData.content, sectionData.last_sync || null);
+        }
+      } catch (error) {
+        console.error(`Failed to load ${sectionId} content:`, error);
       }
-    } catch (error) {
-      console.error('Failed to load projects content:', error);
     }
   };
 
@@ -388,8 +429,19 @@ export const OperationsManual: React.FC<OperationsManualProps> = ({ className })
     setSyncResult(null);
 
     try {
-      const result = await api.triggerUniversalSync();
-      setSyncResult(result);
+      // First try local sync (if running via dev-with-sync.js)
+      const localResult = await api.triggerLocalSync();
+      
+      if (localResult.success) {
+        // Local sync succeeded, now sync to remote D1
+        const result = await api.triggerUniversalSync();
+        setSyncResult(result);
+      } else {
+        // Local sync not available, try direct universal sync
+        // This works if the API has content stored from previous syncs
+        const result = await api.triggerUniversalSync();
+        setSyncResult(result);
+      }
       
       // Reload content
       await loadAllSections();
@@ -400,6 +452,26 @@ export const OperationsManual: React.FC<OperationsManualProps> = ({ className })
         error: error instanceof Error ? error.message : 'Sync failed',
         timestamp: new Date().toISOString(),
       });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+  
+  const handleRefreshFromDatabase = async () => {
+    setIsSyncing(true);
+    
+    try {
+      // Fetch fresh content from D1
+      await loadAllSections();
+      await loadSyncStatus();
+      
+      // Show brief success feedback
+      setSyncResult({
+        success: true,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('Refresh failed:', error);
     } finally {
       setIsSyncing(false);
     }
@@ -457,7 +529,22 @@ export const OperationsManual: React.FC<OperationsManualProps> = ({ className })
       <div style={styles.header}>
         <div>
           <h1 style={styles.title}>Operations Manual</h1>
-          <p style={styles.subtitle}>Source of truth for protocols, processes, and features</p>
+          <p style={styles.subtitle}>
+            Source of truth for protocols, processes, and features
+            {syncStatus?.timestamp && (
+              <span style={{ 
+                marginLeft: '12px', 
+                fontSize: '12px', 
+                color: syncStatus.overall_status === 'fresh' ? '#34d399' : 
+                       syncStatus.overall_status === 'error' ? '#f87171' : '#fbbf24'
+              }}>
+                • Last sync: {new Date(syncStatus.timestamp).toLocaleTimeString()}
+                {syncStatus.overall_status === 'fresh' && ' ✅'}
+                {syncStatus.overall_status === 'stale' && ' ⚠️'}
+                {syncStatus.overall_status === 'error' && ' ❌'}
+              </span>
+            )}
+          </p>
         </div>
         <div style={styles.actions}>
           <div style={styles.searchBox}>
@@ -470,6 +557,18 @@ export const OperationsManual: React.FC<OperationsManualProps> = ({ className })
               style={styles.searchInput}
             />
           </div>
+          <button
+            onClick={handleRefreshFromDatabase}
+            disabled={isSyncing}
+            style={{
+              ...styles.statusButton,
+              marginRight: '8px',
+              opacity: isSyncing ? 0.6 : 1,
+            }}
+            title="Refresh from Database"
+          >
+            {isSyncing ? '🔄' : '📥'} Refresh
+          </button>
           <button
             onClick={handleUniversalUpdate}
             disabled={isSyncing}
@@ -500,6 +599,7 @@ export const OperationsManual: React.FC<OperationsManualProps> = ({ className })
         <div style={styles.tocList}>
           {sections.map(section => {
             const sync = getSectionSyncStatus(section.id);
+            const readOnly = isReadOnly(section.id);
             return (
               <div
                 key={section.id}
@@ -511,6 +611,15 @@ export const OperationsManual: React.FC<OperationsManualProps> = ({ className })
               >
                 <span>{section.icon}</span>
                 <span>{section.title}</span>
+                {readOnly && (
+                  <span style={{ 
+                    fontSize: '9px',
+                    color: '#64748b',
+                    marginLeft: '4px',
+                  }}>
+                    📖
+                  </span>
+                )}
                 <span style={{ 
                   ...syncBadgeStyle(sync.status), 
                   marginLeft: 'auto',
@@ -528,6 +637,7 @@ export const OperationsManual: React.FC<OperationsManualProps> = ({ className })
       {/* Sections */}
       {filteredSections.map(section => {
         const sync = getSectionSyncStatus(section.id);
+        const readOnly = isReadOnly(section.id);
         return (
           <div key={section.id} style={styles.sectionCard}>
             <div
@@ -540,6 +650,18 @@ export const OperationsManual: React.FC<OperationsManualProps> = ({ className })
               <div style={styles.sectionTitle}>
                 <span style={styles.sectionIcon}>{section.icon}</span>
                 <span style={styles.sectionName}>{section.title}</span>
+                {readOnly && (
+                  <span style={{
+                    fontSize: '10px',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    background: '#1e293b',
+                    color: '#64748b',
+                    marginLeft: '8px',
+                  }}>
+                    📖 Read Only
+                  </span>
+                )}
               </div>
               <div style={styles.sectionMeta}>
                 <span style={syncBadgeStyle(sync.status)}>

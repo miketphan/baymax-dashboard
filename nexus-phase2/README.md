@@ -155,6 +155,38 @@ nexus-phase2/
 ### sync_state
 - Tracks last sync times for bidirectional sync with markdown files
 
+## Bidirectional Sync
+
+The sync system enables automatic synchronization between markdown files and the D1 database.
+
+### Quick Start
+
+```bash
+# Start file watcher (auto-syncs on file changes)
+npm run watch
+
+# Or use integrated dev server (dashboard + file watcher)
+npm run dev:full
+```
+
+### Sync Commands
+
+```bash
+npm run watch       # Watch files and auto-sync
+npm run watch:once  # Single sync, then exit
+npm run sync        # Force sync all files
+npm run dev:full    # Dashboard with integrated sync
+```
+
+### Markdown Files
+
+- `PROJECTS.md` - Project data synced to D1
+- `PROTOCOLS.md` - Protocol documentation
+- `PROCESSES.md` - Process documentation
+- `FEATURES.md` - Feature specifications
+
+See [docs/SYNC.md](docs/SYNC.md) for detailed documentation.
+
 ## Environment Variables
 
 Set in `wrangler.toml`:

@@ -9,7 +9,12 @@
     "db:create": "wrangler d1 create nexus-production",
     "db:migrate": "wrangler d1 migrations apply nexus-production",
     "db:seed": "wrangler d1 execute nexus-production --file=./schema.sql",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "watch": "node scripts/watch-files.js",
+    "watch:once": "node scripts/watch-files.js --once",
+    "sync": "node scripts/watch-files.js --sync",
+    "dev:dashboard": "cd dashboard && npm run dev",
+    "dev:full": "node scripts/dev-with-sync.js"
   },
   "keywords": ["nexus", "cloudflare", "workers", "d1"],
   "author": "Baymax",

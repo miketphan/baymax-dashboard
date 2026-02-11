@@ -2,6 +2,15 @@
 
 Common issues and solutions for Nexus Phase 2.
 
+**Architecture Note:** Nexus uses **API-only** data flow. Project data lives in Cloudflare D1 database. Baymax fetches fresh data via API calls — no local file sync required.
+
+**Data Flow:**
+```
+You edit in UI → Saves to D1 database → Baymax fetches via API when needed
+```
+
+This is simpler, faster, and more reliable than bidirectional file sync.
+
 ---
 
 ## Table of Contents

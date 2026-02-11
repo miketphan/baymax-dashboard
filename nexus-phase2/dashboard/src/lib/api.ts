@@ -1,5 +1,8 @@
 const API_BASE_URL = 'https://nexus-api.miket-phan.workers.dev/api';
 
+// Local dev server endpoints for file sync (only available in dev mode)
+const LOCAL_API_URL = ''; // Empty means use relative URLs (same origin)
+
 export interface Project {
   id: string;
   title: string;
@@ -176,11 +179,47 @@ class ApiClient {
     return response.data;
   }
 
-  async triggerUniversalSync(): Promise<SyncResult> {
+  async triggerUniversalSync(files?: Record<string, string>): Promise<SyncResult> {
     const response = await this.fetch<{ data: SyncResult }>('/sync', {
       method: 'POST',
+      body: JSON.stringify({
+        direction: 'to_d1',
+        conflictResolution: 'prefer_file',
+        files,
+      }),
     });
     return response.data;
+  }
+
+  // Get section content (read-only files displayed from markdown source)
+  async getSectionContent(section: string): Promise<{ content: string; last_sync?: string; read_only?: boolean }> {
+    const response = await this.fetch<{ data: { content: string; last_sync?: string; read_only?: boolean } }>(`/sync/${section}`);
+    return response.data;
+  }
+
+  // Local dev server methods (for file sync during development)
+  async triggerLocalSync(): Promise<{ success: boolean; results?: unknown; error?: string }> {
+    try {
+      const response = await fetch('/api/local/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      return await response.json();
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Local sync not available' 
+      };
+    }
+  }
+
+  async getLocalFiles(): Promise<{ files?: Record<string, string>; error?: string }> {
+    try {
+      const response = await fetch('/api/local/files');
+      return await response.json();
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Local files not available' };
+    }
   }
 
   async getSyncSectionContent(section: string): Promise<{ content: string; last_sync?: string }> {

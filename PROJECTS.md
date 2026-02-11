@@ -98,7 +98,12 @@ Morning automated brief with calendar, priorities, market context, and daily foc
 ### Trigger Baymax Button — Full Feature Buildout
 **Status:** 📋 Planned  
 **Priority:** High  
-**Dependencies:** None (extends existing button)
+**Dependencies:** API access (✅ available)
+
+**Architecture:** API-Only (no file sync)
+- Project data lives in D1 database
+- Baymax fetches fresh data via API on demand
+- No local file sync needed
 
 **Requirements:**
 1. **Confirmation Dialog**
@@ -108,24 +113,28 @@ Morning automated brief with calendar, priorities, market context, and daily foc
    - Cancel closes dialog, no action taken
 
 2. **Immediate Task Trigger**
-   - On Confirm: Sends notification to Baymax's active session
-   - Includes: Project ID, title, description, current status
-   - Auto-spawns background work session with project context
-   - Baymax begins working on task immediately
+   - On Confirm: Notification sent to Baymax
+   - Baymax calls API to fetch fresh project data
+   - Spawns background work session
+   - Begins working immediately
 
 3. **Notification to User**
-   - Telegram message sent to Mike: "Baymax has begun working on [Project Name]"
-   - Includes: Timestamp, estimated completion, link to session if applicable
-   - In-app notification badge on Nexus dashboard
+   - Telegram message: "Baymax has begun working on [Project Name]"
+   - Includes: Timestamp, current status
 
 4. **Work Session Integration**
-   - Creates isolated work session for the task
-   - Pre-loads project context from database
-   - Updates project status to "in_progress" automatically
-   - Logs start time and activity
+   - Isolated session spawned
+   - Real-time API calls for project data
+   - Updates project status to "in_progress"
 
 **User Story:**
-> Mike sees a project that needs work. He clicks "Trigger Baymax", confirms he wants me to start. I immediately get notified, begin working on it, and confirm back to him that I've started.
+> Mike sees a project that needs work. He clicks "Trigger Baymax", confirms. I immediately fetch the latest project data from API, begin working, and confirm back.
+
+**Why API-only?**
+- Cloudflare Workers can't write to local files
+- API calls are instant and fresh
+- No sync complexity or lag
+- Industry standard for real-time data
 
 ---
 

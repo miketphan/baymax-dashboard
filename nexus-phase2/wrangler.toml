@@ -21,9 +21,9 @@ database_id = "a135a79d-4b32-4091-9c15-ee937b3c9b53"  # Replace after running: w
 # id = "<your-kv-namespace-id>"
 
 # Rate limiting (Cloudflare native)
-[limits]
-# 1000 requests per 10 minutes per IP
-requests_per_minute = 100
+# Note: limits require paid plan - disabled for free tier
+# [limits]
+# requests_per_minute = 100
 
 # Environment-specific overrides
 [env.development]
