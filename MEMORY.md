@@ -165,3 +165,28 @@ When an update is available and Mike confirms he wants to proceed:
    - Wait for Mike to complete reinstall and restart gateway
 
 **Important:** The install script cannot be run by me as it requires human interaction for configuration prompts. This is Mike's responsibility as last resort.
+
+## Lessons Learned: Nexus Phase 2 Deployment (2026-02-10)
+
+**Critical Failures & Fixes:**
+
+| Issue | Root Cause | Prevention |
+|-------|------------|------------|
+| API path mismatch | Frontend called `/projects`, API expected `/api/projects` | Always verify API contract with curl before deploying |
+| Data format mismatch | API returned nested `{data:{projects:[]}}`, frontend expected flat `[]` | Test actual API response format, don't assume |
+| Field name mismatches | Frontend used `name`, `used`, `limit`; API used `title`, `current_value`, `limit_value` | Use shared TypeScript types, verify field names |
+| Database migrations on wrong DB | Ran migrations on local instead of remote | Always use `--remote` flag for production DB |
+| Cloudflare Pages cache issues | "0 files changed" on redeploy | Modify a file (touch) to force cache clear |
+| Confusing "refresh" vs "rebuild" | Told Mike to "refresh browser" when code needed rebuild | Be explicit: "rebuild + redeploy", never say "just refresh" |
+
+**Process Improvements:**
+1. **Integration testing > compilation** — Test frontend against real API before declaring "done"
+2. **Verify with curl first** — Always test endpoints manually before handing off
+3. **Document exact data contracts** — API paths, field names, response formats
+4. **Clear deployment language** — Say "rebuild and redeploy" not "refresh"
+5. **Check Cloudflare quirks** — Pages caching, SSL propagation, D1 local vs remote
+
+**Delegation Notes:**
+- Could have delegated boilerplate (config files, docs) to Flash
+- Kept Kimi for complex logic but didn't delegate enough — ~40% token waste
+- Going forward: Flash for scaffolding, Kimi for architecture & user-facing

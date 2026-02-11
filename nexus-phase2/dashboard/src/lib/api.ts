@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://nexus-api.miket-phan.workers.dev';
+const API_BASE_URL = 'https://nexus-api.miket-phan.workers.dev/api';
 
 export interface Project {
   id: string;
@@ -111,7 +111,8 @@ class ApiClient {
 
   // Projects
   async getProjects(): Promise<Project[]> {
-    return this.fetch<Project[]>('/projects');
+    const response = await this.fetch<{ data: { projects: Project[] } }>('/projects');
+    return response.data.projects;
   }
 
   async getProject(id: string): Promise<Project> {

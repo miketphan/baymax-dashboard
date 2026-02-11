@@ -105,6 +105,8 @@ const routes: Route[] = [
         getProject(env, params.id),
       PUT: async (env: Env, request: Request, params: Record<string, string>) => 
         updateExistingProject(env, params.id, request),
+      PATCH: async (env: Env, request: Request, params: Record<string, string>) => 
+        updateExistingProject(env, params.id, request),
       DELETE: async (env: Env, _request: Request, params: Record<string, string>) => 
         deleteExistingProject(env, params.id),
     },

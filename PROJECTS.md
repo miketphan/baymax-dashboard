@@ -95,6 +95,40 @@ Morning automated brief with calendar, priorities, market context, and daily foc
 
 ## Backlog
 
+### Trigger Baymax Button — Full Feature Buildout
+**Status:** 📋 Planned  
+**Priority:** High  
+**Dependencies:** None (extends existing button)
+
+**Requirements:**
+1. **Confirmation Dialog**
+   - Clicking "Trigger Baymax" opens confirmation modal
+   - Shows: "Do you want Baymax to begin working on [Project Name]?"
+   - Options: "Confirm" / "Cancel"
+   - Cancel closes dialog, no action taken
+
+2. **Immediate Task Trigger**
+   - On Confirm: Sends notification to Baymax's active session
+   - Includes: Project ID, title, description, current status
+   - Auto-spawns background work session with project context
+   - Baymax begins working on task immediately
+
+3. **Notification to User**
+   - Telegram message sent to Mike: "Baymax has begun working on [Project Name]"
+   - Includes: Timestamp, estimated completion, link to session if applicable
+   - In-app notification badge on Nexus dashboard
+
+4. **Work Session Integration**
+   - Creates isolated work session for the task
+   - Pre-loads project context from database
+   - Updates project status to "in_progress" automatically
+   - Logs start time and activity
+
+**User Story:**
+> Mike sees a project that needs work. He clicks "Trigger Baymax", confirms he wants me to start. I immediately get notified, begin working on it, and confirm back to him that I've started.
+
+---
+
 - Tasks & Habits (to-dos + recurring habits with streaks) — *Moved out of Phase 2 MVP*
 - Trading Performance Tracker
 - Daily Brief Automation

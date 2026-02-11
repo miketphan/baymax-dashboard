@@ -16,6 +16,80 @@ Common issues and solutions for Nexus Phase 2.
 
 ---
 
+## Quick Reference: Common Issues from First Deployment
+
+### Issue: HTTP 404 / "Something Went Wrong" on Dashboard
+**Symptoms:** Dashboard loads but immediately shows error
+
+**Likely Causes:**
+1. API path mismatch (frontend calling wrong endpoint)
+2. Data format mismatch (frontend expects different structure than API returns)
+3. Database not migrated on remote
+
+**Fix Steps:**
+```bash
+# 1. Test API directly
+curl https://nexus-api.miket-phan.workers.dev/api/projects
+# Should return: {"success":true,"data":{"projects":[]}}
+
+# 2. If error, check database migrated on REMOTE (not local)
+npx wrangler d1 execute nexus-production --remote --file=./schema.sql
+
+# 3. Rebuild frontend with correct API_BASE_URL
+# Edit dashboard/src/lib/api.ts:
+# const API_BASE_URL = 'https://nexus-api.miket-phan.workers.dev/api';
+
+# 4. Clear build cache and rebuild
+cd dashboard
+Remove-Item -Recurse -Force dist
+npm run build
+Add-Content dist\index.html "`n"  # Force file change
+npx wrangler pages deploy dist --project-name=nexus-dashboard
+```
+
+---
+
+### Issue: "0 files uploaded" on Deploy
+**Symptoms:** Cloudflare Pages says "0 files changed"
+
+**Cause:** Pages cache thinks files are identical
+
+**Fix:** Force a file change:
+```bash
+Add-Content dist\index.html "`n"  # Add newline
+# OR
+echo. >> dist\index.html
+```
+
+Then redeploy.
+
+---
+
+### Issue: SSL Error on Fresh Deploy
+**Symptoms:** `ERR_SSL_VERSION_OR_CIPHER_MISMATCH`
+
+**Cause:** SSL certificate still propagating
+
+**Fix:** Wait 30-60 seconds, refresh. Or try different browser.
+
+---
+
+### Issue: Black Screen After Load
+**Symptoms:** Dashboard flashes content then goes black
+
+**Cause:** JavaScript runtime error (usually data format mismatch)
+
+**Fix:**
+1. Open browser DevTools (F12)
+2. Check Console for error
+3. Verify API response format matches frontend expectations
+
+**Common mismatches:**
+- API returns `{data:{projects:[]}}`, frontend expects `[]`
+- API returns `{title:"..."}`, frontend expects `{name:"..."}`
+
+---
+
 ## Database Issues
 
 ### Error: "D1 database not found"
