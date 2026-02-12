@@ -351,7 +351,8 @@ const App: React.FC = () => {
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
           borderBottom: '1px solid rgba(153, 27, 27, 0.3)',
-          padding: '16px 24px',
+          padding: '20px 48px',
+          marginBottom: '24px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -374,8 +375,8 @@ const App: React.FC = () => {
           <div
             className="baymax-icon animate-visor-glow"
             style={{
-              width: '48px',
-              height: '48px',
+              width: '40px',
+              height: '40px',
               filter: 'drop-shadow(0 0 20px rgba(224, 242, 254, 0.5))',
               cursor: 'pointer',
             }}
@@ -387,11 +388,12 @@ const App: React.FC = () => {
             <h1
               style={{
                 margin: 0,
-                fontSize: '24px',
+                fontSize: '20px',
                 fontWeight: 700,
                 color: '#f8fafc',
                 letterSpacing: '-0.5px',
                 textShadow: '0 0 30px rgba(248, 250, 252, 0.2)',
+                whiteSpace: 'nowrap',
               }}
             >
               Baymax Nexus
@@ -470,61 +472,61 @@ const App: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 px-4 py-3 md:p-6 max-w-[1800px] mx-auto relative z-10 w-full">
+      <main style={{ padding: '0 32px' }} className="flex-1 max-w-[1800px] mx-auto relative z-10 w-full">
         {/* Main Layout - Stack everything on mobile */}
-        <div className="flex flex-col gap-3 md:gap-5">
+        <div className="flex flex-col gap-6">
           
           {/* Mobile: Usage & Services - Full width, above projects */}
-          <div className="flex flex-col gap-3 md:hidden">
-            <SimpleCard className="p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-sm">📊</span>
-                <span className="text-xs font-semibold text-slate-100">Usage</span>
+          <div className="flex flex-col gap-6 md:hidden">
+            <SimpleCard style={{ padding: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '24px' }}>
+                <span style={{ fontSize: '16px' }}>📊</span>
+                <span style={{ fontSize: '14px', fontWeight: 600, color: '#f8fafc' }}>Usage</span>
               </div>
               <UsageLimits />
             </SimpleCard>
 
-            <SimpleCard className="p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-sm">🔌</span>
-                <span className="text-xs font-semibold text-slate-100">Services</span>
+            <SimpleCard style={{ padding: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '24px' }}>
+                <span style={{ fontSize: '16px' }}>🔌</span>
+                <span style={{ fontSize: '14px', fontWeight: 600, color: '#f8fafc' }}>Services</span>
               </div>
               <ConnectedServices />
             </SimpleCard>
           </div>
 
           {/* Projects Section - Full width */}
-          <SimpleCard className="flex-1 p-4 md:p-4 overflow-hidden">
-            <div className="flex items-center gap-2 mb-2 md:mb-3">
-              <span className="text-sm">📋</span>
-              <span className="text-xs font-semibold text-slate-100">Projects</span>
+          <SimpleCard style={{ padding: '24px', flex: 1 }} className="overflow-hidden">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '16px' }}>
+              <span style={{ fontSize: '16px' }}>📋</span>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#f8fafc' }}>Projects</span>
             </div>
             <ProjectsKanban refreshKey={projectsRefreshKey} />
           </SimpleCard>
 
           {/* Desktop: Sidebar */}
-          <div className="hidden md:flex gap-5">
-            <div className="w-[280px] flex-shrink-0 flex flex-col gap-4">
+          <div className="hidden md:flex gap-6">
+            <div className="w-[280px] flex-shrink-0 flex flex-col gap-6">
               <SimpleCard className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-sm">📊</span>
-                  <span className="text-xs font-semibold text-slate-100">Usage</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '14px' }}>📊</span>
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc' }}>Usage</span>
                 </div>
                 <UsageLimits />
               </SimpleCard>
 
               <SimpleCard className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-sm">🔌</span>
-                  <span className="text-xs font-semibold text-slate-100">Services</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '14px' }}>🔌</span>
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc' }}>Services</span>
                 </div>
                 <ConnectedServices />
               </SimpleCard>
 
-              <SimpleCard className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-sm">📖</span>
-                  <span className="text-xs font-semibold text-slate-100">Operations Manual</span>
+              <SimpleCard className="p-8">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '24px' }}>
+                  <span style={{ fontSize: '16px' }}>📖</span>
+                  <span style={{ fontSize: '14px', fontWeight: 600, color: '#f8fafc' }}>Operations Manual</span>
                 </div>
                 <OperationsManual />
               </SimpleCard>
@@ -532,10 +534,10 @@ const App: React.FC = () => {
           </div>
 
           {/* Mobile: Operations Manual */}
-          <SimpleCard className="md:hidden p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs">📖</span>
-              <span className="text-[10px] font-semibold text-slate-100">Operations Manual</span>
+          <SimpleCard style={{ padding: '32px' }} className="md:hidden">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '24px' }}>
+              <span style={{ fontSize: '16px' }}>📖</span>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#f8fafc' }}>Operations Manual</span>
             </div>
             <OperationsManual />
           </SimpleCard>

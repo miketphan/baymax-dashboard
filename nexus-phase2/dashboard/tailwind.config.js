@@ -4,6 +4,15 @@ module.exports = {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  safelist: [
+    'px-8',
+    'px-12',
+    'p-8',
+    'px-6',
+    'p-6',
+    'p-5',
+    'p-4',
+  ],
   theme: {
     extend: {
       colors: {

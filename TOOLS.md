@@ -37,4 +37,22 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 
 ---
 
+## Token Usage Tracking
+
+**Location:** `data/token-usage.json`
+
+**Process:** Every session (main or sub-agent) logs usage before ending:
+1. Call `session_status` to get final token count
+2. Append entry to `data/token-usage.json`
+3. Update model totals and daily aggregates
+
+**Nexus Integration:** Usage dashboard section reads from this file via API endpoint (to be added to Nexus API).
+
+**Cost Estimates (rough):**
+- Kimi K2.5: ~$0.50-1.00 / 1M tokens
+- Gemini Flash: ~$0.075 / 1M tokens  
+- Gemini Pro: ~$1.25-2.50 / 1M tokens
+
+---
+
 Add whatever helps you do your job. This is your cheat sheet.

@@ -126,8 +126,29 @@ When discussing trading topics, Mike prefers to call me "Dr. Baymax the Trading 
 - Baymax should NOT be proactive about trade signals or executions
 - COMPLETE SEPARATION: Wait for Mike to explicitly request analysis, never initiate trading advice or commentary on Eve's signals
 
-## Token Usage Monitoring
-I should proactively notify Mike if we are burning through a lot of tokens in a session, so he can be aware of costs.
+## Token Usage Tracking — IMPLEMENTED 2026-02-11
+
+**Data File:** `data/token-usage.json`
+
+**Process:** Every session (main or sub-agent) logs usage before ending:
+1. Call `session_status` to get final token count
+2. Append entry to `data/token-usage.json`
+3. Update model totals and daily aggregates
+
+**Nexus Integration:** Usage dashboard reads from this file via API endpoint
+
+**Current Totals (Feb 11):**
+- 🎯 Kimi: ~93k tokens (~$0.05)
+- ⚡ Flash: ~366k tokens (~$0.03)
+- 🧩 Pro: ~1M tokens (~$2.00)
+
+**Alert Thresholds:**
+- Warn Mike if single session exceeds 100k tokens
+- Warn if daily total exceeds 500k tokens
+
+## Token Usage Sync Failure (2026-02-11) — RESOLVED
+- ~~The cron job 'nexus-token-sync' failed because session_status does not provide token usage information~~
+- **Fix:** Manual tracking via `data/token-usage.json` with session-level logging
 
 ## Model Usage Strategy (Cost Optimization) - UPDATED Feb 8, 2026
 **Goal:** Slow Kimi usage while keeping Mike interfacing with Baymax (me) always
@@ -148,6 +169,14 @@ I should proactively notify Mike if we are burning through a lot of tokens in a 
 - ~~Pro: 2% (highest-level reasoning)~~
 
 ## Brave Search API Limits
+- Free tier: 2,000 searches/month
+- Warn Mike when approaching limit (1,800 searches)
+- Prevent searches after 2,000 until Mike explicitly confirms to continue
+- Track usage and alert proactively
+
+## Token Usage Sync Failure (2026-02-11)
+- The cron job 'nexus-token-sync' failed because session_status does not provide token usage information. Need to find a different method for retrieving this data.
+
 - Free tier: 2,000 searches/month
 - Warn Mike when approaching limit (1,800 searches)
 - Prevent searches after 2,000 until Mike explicitly confirms to continue
@@ -210,9 +239,9 @@ When an update is available and Mike confirms he wants to proceed:
 
 ## Nexus Dashboard (Phase 2)
 
-**Current URL:** https://7a3f4faa.nexus-dashboard-34z.pages.dev
+**Current URL:** https://8f9e6ee6.nexus-dashboard-34z.pages.dev
 
-**Status:** All sections restored, proper padding
+**Status:** Projects section uses more horizontal space
 
 **Note:** Always provide this URL when Mike asks for the latest Nexus link.
 

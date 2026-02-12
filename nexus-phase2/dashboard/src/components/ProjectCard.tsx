@@ -83,7 +83,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = memo(({
       className={`
         relative rounded-lg border ${config.borderClass} ${config.bgClass}
         transition-all duration-200 active:scale-[0.98]
-        ${isMobile ? 'p-2' : 'p-3'}
+        ${isMobile ? 'p-3' : 'p-4'}
       `}
       onClick={handleCardClick}
       {...dragHandleProps}

@@ -97,8 +97,8 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = memo(({
       onDrop={(e) => onDrop(e, status)}
     >
       {/* Column Header - Compact */}
-      <div className="flex justify-between items-center p-2.5 border-b border-white/5 flex-shrink-0">
-        <div className="flex items-center gap-2">
+      <div className="flex justify-between items-center p-3 border-b border-white/5 flex-shrink-0">
+        <div className="flex items-center gap-3">
           <div
             className={`
               w-6 h-6 rounded-md flex items-center justify-center text-xs
@@ -130,7 +130,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = memo(({
       </div>
 
       {/* Projects List - Scrollable */}
-      <div className="flex-1 overflow-y-auto px-2 py-2 space-y-2">
+      <div className="flex-1 overflow-y-auto px-2 py-2 space-y-3">
         {sortedProjects.map((project) => (
           <div
             key={project.id}

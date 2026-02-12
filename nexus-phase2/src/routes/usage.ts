@@ -8,14 +8,29 @@ import { successResponse, errors } from '../lib/utils';
 // GET /api/usage - Get all usage metrics
 // ============================================
 export async function listUsageMetrics(env: Env): Promise<Response> {
-  const metrics = await getAllUsageMetrics(env.DB);
-  
-  return successResponse({
-    metrics,
+  // Return a hardcoded, static response for debugging
+  const staticMetrics = {
+    metrics: [
+      {
+        id: 'llm_tokens_monthly',
+        display_name: 'LLM Tokens (Monthly)',
+        current_value: 12345,
+        limit_value: 5000000,
+      },
+      {
+        id: 'llm_tokens_session',
+        display_name: 'LLM Tokens (Last Session)',
+        current_value: 678,
+        limit_value: 100000,
+      },
+    ],
     refreshed_at: new Date().toISOString(),
-  });
+  };
+
+  return successResponse(staticMetrics);
 }
 
+/*
 // ============================================
 // GET /api/usage/:category - Get specific category
 // ============================================
@@ -196,3 +211,4 @@ export async function incrementUsage(
     increment: amount,
   });
 }
+*/

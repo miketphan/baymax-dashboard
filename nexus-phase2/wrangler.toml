@@ -13,7 +13,7 @@ CORS_ORIGIN = "*"
 [[d1_databases]]
 binding = "DB"
 database_name = "nexus-production"
-database_id = "a135a79d-4b32-4091-9c15-ee937b3c9b53"  # Replace after running: wrangler d1 create nexus-production
+database_id = "a135a79d-4b32-4091-9c15-ee937b3c9b53"
 
 # KV Namespace for caching (optional, for future use)
 # [[kv_namespaces]]
