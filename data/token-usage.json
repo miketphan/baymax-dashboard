@@ -9,9 +9,9 @@
       "name": "Kimi K2.5",
       "emoji": "🎯",
       "purpose": "Daily chat, complex requests, trading discussions",
-      "totalTokensIn": 116000,
+      "totalTokensIn": 116001,
       "totalTokensOut": 250,
-      "totalSessions": 4,
+      "totalSessions": 5,
       "estimatedCost": 0.05
     },
     "google/gemini-2.0-flash": {
@@ -35,7 +35,7 @@
   },
   "daily": {
     "2026-02-11": {
-      "moonshot/kimi-k2.5": { "in": 93200, "out": 250, "cost": 0.05 },
+      "moonshot/kimi-k2.5": { "in": 93201, "out": 250, "cost": 0.05 },
       "google/gemini-2.0-flash": { "in": 366000, "out": 0, "cost": 0.03 },
       "google/gemini-2.5-pro": { "in": 1000000, "out": 0, "cost": 2.00 }
     }
