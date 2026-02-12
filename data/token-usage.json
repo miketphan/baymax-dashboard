@@ -2,7 +2,7 @@
   "meta": {
     "version": "1.0",
     "description": "Token usage tracking across all models and sessions",
-    "lastUpdated": "2026-02-11T21:40:00-05:00"
+    "lastUpdated": "2026-02-11T22:49:00-05:00"
   },
   "models": {
     "moonshot/kimi-k2.5": {
