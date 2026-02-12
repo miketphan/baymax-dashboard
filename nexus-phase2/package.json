@@ -16,12 +16,17 @@
     "dev:dashboard": "cd dashboard && npm run dev",
     "dev:full": "node scripts/dev-with-sync.js"
   },
-  "keywords": ["nexus", "cloudflare", "workers", "d1"],
+  "keywords": [
+    "nexus",
+    "cloudflare",
+    "workers",
+    "d1"
+  ],
   "author": "Baymax",
   "license": "MIT",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240208.0",
     "typescript": "^5.3.3",
-    "wrangler": "^3.28.0"
+    "wrangler": "^4.64.0"
   }
 }

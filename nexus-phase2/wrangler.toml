@@ -15,6 +15,10 @@ binding = "DB"
 database_name = "nexus-production"
 database_id = "a135a79d-4b32-4091-9c15-ee937b3c9b53"
 
+[[kv_namespaces]]
+binding = "NEXUS_USAGE_STORE"
+id = "7f537d58786c41bd917f95c6de384a10"
+
 # KV Namespace for caching (optional, for future use)
 # [[kv_namespaces]]
 # binding = "CACHE"

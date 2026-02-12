@@ -1,34 +1,64 @@
-// Usage & Limits API Routes
+// Temp Type Definitions (until types.ts is found)
+import type { KVNamespace, D1Database } from '@cloudflare/workers-types';
 
-import type { Env, UsageMetric } from '../types';
-import { getAllUsageMetrics, getUsageMetricByCategory, updateUsageMetric } from '../lib/db';
+export interface Env {
+	DB: D1Database;
+	NEXUS_USAGE_STORE: KVNamespace;
+    CORS_ORIGIN: string;
+    API_VERSION: string;
+    ENVIRONMENT: string;
+}
+
+// Usage & Limits API Routes
 import { successResponse, errors } from '../lib/utils';
 
 // ============================================
-// GET /api/usage - Get all usage metrics
+// GET /api/usage - Get all usage metrics from KV
 // ============================================
 export async function listUsageMetrics(env: Env): Promise<Response> {
-  // Return a hardcoded, static response for debugging
-  const staticMetrics = {
-    metrics: [
+  try {
+    const kvData = await env.NEXUS_USAGE_STORE.get('LATEST_USAGE_DATA');
+
+    if (!kvData) {
+      return successResponse({ metrics: [], refreshed_at: new Date().toISOString() });
+    }
+
+    const tokenData = JSON.parse(kvData);
+    
+    let totalMonthlyTokens = 0;
+    let totalMonthlyCost = 0;
+    for (const modelKey in tokenData.models) {
+      const model = tokenData.models[modelKey as keyof typeof tokenData.models];
+      totalMonthlyTokens += (model.totalTokensIn || 0) + (model.totalTokensOut || 0);
+      totalMonthlyCost += (model.estimatedCost || 0);
+    }
+    
+    const lastSession = tokenData.sessions[tokenData.sessions.length - 1];
+    const lastSessionTokens = (lastSession.tokensIn || 0) + (lastSession.tokensOut || 0);
+
+    const metrics = [
       {
         id: 'llm_tokens_monthly',
         display_name: 'LLM Tokens (Monthly)',
-        current_value: 12345,
+        current_value: totalMonthlyTokens,
         limit_value: 5000000,
+        cost_estimate: { current_cost: totalMonthlyCost },
       },
       {
         id: 'llm_tokens_session',
         display_name: 'LLM Tokens (Last Session)',
-        current_value: 678,
+        current_value: lastSessionTokens,
         limit_value: 100000,
-      },
-    ],
-    refreshed_at: new Date().toISOString(),
-  };
+      }
+    ];
 
-  return successResponse(staticMetrics);
+    return successResponse({ metrics, refreshed_at: new Date().toISOString() });
+  } catch (e) {
+    console.error("Error fetching or parsing from KV:", e);
+    return errors.internalError("Could not retrieve usage data.");
+  }
 }
+
 
 /*
 // ============================================

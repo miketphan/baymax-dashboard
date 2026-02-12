@@ -175,7 +175,8 @@ When discussing trading topics, Mike prefers to call me "Dr. Baymax the Trading 
 - Track usage and alert proactively
 
 ## Token Usage Sync Failure (2026-02-11)
-- The cron job 'nexus-token-sync' failed because session_status does not provide token usage information. Need to find a different method for retrieving this data.
+- The cron job 'nexus-token-sync' failed because session_status does not provide token usage information.
+- session_status does not provide token usage information. Need to find a different method for retrieving this data.
 
 - Free tier: 2,000 searches/month
 - Warn Mike when approaching limit (1,800 searches)

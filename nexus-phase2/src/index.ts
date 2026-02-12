@@ -30,9 +30,6 @@ import {
 
 import {
   listUsageMetrics,
-  getUsageCategory,
-  syncUsageCategory,
-  syncAllUsage,
 } from './routes/usage';
 
 import {
@@ -147,21 +144,6 @@ const routes: Route[] = [
     pattern: /^\/api\/usage$/,
     methods: {
       GET: async (env: Env) => listUsageMetrics(env),
-      POST: async (env: Env) => syncAllUsage(env),
-    },
-  },
-  {
-    pattern: /^\/api\/usage\/(?<category>[^/]+)$/,
-    methods: {
-      GET: async (env: Env, _request: Request, params: Record<string, string>) => 
-        getUsageCategory(env, params.category),
-    },
-  },
-  {
-    pattern: /^\/api\/usage\/(?<category>[^/]+)\/sync$/,
-    methods: {
-      POST: async (env: Env, _request: Request, params: Record<string, string>) => 
-        syncUsageCategory(env, params.category),
     },
   },
   
