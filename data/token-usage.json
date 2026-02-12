@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "version": "1.0",
+    "description": "Token usage tracking across all models and sessions",
+    "lastUpdated": "2026-02-11T21:40:00-05:00"
+  },
+  "models": {
+    "moonshot/kimi-k2.5": {
+      "name": "Kimi K2.5",
+      "emoji": "🎯",
+      "purpose": "Daily chat, complex requests, trading discussions",
+      "totalTokensIn": 93200,
+      "totalTokensOut": 250,
+      "totalSessions": 4,
+      "estimatedCost": 0.05
+    },
+    "google/gemini-2.0-flash": {
+      "name": "Gemini Flash",
+      "emoji": "⚡",
+      "purpose": "Simple tasks, file edits, research, web searches",
+      "totalTokensIn": 366000,
+      "totalTokensOut": 0,
+      "totalSessions": 3,
+      "estimatedCost": 0.03
+    },
+    "google/gemini-2.5-pro": {
+      "name": "Gemini Pro",
+      "emoji": "🧩",
+      "purpose": "Deep analysis, complex strategy, knowledge base building",
+      "totalTokensIn": 1000000,
+      "totalTokensOut": 0,
+      "totalSessions": 1,
+      "estimatedCost": 2.00
+    }
+  },
+  "daily": {
+    "2026-02-11": {
+      "moonshot/kimi-k2.5": { "in": 93200, "out": 250, "cost": 0.05 },
+      "google/gemini-2.0-flash": { "in": 366000, "out": 0, "cost": 0.03 },
+      "google/gemini-2.5-pro": { "in": 1000000, "out": 0, "cost": 2.00 }
+    }
+  },
+  "sessions": [
+    {
+      "id": "f0afcc32-d297-4f00-afd4-5faebc4bb646",
+      "date": "2026-02-11",
+      "model": "moonshot/kimi-k2.5",
+      "label": "main",
+      "tokensIn": 27600,
+      "tokensOut": 98,
+      "purpose": "Gateway recovery, delegation testing"
+    },
+    {
+      "id": "4629b47c-2c4c-4e32-9848-8acda3d3b0fe",
+      "date": "2026-02-11",
+      "model": "moonshot/kimi-k2.5",
+      "label": "cron:nexus-token-sync",
+      "tokensIn": 22800,
+      "tokensOut": 0,
+      "purpose": "Background sync job"
+    },
+    {
+      "id": "137e5aec-94a0-40d9-8af0-67bb52a6019a",
+      "date": "2026-02-11",
+      "model": "moonshot/kimi-k2.5",
+      "label": "cron:healthcheck:update-status",
+      "tokensIn": 13500,
+      "tokensOut": 0,
+      "purpose": "Healthcheck updates"
+    },
+    {
+      "id": "70dcfbc9-e914-43a9-a8a1-c602673b5d85",
+      "date": "2026-02-11",
+      "model": "moonshot/kimi-k2.5",
+      "label": "cron:healthcheck:security-audit",
+      "tokensIn": 29300,
+      "tokensOut": 0,
+      "purpose": "Security audit"
+    }
+  ]
+}
